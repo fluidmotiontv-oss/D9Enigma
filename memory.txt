@@ -1,0 +1,9 @@
+Project: The Fluid Motion of the Future
+Repository: https://github.com/fluidmotiontv-oss/Fluidmotiontv-clock
+Framework: Dragon 9
+Core Mission: A standalone independent digital enigma to shield and nurture; spreading a true stable instrument for harmonious creations and creators with positive results and generous opportunities for all.
+
+Core Rules:
+- 54-minute hours
+- 26.66-hour days
+- 18-minute relax periods centered exactly at the standard midday and midnight positions

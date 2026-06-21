@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Stem Crate | Digital EP</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #06060a;
+            --accent: #00e5ff;
+            --accent-glow: rgba(0, 229, 255, 0.25);
+            --highlight: #ff0080;
+            --highlight-glow: rgba(255, 0, 128, 0.25);
+            --text-main: #e2e8f0;
+            --text-muted: #5d4e75;
+            --panel-bg: rgba(10, 10, 15, 0.7);
+            --border-color: rgba(0, 229, 255, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient scanlines overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.01), rgba(0, 255, 255, 0.005), rgba(255, 0, 128, 0.01));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* --- LOCK SCREEN VIEW --- */
+        .lock-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #0a0e17 0%, #020306 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: transform 1s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.8s ease;
+        }
+
+        .lock-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            width: 380px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 30px var(--accent-glow);
+            transition: all 0.5s ease;
+        }
+
+        .lock-logo {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+            animation: pulse-logo 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        .lock-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .lock-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .pass-input {
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .pass-input:focus {
+            border-color: var(--highlight);
+            box-shadow: 0 0 12px var(--highlight-glow);
+        }
+
+        .unlock-btn {
+            width: 100%;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1.5px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .unlock-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: scale(1.02);
+        }
+
+        .error-msg {
+            color: #ff3366;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-msg.visible {
+            opacity: 1;
+        }
+
+        /* --- MIXER PORTAL VIEW --- */
+        .portal-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(5,5,5,0.9), transparent);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            z-index: 20;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Mixer Controls Layout */
+        .mixer-grid {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Track Info Panel */
+        .track-info-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .track-selector {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            width: 100%;
+            outline: none;
+        }
+
+        .album-art-placeholder {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(255, 0, 128, 0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+        }
+
+        .rotating-vinyl {
+            animation: rotate-vinyl 8s linear infinite;
+            animation-play-state: paused;
+        }
+
+        @keyframes rotate-vinyl {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stem Faders Panel */
+        .faders-panel {
+            flex: 1.5;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 450px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .stem-fader-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stem-label {
+            width: 100px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .fader-slider-wrap {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .fader-input {
+            width: 100%;
+            -webkit-appearance: none;
+            background: rgba(0,0,0,0.6);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .fader-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: background 0.3s;
+        }
+
+        .fader-input::-webkit-slider-thumb:hover {
+            background: #fff;
+        }
+
+        .mute-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .mute-btn.active {
+            background: rgba(255, 0, 128, 0.2);
+            border-color: var(--highlight);
+            color: var(--highlight);
+            box-shadow: 0 0 8px var(--highlight-glow);
+        }
+
+        .play-master-btn {
+            width: 100%;
+            background: rgba(0, 229, 255, 0.1);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 15px;
+        }
+
+        .play-master-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        /* --- THE GATEWAY CTA FOOTER --- */
+        .footer-gateway {
+            padding: 25px;
+            text-align: center;
+            background: linear-gradient(to top, rgba(5,5,5,0.9), transparent);
+            border-top: 1px solid rgba(255,255,255,0.03);
+            z-index: 20;
+        }
+
+        .gateway-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: rgba(255, 0, 128, 0.05);
+            border: 1.5px solid var(--highlight);
+            border-radius: 30px;
+            padding: 10px 30px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gateway-btn:hover {
+            background: var(--highlight);
+            color: #000;
+            box-shadow: 0 0 20px var(--highlight-glow);
+            transform: translateY(-2px);
+        }
+
+        /* --- ADMIN CONFIG MODAL --- */
+        .admin-panel {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 440px; max-width: 90%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 25px var(--accent-glow);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .admin-panel.open {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .admin-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .admin-row {
+            margin-bottom: 12px;
+        }
+        .admin-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .admin-input {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 0.8rem;
+            outline: none;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .admin-save-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .admin-save-btn:hover {
+            background: #fff;
+        }
+        .admin-gear {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+        .admin-gear:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Admin Suite Gear Toggle -->
+    <div class="admin-gear" onclick="toggleAdminPanel()" title="White-Label Admin Suite">⚙️</div>
+
+    <!-- White-Label Admin Panel Modal -->
+    <div class="admin-panel" id="admin-modal" style="width: 460px;">
+        <div class="admin-title" style="margin-bottom: 5px;">PORTAL STEM GENERATOR & MINTING</div>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+            <button id="tab-btn-config" onclick="switchAdminTab('config')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700; background: var(--accent); color: #000; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 1px;">1. CRATE CONFIG</button>
+            <button id="tab-btn-songs" onclick="switchAdminTab('songs')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700; background: rgba(255,255,255,0.05); color: #888; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 1px;">2. MANAGE SONGS</button>
+        </div>
+        
+        <!-- Tab 1: Crate Configuration -->
+        <div id="admin-tab-config">
+            <div class="admin-row">
+                <label class="admin-label">EP / Crate Release Title</label>
+                <input type="text" id="admin-crate-title" class="admin-input" placeholder="e.g. FUTURE FORWARD EP">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Artist/Producer Name</label>
+                <input type="text" id="admin-artist-name" class="admin-input" placeholder="e.g. Corey">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Decryption Password (Sealed Vault Key)</label>
+                <input type="text" id="admin-vault-key" class="admin-input" placeholder="e.g. BEATS_FLOW">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Resale License Value Display</label>
+                <input type="text" id="admin-price" class="admin-input" placeholder="e.g. $25.00 USD">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Stem System Theme Accent</label>
+                <select id="admin-color-select" class="admin-input" style="color: #fff; background: #000;">
+                    <option value="#00e5ff">Cyber Cyan (#00e5ff)</option>
+                    <option value="#d4af37">Gold (#d4af37)</option>
+                    <option value="#ff0080">Hot Magenta (#ff0080)</option>
+                    <option value="#00ff41">Matrix Green (#00ff41)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tab 2: Manage and Add Songs -->
+        <div id="admin-tab-songs" style="display: none;">
+            <!-- Scrollable list of current songs -->
+            <label class="admin-label" style="font-weight: 700; color: #fff;">Current Beat-Pack Tracks</label>
+            <div id="admin-songs-list" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; max-height: 120px; overflow-y: auto; padding: 8px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Form to add a song -->
+            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
+                <span class="admin-label" style="font-weight: 700; color: #fff; margin-bottom: 8px;">➕ Add Song to EP</span>
+                
+                <div class="admin-row">
+                    <input type="text" id="new-song-title" class="admin-input" placeholder="Song Title (e.g. DARK LAWD)">
+                </div>
+                <div class="admin-row">
+                    <input type="text" id="new-song-desc" class="admin-input" placeholder="Short Description / Style Bio">
+                </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <div style="flex: 1.2;">
+                        <label class="admin-label">Synthesis Loop Profile</label>
+                        <select id="new-song-synth" class="admin-input" style="color: #fff; background: #000; padding: 7px;">
+                            <option value="beat6">Synth Beat (120 BPM)</option>
+                            <option value="bassline">Deep Drones (90 BPM)</option>
+                            <option value="harmony">Retro Arps (135 BPM)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 0.8;">
+                        <label class="admin-label">Tempo (BPM)</label>
+                        <input type="number" id="new-song-bpm" class="admin-input" style="padding: 7px;" value="120" min="60" max="200">
+                    </div>
+                </div>
+                <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 0;" onclick="addNewSongToState()">+ ADD SONG TO LIST</button>
+            </div>
+        </div>
+
+        <button class="admin-save-btn" style="background: var(--accent); color: #000; margin-top: 15px; font-weight: 900;" onclick="saveAdminSettings()">🚀 PUBLISH ALBUM ASSET</button>
+        <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 5px; font-weight: 900;" onclick="exportStandaloneHTML()">📥 DOWNLOAD STANDALONE HTML</button>
+        <button class="admin-save-btn" style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;" onclick="toggleAdminPanel()">CANCEL</button>
+    </div>
+
+    <!-- SECURE SEALED VAULT PASS SCREEN -->
+    <div class="lock-container" id="lock-screen">
+        <div class="lock-card">
+            <div class="lock-logo">🎵</div>
+            <h2 class="lock-title" id="lock-card-title">Stem Crate</h2>
+            <p class="lock-subtitle" id="lock-card-subtitle">Exclusive Digital Beat-Pack</p>
+            <div class="pass-input-wrapper">
+                <input type="password" id="vault-pass" class="pass-input" placeholder="DECRYPTION KEY" onkeydown="handleKey(event)">
+            </div>
+            <button class="unlock-btn" onclick="attemptDecrypt()">DECRYPT VAULT</button>
+            <div class="error-msg" id="error-alert">ACCESS DENIED • KEY NOT VALID</div>
+            <div id="price-tag-display" style="font-size: 0.65rem; color: var(--accent); margin-top: 15px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; font-weight: 700;">
+                LICENSE VALUE: $25.00 USD
+            </div>
+            <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 10px; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;">
+                DEFAULT DECRYPTION KEY: <span id="hint-key-label" style="color: var(--accent);">BEATS_FLOW</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN IMMERSIVE PORTAL GATEWAY -->
+    <div class="portal-container" id="portal-view">
+        <header class="header">
+            <div class="logo-text" id="portal-logo">STEM MIXER</div>
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--accent);" id="session-brand">LICENSED FOR: COREY</div>
+        </header>
+
+        <!-- IMMERSIVE INTERACTIVE STEM MIXER VIEW -->
+        <main class="mixer-grid">
+            
+            <!-- Track Info & Visual Vinyl -->
+            <div class="track-info-panel">
+                <div class="admin-label">SELECT TRACK</div>
+                <select id="track-mix-select" class="track-selector" onchange="changeTrack(this.value)">
+                    <option value="beat6">TRACK 01: FUTURE FRWARD beat 6</option>
+                    <option value="bassline">TRACK 02: DEEP SYNTH DRONES</option>
+                    <option value="harmony">TRACK 03: RAINBOW IN THE DARK</option>
+                </select>
+
+                <div class="album-art-placeholder">
+                    <div class="rotating-vinyl" id="vinyl-disc">💿</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 10px;">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 700;" id="current-track-name">FUTURE FRWARD BEAT 6</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;" id="current-track-desc">High-resonance drum synth and filtered vocal loop matrix.</div>
+                </div>
+            </div>
+
+            <!-- Faders & Mute Buttons -->
+            <div class="faders-panel">
+                <div class="admin-label" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">INTERACTIVE STEM MIXER</div>
+                
+                <!-- Drums Stem -->
+                <div class="stem-fader-row">
+                    <div class="stem-label">🥁 DRUMS</div>
+                    <div class="fader-slider-wrap">
+                        <input type="range" id="fader-drums" class="fader-input" min="0" max="1" step="0.05" value="0.8" oninput="setStemVolume('drums', this.value)">
+                    </div>
+                    <button class="mute-btn" id="mute-drums" onclick="toggleMute('drums')">MUTE</button>
+                </div>
+
+                <!-- Bass Stem -->
+                <div class="stem-fader-row">
+                    <div class="stem-label">🎸 BASS</div>
+                    <div class="fader-slider-wrap">
+                        <input type="range" id="fader-bass" class="fader-input" min="0" max="1" step="0.05" value="0.8" oninput="setStemVolume('bass', this.value)">
+                    </div>
+                    <button class="mute-btn" id="mute-bass" onclick="toggleMute('bass')">MUTE</button>
+                </div>
+
+                <!-- Melody Stem -->
+                <div class="stem-fader-row">
+                    <div class="stem-label">🎹 MELODY</div>
+                    <div class="fader-slider-wrap">
+                        <input type="range" id="fader-melody" class="fader-input" min="0" max="1" step="0.05" value="0.8" oninput="setStemVolume('melody', this.value)">
+                    </div>
+                    <button class="mute-btn" id="mute-melody" onclick="toggleMute('melody')">MUTE</button>
+                </div>
+
+                <!-- Vocals Stem -->
+                <div class="stem-fader-row">
+                    <div class="stem-label">🎤 VOCALS</div>
+                    <div class="fader-slider-wrap">
+                        <input type="range" id="fader-vocals" class="fader-input" min="0" max="1" step="0.05" value="0.8" oninput="setStemVolume('vocals', this.value)">
+                    </div>
+                    <button class="mute-btn" id="mute-vocals" onclick="toggleMute('vocals')">MUTE</button>
+                </div>
+
+                <!-- Play/Stop Master Button -->
+                <button class="play-master-btn" id="btn-master-play" onclick="toggleMasterPlay()">⚡ START AUDIO RESONANCE</button>
+            </div>
+        </main>
+
+        <!-- THE GATEWAY CTA FUNNEL -->
+        <footer class="footer-gateway">
+            <a href="http://localhost:8000/index.html" class="gateway-btn">
+                SEE WHAT WE'RE UP TO <span>➡️</span>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        // --- WEB AUDIO MIXER SYNTH ENGINE ---
+        let audioCtx = null;
+        let isPlaying = false;
+        
+        // Node holders
+        let drumsNode = null, bassNode = null, melodyNode = null, vocalsNode = null;
+        let drumsGain = null, bassGain = null, melodyGain = null, vocalsGain = null;
+
+        // Mixer fader/mute state
+        let mixerState = {
+            drums: { val: 0.8, muted: false },
+            bass: { val: 0.8, muted: false },
+            melody: { val: 0.8, muted: false },
+            vocals: { val: 0.8, muted: false },
+            tempo: 120
+        };
+
+        const defaultTracks = [
+            { id: "beat6", title: "FUTURE FRWARD BEAT 6", desc: "High-resonance drum synth and filtered vocal loop matrix.", tempo: 120, synth: "beat6" },
+            { id: "bassline", title: "DEEP SYNTH DRONES", desc: "Low-end analog sawtooth drones and metallic melody clicks.", tempo: 90, synth: "bassline" },
+            { id: "harmony", title: "RAINBOW IN THE DARK", desc: "Lively retro detuned arpeggiators and floating synth chords.", tempo: 135, synth: "harmony" }
+        ];
+
+        let currentTrackId = 'beat6';
+
+        function getTrackById(trackId) {
+            return currentSettings.tracks.find(t => t.id === trackId) || defaultTracks[0];
+        }
+
+        function initAudioEngine() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Create Gain Nodes
+            drumsGain = audioCtx.createGain();
+            bassGain = audioCtx.createGain();
+            melodyGain = audioCtx.createGain();
+            vocalsGain = audioCtx.createGain();
+
+            // Connect Gain Nodes to destination
+            drumsGain.connect(audioCtx.destination);
+            bassGain.connect(audioCtx.destination);
+            melodyGain.connect(audioCtx.destination);
+            vocalsGain.connect(audioCtx.destination);
+
+            applyMixerGainValues();
+            startSynthLoops();
+        }
+
+        function applyMixerGainValues() {
+            if (!audioCtx) return;
+            drumsGain.gain.setValueAtTime(mixerState.drums.muted ? 0 : mixerState.drums.val, audioCtx.currentTime);
+            bassGain.gain.setValueAtTime(mixerState.bass.muted ? 0 : mixerState.bass.val, audioCtx.currentTime);
+            melodyGain.gain.setValueAtTime(mixerState.melody.muted ? 0 : mixerState.melody.val, audioCtx.currentTime);
+            vocalsGain.gain.setValueAtTime(mixerState.vocals.muted ? 0 : mixerState.vocals.val, audioCtx.currentTime);
+        }
+
+        function setStemVolume(stem, val) {
+            mixerState[stem].val = parseFloat(val);
+            applyMixerGainValues();
+        }
+
+        function toggleMute(stem) {
+            mixerState[stem].muted = !mixerState[stem].muted;
+            const btn = document.getElementById(`mute-${stem}`);
+            if (mixerState[stem].muted) {
+                btn.classList.add('active');
+                btn.innerText = "MUTED";
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = "MUTE";
+            }
+            applyMixerGainValues();
+        }
+
+        // --- WEB AUDIO POLYPHONIC LOOP GENERATOR ---
+        function startSynthLoops() {
+            if (!audioCtx) return;
+
+            // Simple Drum Loop (White noise click + low bass drum)
+            drumsNode = audioCtx.createScriptProcessor(4096, 0, 1);
+            let drumsPhase = 0;
+            drumsNode.onaudioprocess = function(e) {
+                const out = e.outputBuffer.getChannelData(0);
+                const step = 60 / mixerState.tempo / 4; // 16th note step
+                const sampleRate = audioCtx.sampleRate;
+                const samplesPerStep = Math.floor(step * sampleRate);
+
+                for (let i = 0; i < out.length; i++) {
+                    const stepIdx = Math.floor((drumsPhase + i) / samplesPerStep) % 16;
+                    const clickIdx = (drumsPhase + i) % samplesPerStep;
+
+                    let sample = 0;
+                    // Kick Drum on steps 0, 4, 8, 12
+                    if (stepIdx % 4 === 0 && clickIdx < samplesPerStep * 0.25) {
+                        const freq = 120 * Math.exp(-clickIdx / (samplesPerStep * 0.08));
+                        sample += Math.sin(2 * Math.PI * freq * (clickIdx / sampleRate)) * 0.8;
+                    }
+                    // Snare click on steps 4, 12
+                    if ((stepIdx === 4 || stepIdx === 12) && clickIdx < samplesPerStep * 0.15) {
+                        sample += (Math.random() - 0.5) * 0.25;
+                    }
+                    // Hi-hat on odd steps
+                    if (stepIdx % 2 !== 0 && clickIdx < samplesPerStep * 0.05) {
+                        sample += (Math.random() - 0.5) * 0.15;
+                    }
+                    out[i] = sample * 0.5;
+                }
+                drumsPhase += out.length;
+            };
+            drumsNode.connect(drumsGain);
+
+            // Simple Bass Synth Loop
+            bassNode = audioCtx.createScriptProcessor(4096, 0, 1);
+            let bassPhase = 0;
+            const bassNotes = {
+                beat6: [55.00, 55.00, 65.41, 65.41, 73.42, 73.42, 55.00, 82.41], // A1, C2, D2, E2
+                bassline: [41.20, 41.20, 48.99, 48.99, 51.91, 51.91, 41.20, 61.74], // E1, G1, Ab1, B1
+                harmony: [65.41, 65.41, 82.41, 82.41, 73.42, 73.42, 98.00, 87.31] // C2, E2, D2, G2
+            };
+            bassNode.onaudioprocess = function(e) {
+                const out = e.outputBuffer.getChannelData(0);
+                const step = 60 / mixerState.tempo / 2; // 8th note step
+                const sampleRate = audioCtx.sampleRate;
+                const samplesPerStep = Math.floor(step * sampleRate);
+
+                const activeTrack = currentSettings.tracks.find(t => t.id === currentTrackId) || { synth: 'beat6' };
+                const synthProfile = activeTrack.synth || 'beat6';
+
+                for (let i = 0; i < out.length; i++) {
+                    const stepIdx = Math.floor((bassPhase + i) / samplesPerStep) % 8;
+                    const clickIdx = (bassPhase + i) % samplesPerStep;
+
+                    const notes = bassNotes[synthProfile] || bassNotes['beat6'];
+                    const freq = notes[stepIdx];
+                    // Triangle Wave bassline
+                    const t = (bassPhase + i) / sampleRate;
+                    let sample = Math.abs((t * freq) % 1 - 0.5) * 4 - 1; // Triangle wave approximation
+                    
+                    // Filter decay envelope
+                    const env = Math.exp(-clickIdx / (samplesPerStep * 0.7));
+                    out[i] = sample * env * 0.35;
+                }
+                bassPhase += out.length;
+            };
+            bassNode.connect(bassGain);
+
+            // Arpeggiated Melody Synth Loop
+            melodyNode = audioCtx.createScriptProcessor(4096, 0, 1);
+            let melodyPhase = 0;
+            const melodyPitches = {
+                beat6: [220.00, 275.00, 330.00, 412.50, 440.00, 550.00, 660.00, 825.00],
+                bassline: [147.01, 196.00, 220.00, 294.02, 330.00, 392.00, 440.00, 587.33],
+                harmony: [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50, 880.00]
+            };
+            melodyNode.onaudioprocess = function(e) {
+                const out = e.outputBuffer.getChannelData(0);
+                const step = 60 / mixerState.tempo / 4; // 16th note step
+                const sampleRate = audioCtx.sampleRate;
+                const samplesPerStep = Math.floor(step * sampleRate);
+
+                const activeTrack = currentSettings.tracks.find(t => t.id === currentTrackId) || { synth: 'beat6' };
+                const synthProfile = activeTrack.synth || 'beat6';
+
+                for (let i = 0; i < out.length; i++) {
+                    const stepIdx = Math.floor((melodyPhase + i) / samplesPerStep) % 8;
+                    const clickIdx = (melodyPhase + i) % samplesPerStep;
+
+                    const pitches = melodyPitches[synthProfile] || melodyPitches['beat6'];
+                    const freq = pitches[stepIdx];
+                    // Sine Wave arpeggiator
+                    const t = (melodyPhase + i) / sampleRate;
+                    const sample = Math.sin(2 * Math.PI * freq * t);
+                    
+                    // Decaying click envelope
+                    const env = Math.exp(-clickIdx / (samplesPerStep * 0.3));
+                    out[i] = sample * env * 0.25;
+                }
+                melodyPhase += out.length;
+            };
+            melodyNode.connect(melodyGain);
+
+            // Filtered Chords/Vocal Pad Loop
+            vocalsNode = audioCtx.createScriptProcessor(4096, 0, 1);
+            let vocalsPhase = 0;
+            const chordPitches = {
+                beat6: [220.0, 330.0],
+                bassline: [164.8, 246.9],
+                harmony: [261.6, 392.0]
+            };
+            vocalsNode.onaudioprocess = function(e) {
+                const out = e.outputBuffer.getChannelData(0);
+                const sampleRate = audioCtx.sampleRate;
+
+                const activeTrack = currentSettings.tracks.find(t => t.id === currentTrackId) || { synth: 'beat6' };
+                const synthProfile = activeTrack.synth || 'beat6';
+                
+                for (let i = 0; i < out.length; i++) {
+                    const t = (vocalsPhase + i) / sampleRate;
+                    const chords = chordPitches[synthProfile] || chordPitches['beat6'];
+                    const f1 = chords[0];
+                    const f2 = chords[1];
+
+                    // Combined sine chords filter sweep simulation
+                    const mod = Math.sin(2 * Math.PI * 0.25 * t); // Slow LFO
+                    const sample = (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)) * (0.3 + 0.1 * mod);
+                    out[i] = sample * 0.3;
+                }
+                vocalsPhase += out.length;
+            };
+            vocalsNode.connect(vocalsGain);
+        }
+
+        function stopSynthLoops() {
+            if (drumsNode) { drumsNode.disconnect(); drumsNode = null; }
+            if (bassNode) { bassNode.disconnect(); bassNode = null; }
+            if (melodyNode) { melodyNode.disconnect(); melodyNode = null; }
+            if (vocalsNode) { vocalsNode.disconnect(); vocalsNode = null; }
+        }
+
+        function toggleMasterPlay() {
+            const btn = document.getElementById('btn-master-play');
+            const vinyl = document.getElementById('vinyl-disc');
+            if (isPlaying) {
+                // Stop audio
+                stopSynthLoops();
+                isPlaying = false;
+                btn.innerText = "⚡ START AUDIO RESONANCE";
+                btn.style.background = "rgba(0, 229, 255, 0.1)";
+                btn.style.borderColor = "var(--accent)";
+                vinyl.style.animationPlayState = 'paused';
+            } else {
+                // Start Audio context & loops
+                initAudioEngine();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                isPlaying = true;
+                btn.innerText = "🛑 HALT AUDIO RESONANCE";
+                btn.style.background = "rgba(255, 0, 128, 0.15)";
+                btn.style.borderColor = "var(--highlight)";
+                vinyl.style.animationPlayState = 'running';
+            }
+        }
+
+        function changeTrack(trackId) {
+            currentTrackId = trackId;
+            const track = getTrackById(trackId);
+            mixerState.tempo = track.tempo;
+            document.getElementById('current-track-name').innerText = track.title.toUpperCase();
+            document.getElementById('current-track-desc').innerText = track.desc;
+        }
+
+        // --- WHITE-LABEL ADMIN STATE & LOCAL STORAGE ---
+        let currentSettings = {
+            crateTitle: "Sovereign Stem Crate",
+            artistName: "Corey",
+            vaultKey: "BEATS_FLOW",
+            price: "$25.00 USD",
+            accentColor: "#00e5ff",
+            tracks: []
+        };
+        let tempSettings = null; // Hold draft settings while editing
+
+        function loadAdminSettings() {
+            const saved = localStorage.getItem('d9_stemcrate_settings');
+            if (saved) {
+                currentSettings = JSON.parse(saved);
+            }
+            if (!currentSettings.tracks || currentSettings.tracks.length === 0) {
+                currentSettings.tracks = JSON.parse(JSON.stringify(defaultTracks));
+            }
+            applyConfigSettings();
+        }
+
+        function applyConfigSettings() {
+            // Apply variables
+            document.getElementById('portal-logo').innerText = currentSettings.crateTitle.toUpperCase();
+            document.getElementById('session-brand').innerText = `LICENSED FOR: ${currentSettings.artistName.toUpperCase()}`;
+            document.getElementById('lock-card-title').innerText = currentSettings.crateTitle;
+            document.getElementById('lock-card-subtitle').innerText = `Exclusive Digital Album by ${currentSettings.artistName}`;
+            document.getElementById('price-tag-display').innerText = `LICENSE VALUE: ${currentSettings.price}`;
+            document.getElementById('hint-key-label').innerText = currentSettings.vaultKey;
+
+            // Apply theme color
+            document.documentElement.style.setProperty('--accent', currentSettings.accentColor);
+            
+            let r = 0, g = 229, b = 255;
+            if (currentSettings.accentColor.startsWith('#')) {
+                const hex = currentSettings.accentColor.substring(1);
+                if (hex.length === 6) {
+                    r = parseInt(hex.substring(0, 2), 16);
+                    g = parseInt(hex.substring(2, 4), 16);
+                    b = parseInt(hex.substring(4, 6), 16);
+                }
+            }
+            document.documentElement.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.25)`);
+
+            // Rebuild track list select dropdown
+            const selectEl = document.getElementById('track-mix-select');
+            const savedSelectedVal = selectEl.value;
+            selectEl.innerHTML = '';
+            
+            currentSettings.tracks.forEach((track, idx) => {
+                const opt = document.createElement('option');
+                opt.value = track.id;
+                opt.innerText = `TRACK ${String(idx + 1).padStart(2, '0')}: ${track.title.toUpperCase()}`;
+                selectEl.appendChild(opt);
+            });
+
+            // Restore selection or select the first track
+            const trackExists = currentSettings.tracks.some(t => t.id === savedSelectedVal);
+            if (trackExists) {
+                selectEl.value = savedSelectedVal;
+                changeTrack(savedSelectedVal);
+            } else if (currentSettings.tracks.length > 0) {
+                const firstId = currentSettings.tracks[0].id;
+                selectEl.value = firstId;
+                changeTrack(firstId);
+            }
+        }
+
+        function switchAdminTab(tabName) {
+            const configTab = document.getElementById('admin-tab-config');
+            const songsTab = document.getElementById('admin-tab-songs');
+            const configBtn = document.getElementById('tab-btn-config');
+            const songsBtn = document.getElementById('tab-btn-songs');
+
+            if (tabName === 'config') {
+                configTab.style.display = 'block';
+                songsTab.style.display = 'none';
+                configBtn.style.background = 'var(--accent)';
+                configBtn.style.color = '#000';
+                songsBtn.style.background = 'rgba(255,255,255,0.05)';
+                songsBtn.style.color = '#888';
+            } else {
+                configTab.style.display = 'none';
+                songsTab.style.display = 'block';
+                configBtn.style.background = 'rgba(255,255,255,0.05)';
+                configBtn.style.color = '#888';
+                songsBtn.style.background = 'var(--accent)';
+                songsBtn.style.color = '#000';
+                renderAdminSongsList();
+            }
+        }
+
+        function renderAdminSongsList() {
+            const listContainer = document.getElementById('admin-songs-list');
+            listContainer.innerHTML = '';
+            
+            const tracks = tempSettings ? tempSettings.tracks : currentSettings.tracks;
+            
+            if (!tracks || tracks.length === 0) {
+                listContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 10px;">No tracks added yet.</div>';
+                return;
+            }
+
+            tracks.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.style.padding = '6px 8px';
+                item.style.background = 'rgba(255, 255, 255, 0.02)';
+                item.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+                item.style.borderRadius = '4px';
+
+                item.innerHTML = `
+                    <div style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;">
+                        <span style="color: var(--accent); font-weight: bold;">[${track.synth.toUpperCase()}]</span> 
+                        <span style="color: #fff;">${track.title}</span> 
+                        <span style="color: var(--text-muted); font-size: 0.65rem;">(${track.tempo} BPM)</span>
+                    </div>
+                    <button onclick="removeSong(${index})" style="background: rgba(255, 0, 128, 0.15); border: 1px solid var(--highlight); color: var(--highlight); padding: 2px 6px; font-size: 0.6rem; cursor: pointer; border-radius: 3px; font-family: 'Orbitron', sans-serif;">DELETE</button>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function removeSong(index) {
+            if (confirm("Are you sure you want to remove this track?")) {
+                if (tempSettings && tempSettings.tracks) {
+                    tempSettings.tracks.splice(index, 1);
+                } else {
+                    currentSettings.tracks.splice(index, 1);
+                }
+                renderAdminSongsList();
+            }
+        }
+
+        function addNewSongToState() {
+            const titleInput = document.getElementById('new-song-title');
+            const descInput = document.getElementById('new-song-desc');
+            const synthInput = document.getElementById('new-song-synth');
+            const bpmInput = document.getElementById('new-song-bpm');
+
+            const title = titleInput.value.trim();
+            const desc = descInput.value.trim() || "Dynamic synth loop track.";
+            const synth = synthInput.value;
+            const tempo = parseInt(bpmInput.value) || 120;
+
+            if (!title) {
+                alert("Please enter a track title!");
+                return;
+            }
+
+            const newTrackId = 'track_' + Date.now();
+            const newTrack = {
+                id: newTrackId,
+                title: title,
+                desc: desc,
+                tempo: tempo,
+                synth: synth
+            };
+
+            const target = tempSettings || currentSettings;
+            if (!target.tracks) {
+                target.tracks = [];
+            }
+            target.tracks.push(newTrack);
+
+            // Reset inputs
+            titleInput.value = '';
+            descInput.value = '';
+            bpmInput.value = '120';
+
+            renderAdminSongsList();
+            alert(`Added "${title}" to the list! Don't forget to click "PUBLISH ALBUM ASSET" to save all changes.`);
+        }
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-modal');
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) {
+                // Create copy for editing
+                tempSettings = JSON.parse(JSON.stringify(currentSettings));
+                
+                // Populate inputs
+                document.getElementById('admin-crate-title').value = tempSettings.crateTitle;
+                document.getElementById('admin-artist-name').value = tempSettings.artistName;
+                document.getElementById('admin-vault-key').value = tempSettings.vaultKey;
+                document.getElementById('admin-price').value = tempSettings.price;
+                document.getElementById('admin-color-select').value = tempSettings.accentColor;
+
+                switchAdminTab('config');
+            } else {
+                tempSettings = null;
+            }
+        }
+
+        function saveAdminSettings() {
+            if (!tempSettings) return;
+
+            tempSettings.crateTitle = document.getElementById('admin-crate-title').value.trim() || "Sovereign Stem Crate";
+            tempSettings.artistName = document.getElementById('admin-artist-name').value.trim() || "Corey";
+            tempSettings.vaultKey = document.getElementById('admin-vault-key').value.trim() || "BEATS_FLOW";
+            tempSettings.price = document.getElementById('admin-price').value.trim() || "$25.00 USD";
+            tempSettings.accentColor = document.getElementById('admin-color-select').value;
+
+            currentSettings = tempSettings;
+            localStorage.setItem('d9_stemcrate_settings', JSON.stringify(currentSettings));
+            applyConfigSettings();
+            toggleAdminPanel();
+
+            alert(`[MINT SUCCESS] Stem Crate Minted!\n\nLicensed Creator: ${currentSettings.artistName.toUpperCase()}\nTracks registered inside Fluid Motion TV network.`);
+        }
+
+        async function exportStandaloneHTML() {
+            try {
+                // Ensure latest edits from input fields are gathered first
+                const tempCrateTitle = document.getElementById('admin-crate-title').value.trim() || "Sovereign Stem Crate";
+                const tempArtistName = document.getElementById('admin-artist-name').value.trim() || "Corey";
+                const tempVaultKey = document.getElementById('admin-vault-key').value.trim() || "BEATS_FLOW";
+                const tempPrice = document.getElementById('admin-price').value.trim() || "$25.00 USD";
+                const tempAccentColor = document.getElementById('admin-color-select').value;
+
+                // Sync to draft settings if in editing modal
+                const exportSettings = tempSettings ? JSON.parse(JSON.stringify(tempSettings)) : JSON.parse(JSON.stringify(currentSettings));
+                exportSettings.crateTitle = tempCrateTitle;
+                exportSettings.artistName = tempArtistName;
+                exportSettings.vaultKey = tempVaultKey;
+                exportSettings.price = tempPrice;
+                exportSettings.accentColor = tempAccentColor;
+
+                // Fetch the source HTML of stemcrate.html
+                const response = await fetch(window.location.href.split('?')[0]);
+                if (!response.ok) throw new Error("Failed to fetch source HTML.");
+                let htmlText = await response.text();
+
+                // Build the target replacement block for currentSettings
+                const settingsPattern = /let currentSettings = \{[\s\S]*?crateTitle:[\s\S]*?artistName:[\s\S]*?vaultKey:[\s\S]*?price:[\s\S]*?accentColor:[\s\S]*?tracks:[\s\S]*?\};/;
+                
+                const newSettingsBlock = `let currentSettings = ${JSON.stringify(exportSettings, null, 12)};`;
+
+                if (settingsPattern.test(htmlText)) {
+                    htmlText = htmlText.replace(settingsPattern, newSettingsBlock);
+                } else {
+                    const simplePattern = /let currentSettings = \{[\s\S]*?\};/g;
+                    htmlText = htmlText.replace(simplePattern, (match) => {
+                        if (match.includes('crateTitle')) {
+                            return newSettingsBlock;
+                        }
+                        return match;
+                    });
+                }
+
+                // Create blob and download it
+                const blob = new Blob([htmlText], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${exportSettings.crateTitle.toLowerCase().replace(/[^a-z0-9]/g, '_')}_vault.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert("Standalone sealed digital asset generated successfully! You can now send this single HTML file directly to your clients or upload it to your storefront.");
+            } catch (err) {
+                console.error(err);
+                alert("Failed to export standalone HTML: " + err.message);
+            }
+        }
+
+        // Initialize admin settings
+        loadAdminSettings();
+
+        // --- LOCK SCREEN LOGIC ---
+        function handleKey(e) {
+            if (e.key === 'Enter') {
+                attemptDecrypt();
+            }
+        }
+
+        function attemptDecrypt() {
+            const val = document.getElementById('vault-pass').value.trim();
+            const err = document.getElementById('error-alert');
+            const lock = document.getElementById('lock-screen');
+            const portal = document.getElementById('portal-view');
+
+            if (val === currentSettings.vaultKey || val.toLowerCase() === currentSettings.vaultKey.toLowerCase()) {
+                err.classList.remove('visible');
+                lock.style.opacity = '0';
+                lock.style.transform = 'translateY(-100vh)';
+                
+                setTimeout(() => {
+                    lock.style.display = 'none';
+                    portal.style.display = 'flex';
+                }, 800);
+            } else {
+                err.classList.add('visible');
+                setTimeout(() => { err.classList.remove('visible'); }, 3000);
+            }
+        }
+
+        // --- BACKGROUND RETRO MATRIX DOT GLOWS ---
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.zIndex = '1';
+        canvas.style.pointerEvents = 'none';
+        document.body.prepend(canvas);
+
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        for (let i = 0; i < 30; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                radius: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.4 + 0.1
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw background flow color
+            const grad = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, width*0.8);
+            grad.addColorStop(0, '#04070d');
+            grad.addColorStop(1, '#010204');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            const colorTheme = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00e5ff';
+            ctx.strokeStyle = colorTheme;
+
+            particles.forEach((p, idx) => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 229, 255, ${p.alpha})`;
+                ctx.fill();
+
+                for (let j = idx + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 200) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(0, 229, 255, ${(1 - dist/200) * 0.06})`;
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+    </script>
+</body>
+</html>
