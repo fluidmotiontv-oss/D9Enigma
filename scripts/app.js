@@ -1076,7 +1076,7 @@ window.closeQuestReward = function() {
 };
 
 window.spreadTheLove = function() {
-    const shareText = "Align the core matrix, capture social streams, and tune the resonance of original art and beats in the Dragon 9 Multiversal Portal! 🚀 http://localhost:8000/";
+    const shareText = "Align the core matrix, capture social streams, and tune the resonance of original art and beats in the Dragon 9 Multiversal Portal! 🚀 " + window.location.origin + "/";
     navigator.clipboard.writeText(shareText).then(() => {
         const btn = document.querySelector('button[onclick="spreadTheLove()"]');
         if (btn) {

@@ -1,0 +1,21 @@
+# Backups and temporary files
+phone_backup
+*.bak
+*.tmp
+*~
+
+# Large design source files (keep repo lightweight)
+*.psd
+*.tif
+*.tiff
+*.muse
+
+# OS metadata
+.DS_Store
+Thumbs.db
+.directory
+
+# Node/JavaScript dependencies (if any)
+node_modules/
+dist/
+.env
