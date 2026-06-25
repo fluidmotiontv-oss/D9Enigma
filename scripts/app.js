@@ -537,15 +537,15 @@ window.changePortalMusic = function(trackName) {
     } else {
         let srcFile = '';
         if (trackName === 'beat6') {
-            srcFile = 'assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.wav';
+            srcFile = 'assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.mp3';
         } else if (trackName === 'darklawd') {
             srcFile = 'assets/crew/corey/audio/DARK LAWD 🦈.mp3';
         } else if (trackName === 'rainbow') {
-            srcFile = 'assets/crew/corey/audio/2-Rainbow in the DARK  .wav';
+            srcFile = 'assets/crew/corey/audio/2-Rainbow in the DARK  .mp3';
         } else if (trackName === 'beat2') {
             srcFile = 'assets/crew/corey/audio/FUTURE FRWARD beat 2.mp3';
         } else if (trackName === 'oconnor') {
-            srcFile = 'assets/crew/conan/audio/a oconnor - 01 - Track  1.wav';
+            srcFile = 'assets/crew/conan/audio/a oconnor - 01 - Track  1.mp3';
         }
         
         state.portalAudio.src = srcFile;
