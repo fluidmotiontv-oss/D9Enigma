@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | 3D Resonance</title>
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #2a2236; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { --accent: var(--matrix-green); --bg: #000; --text: #0d0; --primary: #040; --secondary: #020; --highlight: #0f0; --alert: #fff; }
+        .theme-amber { --accent: var(--amber-glow); --bg: #1a1000; --text: #ffcc00; --primary: #884400; --secondary: #442200; --highlight: #ffee00; --alert: #ff4400; }
+        .theme-cyber { --accent: var(--cyan); --bg: #0a001a; --text: #e0f; --primary: #0055ff; --secondary: #001144; --highlight: var(--magenta); --alert: #ff00ff; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; 
+            padding: 10px; overflow: hidden; height: 100vh; display: flex; flex-direction: column;
+            transition: all 0.5s ease;
+        }
+
+        .lunar-grid {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 95%; height: 80%; opacity: 0.04; z-index: -2;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 20px;
+            text-align: center; font-size: 3rem; pointer-events: none;
+        }
+
+        .header {
+            text-align: center; padding: 8px; border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(3,3,3,0.9); border-radius: 8px; margin-bottom: 10px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .theme-switcher { display: flex; gap: 5px; }
+        .theme-btn { width: 15px; height: 15px; border-radius: 50%; border: 1px solid #fff; cursor: pointer; opacity: 0.6; }
+        .theme-btn:hover { opacity: 1; }
+        .btn-classic { background: var(--gold); }
+        .btn-matrix { background: var(--matrix-green); }
+        .btn-amber { background: var(--amber-glow); }
+        .btn-cyber { background: var(--cyan); }
+
+        #vortex-container { position: relative; flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+
+        .analog-hub {
+            position: absolute; width: 340px; height: 340px; background: rgba(244, 228, 188, 0.9);
+            border-radius: 50%; border: 10px solid var(--primary);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5); z-index: 100;
+            transition: all 1s ease; pointer-events: auto;
+        }
+        .apex-sector { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: conic-gradient(from 355.5deg, transparent 0deg, var(--accent) 0deg, var(--accent) 9deg, transparent 9deg); opacity: 0.6; border-radius: 50%; z-index: 1; }
+        .marker-pair { position: absolute; height: 100%; width: 100%; text-align: center; z-index: 2; }
+        .label-wrap { position: absolute; width: 100%; top: 12px; display: flex; flex-direction: column; align-items: center; }
+        .hour-top { font-size: 18px; font-weight: 900; color: var(--secondary); }
+        .hour-bottom { font-size: 11px; font-weight: bold; color: var(--primary); opacity: 0.7; }
+        .hand { position: absolute; left: 50%; bottom: 50%; transform-origin: bottom center; border-radius: 10px; }
+        .hour-hand { width: 8px; height: 100px; background: var(--primary); z-index: 5; }
+        .min-hand { width: 4px; height: 140px; background: var(--accent); z-index: 4; }
+        .sec-hand { width: 2px; height: 150px; background: var(--highlight); z-index: 6; }
+        .hub-center { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; background: var(--secondary); border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; }
+
+        .vortex-hud {
+            text-align: center; padding: 10px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(2,2,2,0.9); border-radius: 8px; z-index: 50;
+            display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center;
+        }
+        .digital-stream { font-size: 32px; color: var(--highlight); font-weight: bold; }
+        .millionths { font-size: 14px; color: var(--alert); font-family: monospace; opacity: 0.9; margin-left: 8px; }
+        .root-val { color: var(--accent); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
+        .cycle-tracker { display: flex; gap: 4px; justify-content: center; }
+        .cycle-dot { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--accent); opacity: 0.3; }
+        .cycle-dot.active { background: var(--accent); opacity: 1; box-shadow: 0 0 8px var(--accent); }
+
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+    </style>
+</head>
+<body>
+
+<div class="lunar-grid" id="bg-cal"></div>
+
+<div class="header">
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div id="sound-toggle" style="margin-left: 10px; cursor: pointer; font-size: 0.8rem; opacity: 0.6;" onclick="toggleSound()">🔇</div>
+    </div>
+    <div style="flex-grow: 1; text-align: center;">
+        <div style="color: var(--accent); font-size: 0.8rem; letter-spacing: 5px; font-weight: bold;">DRAGON 9: 3D RESONANCE</div>
+        <div id="location-tag" style="font-size: 0.5rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px;">SYNCING 3D NETWORK...</div>
+    </div>
+</div>
+
+<div id="vortex-container">
+    <!-- Three.js Canvas will be injected here -->
+    <div class="analog-hub" id="dragon-hub">
+        <div class="apex-sector"></div>
+        <div class="hand hour-hand" id="hHand"></div>
+        <div class="hand min-hand" id="mHand"></div>
+        <div class="hand sec-hand" id="sHand"></div>
+        <div class="hub-center"></div>
+    </div>
+</div>
+
+<div class="vortex-hud">
+    <div>
+        <div class="root-val" id="root-display">ROOT: --</div>
+        <div class="cycle-tracker" id="cycle-tracker"></div>
+    </div>
+    <div>
+        <span class="digital-stream" id="digital-sync">00:00:00</span>
+        <span class="millionths" id="milli-sync">.000000</span>
+    </div>
+    <div id="status-mode" style="font-size: 0.6rem; color: var(--accent); letter-spacing: 2px;">SYSTEM ONLINE</div>
+</div>
+
+<script type="module" src="scripts/app.js"></script>
+</body>
+</html>

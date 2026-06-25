@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Distributed Node Fabric V2</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; min-height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay for retro sci-fi themes */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.12;
+            transition: opacity 0.5s ease;
+        }
+
+        .header {
+            padding: 16px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; margin-bottom: 24px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            transition: border 0.5s ease;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.65rem;
+            opacity: 0.75;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        .nav-btn.active-tab {
+            opacity: 1;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .theme-switcher { display: flex; gap: 8px; align-items: center; }
+        .theme-btn { 
+            width: 18px; height: 18px; border-radius: 50%; 
+            border: 1.5px solid rgba(255, 255, 255, 0.4); 
+            cursor: pointer; opacity: 0.6; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .theme-btn:hover { opacity: 1; transform: scale(1.25); }
+        .theme-btn.active { opacity: 1; border-color: #fff; transform: scale(1.15); box-shadow: 0 0 10px var(--accent); }
+        
+        .btn-classic { background: var(--gold); }
+        .btn-matrix { background: var(--matrix-green); }
+        .btn-amber { background: var(--amber-glow); }
+        .btn-cyber { background: var(--cyan); }
+        .btn-fluid { background: linear-gradient(45deg, #00e5ff, #ff0080); }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 340px;
+            gap: 20px;
+            flex-grow: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(10, 10, 10, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: border-color 0.5s ease;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .clock-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .clock-time {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.8rem;
+            color: var(--highlight);
+            text-shadow: 0 0 8px var(--highlight);
+        }
+        .clock-milli {
+            font-size: 0.9rem;
+            color: var(--alert);
+            opacity: 0.85;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text);
+            opacity: 0.6;
+        }
+
+        .stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stat-bar-outer {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .stat-bar-inner {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* SVG Network Map Pane */
+        .fabric-map-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fabric-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .svg-link {
+            stroke: var(--primary);
+            stroke-width: 1.5;
+            stroke-opacity: 0.35;
+            transition: all 0.3s;
+        }
+        .svg-link.active-pulse {
+            stroke: var(--accent);
+            stroke-opacity: 0.8;
+            stroke-dasharray: 5;
+            animation: dash 5s linear infinite;
+        }
+        .svg-link.relax-pulse {
+            stroke: var(--amber-glow);
+            stroke-opacity: 0.5;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        .svg-node {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .svg-node circle {
+            fill: var(--bg);
+            stroke: var(--accent);
+            stroke-width: 2;
+            transition: all 0.3s;
+        }
+        .svg-node:hover circle {
+            stroke: #fff;
+            stroke-width: 3.5;
+            filter: drop-shadow(0 0 8px var(--accent));
+        }
+        .svg-node.offline circle {
+            stroke: #555 !important;
+            fill: #111 !important;
+        }
+        .svg-node.desynced circle {
+            stroke: var(--alert) !important;
+            filter: drop-shadow(0 0 6px var(--alert));
+        }
+        .svg-node.focused circle {
+            stroke: var(--highlight) !important;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 10px var(--highlight));
+        }
+
+        .node-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 8px;
+            fill: var(--text);
+            pointer-events: none;
+            opacity: 0.65;
+            text-anchor: middle;
+            transition: opacity 0.3s, font-size 0.3s;
+        }
+        .svg-node:hover + .node-label, .svg-node.focused + .node-label {
+            opacity: 1;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* Control Board */
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .action-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        .action-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        .action-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* Node List Pane */
+        .node-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .node-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .node-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .node-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+        .node-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .node-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .node-row:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent);
+        }
+        .node-row.active-row {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--highlight);
+        }
+        .node-row.virtual-node {
+            opacity: 0.5;
+        }
+        .node-row.virtual-node:hover {
+            opacity: 0.8;
+        }
+        .node-row.virtual-node.active-row {
+            opacity: 1;
+        }
+
+        .node-row-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .node-row-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .node-row-meta {
+            font-size: 0.55rem;
+            color: var(--text);
+            opacity: 0.6;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .node-row-time {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 6px currentColor;
+        }
+        .status-online { color: var(--highlight); background-color: var(--highlight); }
+        .status-offline { color: #555; background-color: #555; box-shadow: none; }
+        .status-desynced { color: var(--alert); background-color: var(--alert); }
+        .status-relax { color: var(--amber-glow); background-color: var(--amber-glow); }
+
+        /* Terminal Logging Panel */
+        .terminal-panel {
+            background: #000;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            height: 180px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .terminal-log {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            scroll-behavior: smooth;
+        }
+        .terminal-log::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-log::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+
+        .log-entry {
+            line-height: 1.35;
+        }
+        .log-time {
+            color: #777;
+            margin-right: 8px;
+        }
+        .log-system { color: var(--accent); }
+        .log-success { color: var(--highlight); }
+        .log-warn { color: var(--amber-glow); }
+        .log-error { color: var(--alert); }
+
+        /* Interactive Detail Panel Card */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+            padding: 8px 0;
+            font-size: 0.7rem;
+        }
+        .detail-row span:first-child {
+            color: var(--text);
+            opacity: 0.6;
+        }
+        .detail-row span:last-child {
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 600;
+        }
+
+        /* Ambient Sound Toggle */
+        #sound-toggle { 
+            cursor: pointer; font-size: 0.8rem; opacity: 0.6; 
+            transition: all 0.3s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #sound-toggle:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div class="theme-btn btn-fluid" title="Fluid" onclick="setTheme('fluid')" style="border: 1.5px solid #fff;"></div>
+        <div id="sound-toggle" style="margin-left: 10px;" onclick="toggleSound()">🔇</div>
+    </div>
+    
+    <div class="nav-links">
+        <a href="../" class="nav-btn">🌌 CLOCK</a>
+        <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+        <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+        <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+        <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+        <a href="./" class="nav-btn active-tab">🕸️ FABRIC</a>
+        <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+    </div>
+
+    <div>
+        <div style="color: var(--accent); font-size: 0.95rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease; text-align: right;">DRAGON 9: NODE FABRIC</div>
+        <div style="font-size: 0.55rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; text-align: right;">DISTRIBUTED FABRIC COUPLING V2</div>
+        <div style="font-size: 0.5rem; color: var(--highlight); opacity: 0.9; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; text-align: right; margin-top: 2px;">OPERATOR: TIM DWEN</div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Left panel: Network Metrics & Calibration -->
+    <div class="panel">
+        <div class="panel-title">
+            <span>FABRIC ENGINE V2</span>
+            <span style="font-size: 0.6rem; color: var(--highlight);" id="master-state-badge">SYNCED</span>
+        </div>
+
+        <div class="clock-overlay">
+            <div class="node-row-info">
+                <span class="stat-label" style="opacity: 0.8;">MASTER TIME</span>
+                <span class="clock-time" id="master-clock">00:00:00</span>
+            </div>
+            <div class="clock-milli" id="master-milli">.000000</div>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">DECENTRALIZED NODE STATUS</span>
+            <div class="stat-value" id="stat-online-ratio">36 / 36 ONLINE</div>
+            <div class="stat-bar-outer">
+                <div class="stat-bar-inner" id="stat-online-bar"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">NETWORK SYNC INTEGRITY</span>
+            <div class="stat-value" id="stat-sync-integrity">99.982%</div>
+            <div class="stat-bar-outer">
+                <div class="stat-bar-inner" id="stat-sync-bar" style="background: var(--highlight);"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">GOSSIP VOLUMETRICS</span>
+            <div class="stat-value" id="stat-volume">-- p/s</div>
+            <div class="stat-bar-outer">
+                <div class="stat-bar-inner" id="stat-volume-bar"></div>
+            </div>
+        </div>
+
+        <div class="panel-title" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">
+            <span>BROADCAST PROTOCOLS</span>
+        </div>
+        <div class="btn-grid">
+            <button class="action-btn" onclick="triggerGossipPulse()" id="pulse-btn" title="Sends a gossip sync wave from the selected node or master node">
+                ⚡ GOSSIP PULSE
+            </button>
+            <button class="action-btn" onclick="runCalibrationSweep()" id="calib-btn" title="Iterative re-synchronization of connection matrices">
+                ⚙️ CALIBRATE
+            </button>
+            <button class="action-btn" onclick="floodNetworkPackets()" id="flood-btn" title="Simulates high message traffic to stress test pathing routes">
+                🌊 TEST FLOOD
+            </button>
+            <button class="action-btn" onclick="healAllFaults()" id="heal-btn" title="Recovers all offline and desynchronized nodes in the mesh">
+                ❤️ HEAL MESH
+            </button>
+        </div>
+    </div>
+
+    <!-- Center panel: Topological SVG Graph -->
+    <div class="panel" style="flex-grow: 1; align-items: stretch;">
+        <div class="panel-title">
+            <span>PEER-TO-PEER TOPOLOGY SCHEMATIC</span>
+            <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem;" id="consensus-root">ROOT SEC: --</span>
+        </div>
+        <div class="fabric-map-container" id="fabric-container">
+            <svg class="fabric-svg" id="fabric-svg">
+                <!-- Links (lines) will be injected here -->
+                <g id="links-group"></g>
+                <!-- Interactive packet pulses will be injected here -->
+                <g id="pulses-group"></g>
+                <!-- Nodes (circles) will be injected here -->
+                <g id="nodes-group"></g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Right panel: Selected Node Controls & Nodes List -->
+    <div class="panel">
+        <div class="panel-title">
+            <span>NODE TELEMETRY</span>
+            <span id="selected-node-badge" style="font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08);">NO NODE</span>
+        </div>
+
+        <!-- Selected Node Inspector Card -->
+        <div id="inspector-card" style="margin-bottom: 20px;">
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center;" id="inspect-name">
+                Select a Node
+            </div>
+            
+            <div class="detail-row">
+                <span>NODE IP</span>
+                <span id="inspect-ip">--</span>
+            </div>
+            <div class="detail-row">
+                <span>DRAGON 9 TIME</span>
+                <span id="inspect-d9-time" style="color: var(--highlight);">--</span>
+            </div>
+            <div class="detail-row">
+                <span>PEERS CONNECTED</span>
+                <span id="inspect-peers">--</span>
+            </div>
+            <div class="detail-row">
+                <span>LATENCY</span>
+                <span id="inspect-latency">--</span>
+            </div>
+            <div class="detail-row">
+                <span>CLOCK DEVIATION</span>
+                <span id="inspect-deviation">--</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 15px;">
+                <button class="action-btn" style="flex: 1; border-color: rgba(255, 34, 0, 0.3);" id="inspect-kill-btn" onclick="toggleSelectedNodeState()" disabled>
+                    💥 SHUTDOWN
+                </button>
+                <button class="action-btn" style="flex: 1; border-color: rgba(0, 229, 255, 0.3);" id="inspect-sync-btn" onclick="triggerSingleNodeGossip()" disabled>
+                    🔄 RESYNC
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-title" style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px; margin-bottom: 10px;">
+            <span>ACTIVE INDEX</span>
+        </div>
+
+        <input type="text" id="node-search" placeholder="FILTER NODES..." class="form-input" style="width: 100%; margin-bottom: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.3); color: var(--text); border-radius: 6px; padding: 6px 10px; outline: none;">
+
+        <div class="node-list" id="node-list-container">
+            <!-- Nodes list generated here dynamically -->
+        </div>
+    </div>
+</div>
+
+<div class="terminal-panel">
+    <div class="terminal-header">
+        <span>Fabric Console Logs</span>
+        <span style="color: rgba(255,255,255,0.4);" id="log-counter">LOGS: 0</span>
+    </div>
+    <div class="terminal-log" id="terminal-log">
+        <!-- Log rows inserted here -->
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>

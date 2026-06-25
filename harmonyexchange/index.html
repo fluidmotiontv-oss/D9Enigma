@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Harmony Note Exchange</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; min-height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.12;
+            transition: opacity 0.5s ease;
+        }
+
+        .header {
+            padding: 16px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; margin-bottom: 24px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            transition: border 0.5s ease;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.65rem;
+            opacity: 0.75;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .theme-switcher { display: flex; gap: 8px; align-items: center; }
+        .theme-btn { 
+            width: 18px; height: 18px; border-radius: 50%; 
+            border: 1.5px solid rgba(255, 255, 255, 0.4); 
+            cursor: pointer; opacity: 0.6; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .theme-btn:hover { opacity: 1; transform: scale(1.25); }
+        .theme-btn.active { opacity: 1; border-color: #fff; transform: scale(1.15); box-shadow: 0 0 10px var(--accent); }
+        
+        .btn-classic { background: var(--gold); }
+        .btn-matrix { background: var(--matrix-green); }
+        .btn-amber { background: var(--amber-glow); }
+        .btn-cyber { background: var(--cyan); }
+
+        .exchange-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.4fr;
+            gap: 24px;
+            flex-grow: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 950px) {
+            .exchange-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 24px; 
+            display: flex; flex-direction: column; gap: 18px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: color 0.5s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Tabs styling */
+        .tab-headers {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 2px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: none;
+        }
+        .tab-btn.active {
+            opacity: 1;
+            color: var(--accent);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3.5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .tab-btn:hover {
+            opacity: 1;
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Vault / Notes List */
+        .notes-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
+        }
+        .notes-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .notes-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .notes-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+
+        .note-card {
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .note-card:hover {
+            border-color: var(--accent-glow);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-1px);
+        }
+        .note-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .note-id {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--highlight);
+            font-weight: 700;
+        }
+        .note-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 900;
+        }
+        .note-meta {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            opacity: 0.7;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .no-notes {
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            padding: 40px 0;
+        }
+
+        /* Forms inputs & terminals */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+        input[type="text"], input[type="number"], select {
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text); padding: 10px 14px; border-radius: 6px; 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem; outline: none;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            height: 42px;
+            cursor: pointer;
+        }
+        .file-upload-btn {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px dashed var(--primary);
+            color: var(--text); display: flex; align-items: center; justify-content: center;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
+            border-radius: 6px; pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .file-upload-wrapper:hover .file-upload-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+        .file-upload-wrapper input[type="file"] {
+            width: 100%; height: 100%; opacity: 0; cursor: pointer;
+        }
+
+        button {
+            background: var(--primary); color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.15); 
+            padding: 12px; border-radius: 6px; cursor: pointer; 
+            font-family: 'Orbitron', sans-serif; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+        button:hover:not(:disabled) { 
+            background: var(--accent); color: var(--secondary); 
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        button:disabled { 
+            opacity: 0.4; cursor: not-allowed; 
+        }
+
+        /* QR Render box */
+        .qr-output-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 5px;
+            display: none; /* Shown dynamically */
+        }
+        #qrCanvas {
+            background: #fff;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .shortcode-val {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.4rem;
+            color: var(--highlight);
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px var(--highlight);
+            font-weight: 700;
+        }
+
+        /* Time & Logs HUD styling */
+        .exchange-hud {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            align-items: center;
+            text-align: center;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 24px;
+        }
+        @media (max-width: 700px) {
+            .exchange-hud { grid-template-columns: 1fr; gap: 15px; }
+        }
+
+        .clock-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.6rem;
+            color: var(--highlight);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px var(--highlight);
+        }
+        .clock-milli {
+            font-size: 0.8rem;
+            color: var(--alert);
+            opacity: 0.8;
+            text-shadow: 0 0 6px var(--alert);
+        }
+        .hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .log-panel {
+            grid-column: span 1; background: rgba(5, 5, 5, 0.85); 
+            color: var(--accent); font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem; padding: 12px 18px; border-radius: 8px; height: 100px;
+            overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .log-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .log-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div class="theme-btn btn-fluid" title="Fluid" onclick="setTheme('fluid')" style="background: linear-gradient(45deg, #00e5ff, #ff0080); border: 1.5px solid #fff;"></div>
+    </div>
+    <div style="text-align: center; flex-grow: 1;">
+        <div style="color: var(--accent); font-size: 1.3rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">DRAGON 9 | HARMONY EXCHANGE</div>
+        <div style="font-size: 0.6rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; margin-top: 4px;">APP3: PRIVACY-SHIELDED NOTE EXCHANGE</div>
+    </div>
+    <div class="nav-links">
+        <a href="../" class="nav-btn">🌌 CLOCK</a>
+        <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+        <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+        <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+        <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+        <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+    </div>
+</div>
+
+<div class="exchange-grid">
+    <!-- Left panel: Notes Vault -->
+    <div class="panel">
+        <div class="panel-title">
+            <span>Harmony Vault</span>
+            <button onclick="window.clearVault()" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(255,0,0,0.15); border-color: rgba(255,0,0,0.3); color: #ff5555;">Clear Vault</button>
+        </div>
+        <div class="notes-list" id="vaultContainer">
+            <!-- Loaded dynamically -->
+            <div class="no-notes">Awaiting Note uplinks...</div>
+        </div>
+        <div id="vaultTotal" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--highlight); text-align: right; border-top: 1.5px solid rgba(255, 255, 255, 0.08); padding-top: 10px;">TOTAL BALANCE: --</div>
+    </div>
+
+    <!-- Right panel: Mint & Exchange Terminal -->
+    <!-- Right panel: Mint & Exchange Terminal -->
+    <div class="panel">
+        <div class="tab-headers" style="flex-wrap: wrap;">
+            <button class="tab-btn active" id="tabMintBtn" onclick="switchTab('mint')">Mint Note</button>
+            <button class="tab-btn" id="tabReceiveBtn" onclick="switchTab('receive')">Receive Note</button>
+            <button class="tab-btn" id="tabGiftshopBtn" onclick="switchTab('giftshop')">🛍️ Shop</button>
+            <button class="tab-btn" id="tabTraderBtn" onclick="switchTab('trader')">💱 Trader</button>
+            <button class="tab-btn" id="tabRaffleBtn" onclick="switchTab('raffle')">🎟️ Raffle</button>
+            <button class="tab-btn" id="tabLiveBtn" onclick="switchTab('live')">🎤 Live Battle</button>
+            <button class="tab-btn" id="tabChallengesBtn" onclick="switchTab('challenges')">🏆 Arena</button>
+            <button class="tab-btn" id="tabRadioBtn" onclick="switchTab('radio')">📻 Radio</button>
+        </div>
+
+        <!-- Minting Tab -->
+        <div class="tab-content active" id="contentMint">
+            <div class="form-group">
+                <label>Note Denomination (Valuation)</label>
+                <input type="number" id="mintVal" value="10" min="1" placeholder="Enter Note valuation amount" />
+            </div>
+            <div class="form-group">
+                <label>Creator Signature (Custom Identifier)</label>
+                <input type="text" id="mintCreator" placeholder="e.g. Master Composer" value="Creator Alpha" />
+            </div>
+            <div class="form-group">
+                <label>Security Keyphrase (Decryption Lock)</label>
+                <input type="text" id="mintKeyphrase" placeholder="Optional security key" />
+            </div>
+            <button onclick="window.mintHarmonyNote()">MINT HARMONY NOTE</button>
+
+            <!-- Mint Result Output -->
+            <div class="qr-output-box" id="mintQrBox">
+                <label>Note Mint Successful (Scan/Save)</label>
+                <canvas id="qrCanvas"></canvas>
+                <div class="shortcode-val" id="shortcodeText">0-000000</div>
+                <div style="font-size: 0.55rem; font-family: 'Share Tech Mono', monospace; opacity: 0.8; text-align: center;">SHORT-CODE / QR SYNC VALUE FOR TRANSACTIONS</div>
+                <button onclick="window.closeMintResult()" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--text); padding: 6px;">CLOSE TERMINAL</button>
+            </div>
+        </div>
+
+        <!-- Receiving/Deposit Tab -->
+        <div class="tab-content" id="contentReceive">
+            <div class="form-group">
+                <label>Option A: Upload QR-Code Image</label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-btn" id="uploadLabel">SELECT QR IMAGE...</div>
+                    <input type="file" id="uploader" accept="image/*" />
+                </div>
+            </div>
+            <div style="text-align: center; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; opacity: 0.6; letter-spacing: 2px;">— OR —</div>
+            <div class="form-group">
+                <label>Option B: Enter Exchange Short-Code</label>
+                <input type="text" id="depositShortcode" placeholder="e.g., 9-482910" />
+            </div>
+            <button onclick="window.depositHarmonyNote()">DEPOSIT HARMONY NOTE</button>
+        </div>
+
+        <!-- Gift Shop Tab -->
+        <div class="tab-content" id="contentGiftshop">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); margin-bottom: 8px;">Spend HN (Harmony Notes) to unlock digital assets:</div>
+            <div class="giftshop-items" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Item 1 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/orange-lovely.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Orange Lovely Butterfly</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Ginos NZ custom orange butterfly sticker</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Orange Lovely Butterfly', 20)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">20 HN</button>
+                </div>
+                <!-- Item 2 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/bee-humble-bee.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Humble Bee Stamp</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Fluid motion Matariki bee badge vector</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Humble Bee Stamp', 40)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">40 HN</button>
+                </div>
+                <!-- Item 3 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/pink-seaslug.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Pink Seaslug Icon</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Ginos organic seaslug creature avatar</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Pink Seaslug Icon', 60)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">60 HN</button>
+                </div>
+                <!-- Item 4 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/blakruffie.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Black Ruffie Badge</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Fluid motion marine signature badge</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Black Ruffie Badge', 80)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">80 HN</button>
+                </div>
+                <!-- Item 5 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/homeand-welcome.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Retro Welcome Screen</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">4:3 retro menu layout blueprint (PNG)</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Retro Welcome Screen', 100)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">100 HN</button>
+                </div>
+                <!-- Item 6 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/blue-buttfly-right.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Blue Butterfly</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Ginos NZ custom blue butterfly right sticker</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Blue Butterfly', 25)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">25 HN</button>
+                </div>
+                <!-- Item 7 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/kiwis-in-midle.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Kiwis in the Middle</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Fluid motion Kiwi birds badge sticker</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Kiwis in the Middle', 45)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">45 HN</button>
+                </div>
+                <!-- Item 8 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/palmtree-left.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Left Palm Tree</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Ginos custom left-oriented palm tree sticker</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Left Palm Tree', 30)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">30 HN</button>
+                </div>
+                <!-- Item 9 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/palmtree-right.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Right Palm Tree</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Ginos custom right-oriented palm tree sticker</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Right Palm Tree', 30)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">30 HN</button>
+                </div>
+                <!-- Item 10 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/networkhome1.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Network Grid Blueprint</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">4:3 retro network grid layout schema</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Network Grid Blueprint', 90)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">90 HN</button>
+                </div>
+                <!-- Item 11 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/shopPage1.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Gift Shop Blueprint</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Retro interface layout layout blueprint</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Gift Shop Blueprint', 95)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">95 HN</button>
+                </div>
+                <!-- Item 12 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/bluestamp.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Blue Stamp Badge</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Resonance stamp calibration badge in blue</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Blue Stamp Badge', 15)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">15 HN</button>
+                </div>
+                <!-- Item 13 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/redstamp.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Red Stamp Badge</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Resonance stamp calibration badge in red</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Red Stamp Badge', 15)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">15 HN</button>
+                </div>
+                <!-- Item 14 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/whitestamp.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">White Stamp Badge</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Resonance stamp calibration badge in white</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('White Stamp Badge', 15)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">15 HN</button>
+                </div>
+                <!-- Item 15 -->
+                <div class="shop-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="../assets/shop/yellowstamp.png" style="width: 28px; height: 28px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 4px; padding: 2px;" />
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: #fff;">Yellow Stamp Badge</div>
+                            <div style="font-size: 0.55rem; color: var(--text); opacity: 0.7;">Resonance stamp calibration badge in yellow</div>
+                        </div>
+                    </div>
+                    <button onclick="window.buyShopItem('Yellow Stamp Badge', 15)" style="width: auto; padding: 4px 10px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">15 HN</button>
+                </div>
+            </div>
+            <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;">
+                <label style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); display: block; margin-bottom: 5px;">PURCHASED INVENTORY</label>
+                <div id="shopInventory" style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text); opacity: 0.8; line-height: 1.4; padding: 5px 8px; background: rgba(0,0,0,0.2); border-radius: 4px;">No items purchased yet.</div>
+            </div>
+        </div>
+
+        <!-- Trader Tab -->
+        <div class="tab-content" id="contentTrader">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); margin-bottom: 8px;">Swap Note value for D9 Credits or Crystals at fluctuating market rates:</div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;">
+                <div>
+                    <div>💰 D9 Credits Rate: <span id="rateD9" style="color: var(--highlight);">7.7 D9C</span> / HN</div>
+                    <div style="margin-top: 4px;">💎 Crystals Rate: <span id="rateCrystals" style="color: var(--highlight);">0.067 CRY</span> / HN</div>
+                </div>
+                <div style="text-align: right;">
+                    <div>Wallet Balance:</div>
+                    <div style="color: #fff;"><span id="balD9">0.00</span> D9C</div>
+                    <div style="color: #fff;"><span id="balCrystals">0</span> CRY</div>
+                </div>
+            </div>
+            
+            <!-- Exchange Interface -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="form-group">
+                    <label>Trade denomination (Deduct from Vault)</label>
+                    <input type="number" id="tradeAmount" value="10" min="1" placeholder="HN to sell" />
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="window.tradeCurrency('d9')" style="flex: 1; padding: 8px; font-size: 0.65rem;">Sell for D9 Credits</button>
+                    <button onclick="window.tradeCurrency('crystals')" style="flex: 1; padding: 8px; font-size: 0.65rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: var(--highlight);">Sell for Crystals</button>
+                </div>
+                
+                <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px; margin-top: 5px;">
+                    <label style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); display: block; margin-bottom: 5px;">NOTE COMBINER & SPLITTER</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="window.combineNotes()" style="flex: 1; padding: 8px; font-size: 0.6rem; background: rgba(212,175,55,0.1); border-color: var(--accent); color: var(--accent);">Combine Vault Notes</button>
+                        <button onclick="window.splitNotesPrompt()" style="flex: 1; padding: 8px; font-size: 0.6rem; background: rgba(255,0,128,0.1); border-color: var(--alert); color: var(--alert);">Split Largest Note</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raffle Tab -->
+        <div class="tab-content" id="contentRaffle">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); margin-bottom: 8px;">Purchase tickets for 5 HN and run the time-evolution matrix draw:</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1.5px solid var(--accent); margin-bottom: 12px;">
+                <div>
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; color: #fff;">Buy Raffle Ticket</div>
+                    <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--text); opacity: 0.7; margin-top: 2px;">Cost: 5 HN | 1st Prize: 50 HN | 2nd Prize: 10 HN</div>
+                </div>
+                <button onclick="window.buyRaffleTicket()" style="width: auto; padding: 6px 16px; font-size: 0.65rem; background: rgba(212, 175, 55, 0.15);">Buy Ticket</button>
+            </div>
+
+            <!-- Active Tickets HUD -->
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; margin-bottom: 12px;">
+                <span>Tickets in Hand: <strong id="ticketCount" style="color: var(--highlight);">0</strong></span>
+                <button onclick="window.runRaffleDraw()" id="btnDrawRaffle" style="width: auto; padding: 5px 12px; font-size: 0.65rem; background: rgba(255,0,128,0.1); border-color: var(--alert); color: var(--alert);" disabled>Run Draw</button>
+            </div>
+
+            <!-- Spinner Output -->
+            <div id="raffleSpinner" style="display: none; background: #000; border: 1px dashed var(--accent); border-radius: 6px; padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; text-align: center; color: var(--highlight); margin-top: 10px; letter-spacing: 2px;">
+                SPINNING THE MATRIX...
+            </div>
+        </div>
+
+        <!-- Live Tab -->
+        <div class="tab-content" id="contentLive">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span>CHANNEL 9: CREW RAP BATTLE & ART AUCTION</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="voice-toggle-btn" onclick="window.toggleLiveVoice()" style="cursor: pointer; opacity: 0.6; padding: 2px 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.03); transition: all 0.3s;" title="Toggle Speech Voice Over">🔇 VOICE OFF</span>
+                    <span style="color: #ff3333; font-weight: bold; display: flex; align-items: center; gap: 4px;"><span style="display:inline-block; width:6px; height:6px; background:#ff3333; border-radius:50%;"></span>● LIVE</span>
+                </div>
+            </div>
+            
+            <!-- Live Screen Simulating a Broadcast -->
+            <div id="liveStage" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.5); padding: 12px; display: flex; flex-direction: column; gap: 10px; position: relative;">
+                <!-- Artwork under Auction -->
+                <div style="display: flex; gap: 12px; background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                    <div id="liveArtImage" style="width: 70px; height: 70px; border-radius: 6px; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; border: 1.5px solid var(--accent); box-shadow: 0 0 10px var(--accent-glow);">🐋</div>
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div id="liveArtTitle" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 900; color: #fff;">Whale Lightfield Horizon</div>
+                            <div id="liveArtArtist" style="font-size: 0.55rem; color: var(--accent); font-family: 'Share Tech Mono', monospace; margin-top: 2px;">BY MISAKI CORE</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; font-family: 'Share Tech Mono', monospace;">
+                            <div>
+                                <div style="font-size: 0.5rem; opacity: 0.6;">CURRENT BID</div>
+                                <div id="liveArtBid" style="font-size: 1rem; color: var(--highlight); font-weight: 700;">15 HN</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.5rem; opacity: 0.6;">BIDDER</div>
+                                <div id="liveArtBidder" style="font-size: 0.65rem; color: #fff;">Corey</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rapper Battle Stage (Avatars & Speech Bubbles) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; height: 50px; background: rgba(255,255,255,0.01); padding: 5px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div id="rapperLeft" style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;" id="rapperLeftAvatar">🐠</div>
+                        <div>
+                            <div id="rapperLeftName" style="font-family: 'Orbitron', sans-serif; font-size: 0.55rem; font-weight: bold;">Night Fish</div>
+                            <div style="font-size: 0.5rem; color: var(--highlight); font-family: 'Share Tech Mono', monospace;">SPITTING...</div>
+                        </div>
+                    </div>
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 900; color: var(--alert); text-shadow: 0 0 4px var(--alert);">VS</div>
+                    <div id="rapperRight" style="display: flex; align-items: center; gap: 8px; flex-direction: row-reverse;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--secondary); border: 1px solid var(--highlight); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;" id="rapperRightAvatar">🎧</div>
+                        <div style="text-align: right;">
+                            <div id="rapperRightName" style="font-family: 'Orbitron', sans-serif; font-size: 0.55rem; font-weight: bold;">Corey</div>
+                            <div style="font-size: 0.5rem; color: var(--accent); font-family: 'Share Tech Mono', monospace;">WAITING...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrolling Rap Feed -->
+                <div id="liveRapFeed" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 10px; height: 110px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; line-height: 1.4; color: #fff; scroll-behavior: smooth;">
+                    <div style="color: var(--accent);">[SYSTEM] Channel 9 Arena online. Bidding is open!</div>
+                </div>
+
+                <!-- Interactive Bid Bar -->
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button onclick="window.placeLiveBid()" id="btnPlaceBid" style="flex: 2; padding: 10px; font-size: 0.7rem; background: rgba(0,229,255,0.15); border-color: var(--highlight); color: #fff; border-radius: 6px; box-shadow: none;">💸 BID +5 HN</button>
+                    <button onclick="window.spitUserDiss()" id="btnUserDiss" style="flex: 1.2; padding: 10px; font-size: 0.65rem; background: rgba(255,0,128,0.1); border-color: var(--alert); color: var(--alert); border-radius: 6px; box-shadow: none;">🎤 SPIT DISS</button>
+                </div>
+
+                <!-- Auction countdown timer bar -->
+                <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; width: 100%;">
+                    <div id="auctionProgress" style="width: 100%; height: 100%; background: linear-gradient(to right, var(--highlight), var(--alert)); transition: width 1s linear;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; opacity: 0.8;">
+                    <span>TIME LEFT: <strong id="auctionTimer" style="color: var(--alert);">45s</strong></span>
+                    <span>YOUR HN: <strong id="userLiveBalance" style="color: var(--accent);">0 HN</strong></span>
+                </div>
+
+                <!-- Offline multi-track remix studio launch buttons -->
+                <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; margin-top: 6px; display: flex; gap: 6px; flex-direction: column;">
+                    <label style="font-size: 0.55rem; opacity: 0.75; color: var(--accent); font-family: 'Orbitron', sans-serif;">🎛️ OFFLINE MULTI-TRACK REMIX STUDIO</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="window.launchLocalRemixer('kdenlive')" style="flex: 1; padding: 6px; font-size: 0.6rem; background: rgba(255,0,128,0.15); border-color: var(--alert); color: #fff; border-radius: 4px; box-shadow: none;">🎬 Launch Kdenlive</button>
+                        <button onclick="window.launchLocalRemixer('ardour')" style="flex: 1; padding: 6px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: #fff; border-radius: 4px; box-shadow: none;">🎚️ Launch Ardour</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenges/Arena Tab -->
+        <div class="tab-content" id="contentChallenges">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); margin-bottom: 8px;">🏆 Support community projects or issue a new creative challenge:</div>
+            
+            <!-- Active Challenges List -->
+            <div class="challenges-list" id="challengesContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 230px; overflow-y: auto; padding-right: 4px;">
+                <!-- Generated Dynamically -->
+            </div>
+
+            <!-- Issue a Challenge Form -->
+            <div style="border-top: 1.5px solid rgba(255, 255, 255, 0.08); padding-top: 12px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--accent); letter-spacing: 1px;">ISSUE A COMMUNITY CHALLENGE</div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Your Group</label>
+                        <input type="text" id="challengeChallenger" placeholder="e.g. Auckland Octagon" value="Auckland Octagon" />
+                    </div>
+                    <div class="form-group">
+                        <label>Target Group</label>
+                        <input type="text" id="challengeOpponent" placeholder="e.g. Wellington Harbor" />
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Project Goal</label>
+                        <input type="text" id="challengeProject" placeholder="e.g. Upcycled Synthesizer" />
+                    </div>
+                    <div class="form-group">
+                        <label>Terms Category</label>
+                        <select id="challengeTerm">
+                            <option value="Upcycling & Repurpose">Upcycling & Repurpose</option>
+                            <option value="Innovative & Beautiful">Innovative & Beautiful</option>
+                            <option value="Practical & Word Sculptures">Practical & Word Sculptures</option>
+                            <option value="Entertainment Value">Entertainment Value</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Initial Pledged Amount (HN)</label>
+                    <input type="number" id="challengePledge" value="10" min="1" />
+                </div>
+
+                <button onclick="window.issueCommunityChallenge()">POST CHALLENGE TO THE ARENA</button>
+            </div>
+        </div>
+
+        <!-- Radio/Talkback Tab -->
+        <div class="tab-content" id="contentRadio">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span>RADIO WAVE 9: JUNK UP-CYCLING & TALKBACK STATION</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="voice-toggle-btn" onclick="window.toggleLiveVoice()" style="cursor: pointer; opacity: 0.6; padding: 2px 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.03); transition: all 0.3s;" title="Toggle Speech Voice Over">🔇 VOICE OFF</span>
+                    <span style="color: var(--highlight); font-weight: bold; display: flex; align-items: center; gap: 4px;"><span style="display:inline-block; width:6px; height:6px; background:var(--highlight); border-radius:50%; box-shadow: 0 0 8px var(--highlight);"></span>ON AIR</span>
+                </div>
+            </div>
+
+            <!-- TV Screen ("Radio with Pictures") -->
+            <div style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.6); padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+                
+                <!-- The Visual Frame (Slideshow) -->
+                <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <!-- Emoji Image Frame representing "Pictures" -->
+                    <div id="radioPicture" style="width: 80px; height: 80px; border-radius: 6px; background: linear-gradient(45deg, #161020, #2a2236); border: 2.5px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; box-shadow: 0 0 12px var(--accent-glow); text-shadow: 0 0 5px rgba(255,255,255,0.5);">🧹</div>
+                    <div style="flex-grow: 1;">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.55rem; color: var(--highlight); letter-spacing: 1px; font-weight: 700;">CURRENT SHOW SEGMENT</div>
+                        <div id="radioSegmentTitle" style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 900; color: #fff; margin-top: 2px;">Beach Clean Up & Glass Repurposing</div>
+                        <div id="radioSegmentDesc" style="font-size: 0.55rem; opacity: 0.8; margin-top: 4px; line-height: 1.3;">Turning marine garbage into beautiful sandcastles and glass sculptures. Pledges accepted.</div>
+                    </div>
+                </div>
+
+                <!-- Scrolling Talkback Stream -->
+                <div id="radioTalkbackFeed" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 10px; height: 110px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; line-height: 1.4; color: #fff; scroll-behavior: smooth;">
+                    <div style="color: var(--accent);">[HOST] Operator Tim is in the studio! Callers, what upcycled treasures did you find today?</div>
+                </div>
+
+                <!-- Input box for user speech/post -->
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="radioUserInput" placeholder="📢 CALL IN: TYPE A SPOKEN DISS, REMIX IDEA, OR HEALING NOTE..." style="flex-grow: 1; padding: 10px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0, 229, 255, 0.3); border-radius: 6px; color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; outline: none;" onkeydown="if (event.key === 'Enter') window.sendRadioTalkback()">
+                    <button onclick="window.sendRadioTalkback()" style="width: auto; padding: 10px 16px; background: rgba(0, 229, 255, 0.15); border-color: var(--highlight); color: #fff; border-radius: 6px; box-shadow: none;">SPEAK 🎙️</button>
+                </div>
+
+                <!-- Community Pledge and Cleanup triggers -->
+                <div style="display: flex; gap: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px; margin-top: 4px;">
+                    <button onclick="window.donateJunk()" style="flex: 1; padding: 8px; font-size: 0.6rem; background: rgba(212,175,55,0.15); border-color: var(--accent); color: #fff; border-radius: 4px; box-shadow: none;">🎁 DONATE JUNK</button>
+                    <button onclick="window.pledgeCleanup()" style="flex: 1; padding: 8px; font-size: 0.6rem; background: rgba(46,125,50,0.2); border-color: #81c784; color: #fff; border-radius: 4px; box-shadow: none;">🧹 PLEDGE CLEANUP</button>
+                    <button onclick="window.exportRadioTranscript()" style="flex: 1; padding: 8px; font-size: 0.6rem; background: rgba(0,229,255,0.1); border-color: var(--highlight); color: #fff; border-radius: 4px; box-shadow: none;">🎚️ EXPORT SCRIPT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="exchange-hud">
+    <div>
+        <div class="hud-title">DRAGON 9 TIME</div>
+        <div>
+            <span class="clock-display" id="clockD9">00:00:00</span>
+            <span class="clock-milli" id="clockMilli">.000000</span>
+        </div>
+    </div>
+    <div>
+        <div class="hud-title" style="letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 2px;">ENIGMA STATUS</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; letter-spacing: 3px; font-weight: 900; color: var(--accent);" id="systemStatus">OFF-GRID LEDGER STABLE</div>
+    </div>
+    <div>
+        <div class="hud-title">Root Signature</div>
+        <div id="rootDisplay" style="font-family: 'Share Tech Mono', monospace; font-size: 1.35rem; color: var(--highlight); font-weight: 700; text-shadow: 0 0 5px var(--highlight);">ROOT: --</div>
+    </div>
+</div>
+
+<div class="log-panel" id="logger">
+    <div>[SYSTEM] Offline ledger initialized. Local storage vault mapped.</div>
+</div>
+
+<!-- QR Generator and Reader dependencies -->
+<script src="https://unpkg.com/qrious@4.0.2/dist/qrious.min.js"></script>
+<!-- jsQR for reading QR code images client-side -->
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<script type="module" src="script.js"></script>
+<script>
+    function setTheme(theme) {
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('dragon-theme', theme);
+        
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            if (btn.classList.contains(`btn-${theme}`)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+        const logger = document.getElementById('logger');
+        if (logger) logger.style.borderColor = activeColor + '33';
+    }
+    const savedTheme = localStorage.getItem('dragon-theme') || 'classic';
+    setTheme(savedTheme);
+
+    // switchTab layout function
+    window.switchTab = function(tab) {
+        const tabs = ['mint', 'receive', 'giftshop', 'trader', 'raffle', 'live', 'challenges', 'radio'];
+        
+        tabs.forEach(t => {
+            const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1) + 'Btn');
+            const content = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
+            
+            if (btn && content) {
+                if (t === tab) {
+                    btn.classList.add('active');
+                    content.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                    content.classList.remove('active');
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

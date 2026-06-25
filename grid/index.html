@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid Motion TV | Global Sovereign Network</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --text-main: #f4e4bc;
+            --secondary: #161020;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --highlight: #00e5ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Ambient background grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .network-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10;
+            position: relative;
+        }
+
+        .network-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            font-size: 1.6rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .liquidity-counter {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.4rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            margin-top: 10px;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .world-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            z-index: 10;
+            position: relative;
+        }
+
+        .station { 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            padding: 25px;
+            background: rgba(15, 15, 20, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .station:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .wheel-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px; height: 200px;
+            opacity: 0.08;
+            z-index: 1;
+        }
+
+        .water-wheel {
+            position: absolute;
+            width: 100%; height: 100%;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+        }
+
+        .bucket {
+            position: absolute;
+            width: 16px; height: 12px;
+            background: currentColor;
+            left: 92px; top: 0;
+            transform-origin: 8px 100px;
+        }
+
+        .station-content { z-index: 10; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .station-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; }
+        
+        .station-name { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+        
+        .fluid-time { font-family: 'Share Tech Mono', monospace; font-size: 2.5rem; font-weight: bold; margin: 20px 0; text-align: center; letter-spacing: 3px; }
+
+        .micros { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; opacity: 0.6; text-align: center; letter-spacing: 2px; }
+
+        .split-bar { display: flex; height: 6px; margin-top: 15px; border-radius: 3px; overflow: hidden; }
+        .split-shield { background: #4b0082; flex: 9; }
+        .split-kitties { background: #00ff41; flex: 0.9; }
+        .split-master { background: #ffd700; flex: 0.1; }
+
+        .relax-mode { animation: pulse 2s infinite ease-in-out; color: #ffaa00 !important; }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="network-header">
+    <div class="network-title">Global 26-Hour Network</div>
+    <div id="total-liquidity" class="liquidity-counter">HARMONY NOTES: 1.000000</div>
+    <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 10px; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">GENESIS SCHEDULE • 90/9/1 SPLIT</div>
+</div>
+
+<div class="world-grid" id="network"></div>
+
+<script>
+    // Sync colors from parent theme dynamically if applicable
+    function syncParentTheme() {
+        try {
+            if (window.parent && window.parent.document) {
+                const rootStyle = window.getComputedStyle(window.parent.document.documentElement);
+                const accent = rootStyle.getPropertyValue('--accent').trim();
+                const text = rootStyle.getPropertyValue('--text').trim();
+                const highlight = rootStyle.getPropertyValue('--highlight').trim();
+                if (accent) document.documentElement.style.setProperty('--accent', accent);
+                if (text) document.documentElement.style.setProperty('--text-main', text);
+                if (highlight) document.documentElement.style.setProperty('--highlight', highlight);
+            }
+        } catch (e) {
+            // Ignore cross-origin blocking
+        }
+    }
+    window.addEventListener('load', syncParentTheme);
+
+    const stations = [
+        { name: 'Pee Dub', region: 'Waikato', offset: 13 },
+        { name: 'Tokyo', region: 'Asia', offset: 9 },
+        { name: 'Seoul', region: 'Asia', offset: 9 },
+        { name: 'London', region: 'Europe', offset: 0 },
+        { name: 'New York', region: 'North America', offset: -5 },
+        { name: 'Honolulu', region: 'Pacific', offset: -10 }
+    ];
+
+    const networkEl = document.getElementById('network');
+    let totalHarmonyNotes = 1.000000;
+
+    stations.forEach((station, index) => {
+        const card = document.createElement('div');
+        card.className = 'station';
+        card.id = `station-${index}`;
+
+        let bucketsHTML = '';
+        for (let i = 0; i < 9; i++) {
+            bucketsHTML += `<div class="bucket" style="transform: rotate(${i * 40}deg);"></div>`;
+        }
+
+        card.innerHTML = `
+            <div class="wheel-container">
+                <div class="water-wheel" id="wheel-${index}">${bucketsHTML}</div>
+            </div>
+            <div class="station-content">
+                <div class="station-header">
+                    <div>
+                        <div class="station-name">${station.name}</div>
+                        <div style="font-size: 0.6rem; opacity: 0.6;">${station.region}</div>
+                    </div>
+                    <div id="status-${index}" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                </div>
+                <div>
+                    <div class="fluid-time" id="fluid-${index}">--:--:--</div>
+                    <div class="micros" id="micros-${index}">000000</div>
+                </div>
+                <div class="split-bar">
+                    <div class="split-shield"></div>
+                    <div class="split-kitties"></div>
+                    <div class="split-master"></div>
+                </div>
+            </div>
+        `;
+        networkEl.appendChild(card);
+    });
+
+    function getDragonNineTime(date) {
+        const msSinceMidnight = (date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds()) * 1000 + date.getUTCMilliseconds();
+        const hourMS = 54 * 60 * 1000;
+        
+        const isRelax = (msSinceMidnight < 9 * 60 * 1000) || 
+                        (msSinceMidnight >= 711 * 60 * 1000 && msSinceMidnight < 729 * 60 * 1000) ||
+                        (msSinceMidnight >= 1431 * 60 * 1000);
+
+        let fluidHour = 26, fluidMin = 0, fluidSec = 0;
+        if (msSinceMidnight >= 9 * 60 * 1000 && msSinceMidnight < 711 * 60 * 1000) {
+            const activeMS = msSinceMidnight - (9 * 60 * 1000);
+            fluidHour = Math.floor(activeMS / hourMS);
+            fluidMin = Math.floor((activeMS % hourMS) / 60000);
+            fluidSec = Math.floor((activeMS % 60000) / 1000);
+        } else if (msSinceMidnight >= 729 * 60 * 1000 && msSinceMidnight < 1431 * 60 * 1000) {
+            const activeMS = msSinceMidnight - (729 * 60 * 1000);
+            fluidHour = Math.floor(activeMS / hourMS) + 13;
+            fluidMin = Math.floor((activeMS % hourMS) / 60000);
+            fluidSec = Math.floor((activeMS % 60000) / 1000);
+        }
+
+        return {
+            mode: isRelax ? 'relax' : 'active',
+            h: fluidHour, m: fluidMin, s: fluidSec,
+            rawHour: (msSinceMidnight / (3240 * 1000))
+        };
+    }
+
+    function tick() {
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4af37';
+        
+        stations.forEach((station, index) => {
+            const zoneTime = new Date(utc + (3600000 * station.offset));
+            const dragon = getDragonNineTime(zoneTime);
+            
+            const apexOffset = 4.5;
+            const hueStart = 180 + apexOffset;
+            const currentHue = (hueStart - (dragon.rawHour / 26.66) * 360 + 360) % 360;
+            const activeColor = `hsl(${currentHue}, 90%, 55%)`;
+
+            const card = document.getElementById(`station-${index}`);
+            const fluidEl = document.getElementById(`fluid-${index}`);
+            const statusEl = document.getElementById(`status-${index}`);
+            const wheel = document.getElementById('wheel-' + index);
+
+            if (dragon.mode === 'relax') {
+                fluidEl.innerText = "RELAX";
+                fluidEl.className = "fluid-time relax-mode";
+                card.style.borderColor = "#ffaa00";
+                statusEl.style.backgroundColor = "#ffaa00";
+                if(wheel) wheel.style.color = "#ffaa00";
+            } else {
+                fluidEl.innerText = `${String(dragon.h).padStart(2,'0')}:${String(dragon.m).padStart(2,'0')}:${String(dragon.s).padStart(2,'0')}`;
+                fluidEl.className = "fluid-time";
+                fluidEl.style.color = currentAccent;
+                card.style.borderColor = currentAccent;
+                card.style.boxShadow = `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px ${currentAccent}22`;
+                statusEl.style.backgroundColor = currentAccent;
+                if(wheel) wheel.style.color = currentAccent;
+            }
+
+            if(wheel) wheel.style.transform = `rotate(${(now.getTime() / 40) % 360}deg)`;
+            const microsEl = document.getElementById(`micros-${index}`);
+            if(microsEl) microsEl.innerText = Math.floor(Math.random() * 999999).toString().padStart(6,'0');
+        });
+
+        totalHarmonyNotes += 0.000001; 
+        document.getElementById('total-liquidity').innerText = `HARMONY NOTES: ${totalHarmonyNotes.toFixed(6)}`;
+
+        requestAnimationFrame(tick);
+    }
+
+    tick();
+</script>
+</body>
+</html>

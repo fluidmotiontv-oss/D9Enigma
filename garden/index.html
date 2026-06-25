@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonance Garden // Soil & Sustenance Tuner</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --earth-dark: #070906;
+            --earth-mud: #181c15;
+            --leaf-green: #4caf50;
+            --leaf-glow: rgba(76, 175, 80, 0.25);
+            --gold: #d4af37;
+            --cream: #f4e4bc;
+            --highlight: #00e5ff;
+            --alert: #ff0080;
+            --accent: var(--leaf-green);
+            --accent-glow: var(--leaf-glow);
+            --bg: var(--earth-dark);
+            --text: var(--cream);
+        }
+
+        /* Sync with parent themes */
+        body.theme-matrix {
+            --accent: #00ff41; --accent-glow: rgba(0, 255, 65, 0.3);
+            --bg: #000000; --text: #00ff41;
+        }
+        body.theme-amber {
+            --accent: #ffaa00; --accent-glow: rgba(255, 170, 0, 0.3);
+            --bg: #100a00; --text: #ffcc00;
+        }
+        body.theme-cyber {
+            --accent: #00e5ff; --accent-glow: rgba(0, 229, 255, 0.3);
+            --bg: #050010; --text: #ff00ff;
+        }
+        body.theme-fluid {
+            --accent: #00e5ff; --accent-glow: rgba(0, 229, 255, 0.3);
+            --bg: #00050d; --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-y: auto;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.8s ease, color 0.5s ease;
+        }
+
+        header {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 20, 15, 0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .header-title-wrap h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+            text-transform: uppercase;
+        }
+
+        .header-title-wrap span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .lunar-phase-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lunar-emoji {
+            font-size: 1.3rem;
+            color: var(--accent);
+            text-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        /* Tabs Interface */
+        .tabs-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tabs-bar::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .tabs-bar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Panel Container */
+        .panel {
+            background: rgba(15, 18, 15, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 24px;
+            min-height: 480px;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .panel.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 1. TUNER TAB STYLE */
+        .tuner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .tuner-grid { grid-template-columns: 1fr; }
+        }
+
+        .tuner-control-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .tuner-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tuner-desc {
+            font-size: 0.75rem;
+            line-height: 1.5;
+            opacity: 0.75;
+            margin-bottom: 16px;
+        }
+
+        .seed-select-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .seed-option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .seed-option:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .seed-option.selected {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .freq-slider-container {
+            margin-bottom: 20px;
+        }
+
+        .freq-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2.2rem;
+            text-align: center;
+            color: var(--highlight);
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+            margin-bottom: 12px;
+        }
+
+        .custom-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            border: 2px solid #fff;
+        }
+
+        .audio-trigger-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .audio-trigger-btn:hover {
+            box-shadow: 0 0 15px var(--accent);
+            transform: scale(1.02);
+            color: #fff;
+        }
+
+        .audio-trigger-btn.active {
+            background: var(--alert);
+            color: #fff;
+            box-shadow: 0 0 15px var(--alert);
+        }
+
+        .tuner-visualizer-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        #oscilloscope {
+            width: 100%;
+            height: 200px;
+            background: transparent;
+        }
+
+        .tuner-stats {
+            margin-top: 14px;
+            width: 100%;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 12px;
+        }
+
+        /* 2. GUIDE TAB STYLE */
+        .guide-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .guide-container { grid-template-columns: 1fr; }
+        }
+
+        .guide-content-panel {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .guide-content-panel h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .guide-text-block {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            margin-bottom: 20px;
+        }
+
+        .guide-text-block ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .guide-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lunar-phase-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .lunar-phase-card:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--accent);
+        }
+
+        .lunar-phase-card.active-phase {
+            border-left-color: var(--accent);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .phase-card-header {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .phase-card-desc {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+
+        /* 3. JOURNAL TAB STYLE */
+        .journal-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .journal-grid { grid-template-columns: 1fr; }
+        }
+
+        .journal-form-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 18px;
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 0.75rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        .submit-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-glow);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .journal-list-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .journal-list-box::-webkit-scrollbar { width: 4px; }
+        .journal-list-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        .journal-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1.5px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .journal-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .journal-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .journal-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+
+        .journal-card-meta {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            opacity: 0.6;
+        }
+
+        .journal-card-body {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            opacity: 0.85;
+        }
+
+        .journal-card-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .j-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            border-radius: 4px;
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.04);
+            border: 0.5px solid rgba(255,255,255,0.1);
+        }
+
+        .j-badge-green { color: var(--accent); border-color: var(--accent-glow); }
+        .j-badge-cyan { color: var(--highlight); border-color: rgba(0, 229, 255, 0.2); }
+
+        .delete-journal-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.3);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .delete-journal-btn:hover {
+            color: var(--alert);
+        }
+
+        /* 4. ASSIST TAB STYLE */
+        .assistant-speech-bubble {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+            min-height: 80px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .assistant-avatar-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .assistant-image-frame {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+            overflow: hidden;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            animation: assistantFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes assistantFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .assistant-image-frame img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 5px var(--accent));
+        }
+
+        .assistant-badge-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .assistant-badge-role {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .assistant-interaction-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 5. EXCHANGE/SHOP TAB STYLE */
+        .shop-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .shop-item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .shop-item-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .shop-item-img {
+            width: 100%;
+            aspect-ratio: 1.5;
+            border-radius: 6px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shop-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .shop-item-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+
+        .shop-item-desc {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .shop-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 10px;
+        }
+
+        .shop-item-price {
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--highlight);
+        }
+
+        .trade-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 4px 10px;
+            color: var(--accent);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .trade-btn:hover {
+            background: var(--accent-glow);
+            color: #fff;
+            box-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        /* 6. FLOW TAB STYLE */
+        .flow-visualizer-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #flow-canvas {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
+
+        .flow-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        /* 7. GALLERY/SHOW TAB STYLE */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .gallery-card:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .gallery-img-box {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .gallery-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #fff;
+        }
+
+        .gallery-card-date {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            opacity: 0.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            grid-column: 1 / -1;
+        }
+
+        /* Apothecary & Practical Health styles */
+        .apothecary-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .apothecary-grid { grid-template-columns: 1fr; }
+        }
+        .remedy-select-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+        }
+        .remedy-tab-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            color: var(--text);
+            padding: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .remedy-tab-btn:hover, .remedy-tab-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+        .remedy-details-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+        .remedy-details-card h4 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .remedy-section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--highlight);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        .breathing-visualizer-container {
+            height: 220px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .breathing-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow), inset 0 0 10px var(--accent-glow);
+            transition: transform 4s linear, opacity 1s;
+            opacity: 0.85;
+            transform: scale(0.6);
+        }
+        .breathing-phase-text {
+            position: absolute;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-title-wrap">
+            <h1>The Resonance Garden</h1>
+            <span>SOIL, SUSTENANCE &amp; WHOLEFOOD TUNER SYSTEMS</span>
+        </div>
+        <div class="lunar-phase-status" id="lunar-tracker" title="Lunar coordinate sync active">
+            <span>LUNAR ALIGNMENT:</span>
+            <span class="lunar-emoji" id="header-lunar-emoji">🌒</span>
+            <span id="header-lunar-text">DAY 03 // WAXING CRES.</span>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs Bar -->
+    <div class="tabs-bar">
+        <button class="tab-btn active" data-tab="tuner">🌱 Tuner</button>
+        <button class="tab-btn" data-tab="guide">📖 Guide</button>
+        <button class="tab-btn" data-tab="journal">📝 Journal</button>
+        <button class="tab-btn" data-tab="assist">🐝 Assist</button>
+        <button class="tab-btn" data-tab="exchange">🔄 Exchange</button>
+        <button class="tab-btn" data-tab="flow">🌀 Flow</button>
+        <button class="tab-btn" data-tab="gallery">🖼️ Show</button>
+        <button class="tab-btn" data-tab="apothecary">🧪 Apothecary</button>
+    </div>
+
+    <!-- 1. TUNER PANEL -->
+    <div class="panel active" id="panel-tuner">
+        <div class="panel-title">
+            <span>Resonance Seed &amp; Soil Tuner</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">43.2HZ SOLFEGGIO SOURCE</span>
+        </div>
+        <div class="tuner-grid">
+            <div class="tuner-control-box">
+                <div class="tuner-label">Select Seed/Soil Coordinate</div>
+                <p class="tuner-desc">Select a local New Zealand plant or soil layer. The tuner will align the Web Audio synthesizer oscillators to its optimal Solfeggio frequency vector to boost root expansion or cell germination.</p>
+                <div class="seed-select-box">
+                    <div class="seed-option selected" data-freq="432" data-name="Māori Kūmara (Root)" data-effect="Root Expansion">Kūmara (Root)</div>
+                    <div class="seed-option" data-freq="528" data-name="Kawakawa (Germination)" data-effect="DNA Repair / Germination">Kawakawa</div>
+                    <div class="seed-option" data-freq="639" data-name="Harakeke (Fibre)" data-effect="Cellular Connection">Harakeke</div>
+                    <div class="seed-option" data-freq="852" data-name="Pure Humus Soil (Mycelium)" data-effect="Spiritual Awakening / Humus">Humus Soil</div>
+                </div>
+                <div class="freq-slider-container">
+                    <div class="tuner-label">Tuning Frequency Sweep</div>
+                    <div class="freq-display" id="freq-val">432.0 Hz</div>
+                    <input type="range" min="200" max="1000" step="0.5" value="432" class="custom-slider" id="tuner-range">
+                </div>
+                <button class="audio-trigger-btn" id="tuner-audio-btn">🔊 INITIATE FREQUENCY TUNER</button>
+            </div>
+            <div class="tuner-visualizer-box">
+                <div class="tuner-label" style="align-self: flex-start;">Frequency Oscilloscope</div>
+                <canvas id="oscilloscope"></canvas>
+                <div class="tuner-stats">
+                    <div>TARGET: <span id="stat-target" style="color:var(--accent);">Māori Kūmara (Root)</span></div>
+                    <div>EFFECT: <span id="stat-effect" style="color:var(--highlight);">Root Expansion</span></div>
+                    <div>HARMONICS: <span style="color:#fff;">43.2Hz detuned sine</span></div>
+                    <div>STATUS: <span id="stat-audio-status" style="color:var(--alert);">STANDBY</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. GUIDE PANEL -->
+    <div class="panel" id="panel-guide">
+        <div class="panel-title">
+            <span>Permaculture &amp; Lunar Guide</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">COORDINATE MATCHING ACTIVE</span>
+        </div>
+        <div class="guide-container">
+            <div class="guide-content-panel">
+                <h3 id="guide-active-title">Lunar Planting Coordinates</h3>
+                <div class="guide-text-block" id="guide-active-text">
+                    Select a lunar cycle on the right to sync coordinates and read task guides.
+                </div>
+                <h3>All-Natural Gardening Tips</h3>
+                <div class="guide-text-block">
+                    <ul>
+                        <li><strong>Compost Tea</strong>: Ferment dynamic nettle, comfrey, and pure fish emulsion to coat soil mycelium with natural nitrogen package vectors.</li>
+                        <li><strong>Companion Grids</strong>: Plant Māori Kamokamo near sweetcorn and climbing beans (the traditional Three Sisters planting grid) to naturally shade soil and capture nitrates.</li>
+                        <li><strong>Fungal Inoculation</strong>: Feed raw biochar and woody mulch to cultivate mycorrhizal fungal matrices, enhancing plant nutrient channels by up to 300%.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="guide-sidebar" id="lunar-sidebar">
+                <!-- Filled dynamically by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. JOURNAL PANEL -->
+    <div class="panel" id="panel-journal">
+        <div class="panel-title">
+            <span>Soil &amp; Development Journal</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">LOCAL RECORD COMPILING</span>
+        </div>
+        <div class="journal-grid">
+            <div class="journal-form-box">
+                <div class="tuner-label" style="margin-bottom: 12px;">Add Journal Entry</div>
+                <form id="journal-form" onsubmit="event.preventDefault();">
+                    <div class="form-group">
+                        <label class="form-label" for="j-plant">Plant / Soil Layer</label>
+                        <input type="text" id="j-plant" placeholder="e.g. Kawakawa seedbed" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="j-action">Action / Tuner Freq</label>
+                        <input type="text" id="j-action" placeholder="e.g. Seed Tuned to 528Hz" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="j-notes">Observations &amp; Yields</label>
+                        <textarea id="j-notes" rows="4" placeholder="Jot down notes, root growth observations, leaf yields, or carbon levels..." class="form-input" style="resize: none;" required></textarea>
+                    </div>
+                    <button class="submit-btn" type="submit">📝 SAVE JOURNAL RECORD</button>
+                </form>
+            </div>
+            <div>
+                <div class="tuner-label" style="margin-bottom: 12px;">Compiles Records</div>
+                <div class="journal-list-box" id="journal-list">
+                    <!-- Loaded dynamically from LocalStorage -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. ASSIST PANEL -->
+    <div class="panel" id="panel-assist">
+        <div class="panel-title">
+            <span>Bioluminescent Assistant: Humble Bee</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">HUMBLE BEE // CULTIVATE SUITE</span>
+        </div>
+        <div class="assistant-avatar-panel">
+            <div class="assistant-image-frame">
+                <img src="../assets/shop/bee-humble-bee.png" alt="Humble Bee Icon">
+            </div>
+            <div>
+                <h4 class="assistant-badge-title">THE HUMBLE BEE</h4>
+                <div class="assistant-badge-role">ORGANIC GARDENING ASSISTANT // COGNITION ONLINE</div>
+            </div>
+        </div>
+        <div class="assistant-speech-bubble">
+            <span id="bee-speech">Buzz... STANDBY. Click a parameters link below to query my gardening skills database.</span>
+        </div>
+        <div class="assistant-interaction-bar">
+            <button class="tab-btn" id="btn-bee-seasonal" style="font-size:0.55rem; padding:6px 12px;">Seasonal Task</button>
+            <button class="tab-btn" id="btn-bee-lunar" style="font-size:0.55rem; padding:6px 12px;">Lunar planting tip</button>
+            <button class="tab-btn" id="btn-bee-soil" style="font-size:0.55rem; padding:6px 12px;">Soil health checklist</button>
+        </div>
+    </div>
+
+    <!-- 5. EXCHANGE/SHOP PANEL -->
+    <div class="panel" id="panel-exchange">
+        <div class="panel-title">
+            <span>Wholefood &amp; Seed Exchange Matrix</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">PEER-TO-PEER HARMONY TRADE</span>
+        </div>
+        <div class="shop-matrix" id="shop-matrix-box">
+            <!-- Loaded dynamically with some New Zealand companion items -->
+        </div>
+    </div>
+
+    <!-- 6. FLOW PANEL -->
+    <div class="panel" id="panel-flow">
+        <div class="panel-title">
+            <span>Nutrient, Carbon &amp; Water Flow loops</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">60FPS CYCLE SIMULATION</span>
+        </div>
+        <div class="flow-visualizer-container">
+            <canvas id="flow-canvas"></canvas>
+            <div class="flow-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#00e5ff;"></div>
+                    <span>WATER FLUID FLOW</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#ffaa00;"></div>
+                    <span>LUNAR ALIGNMENT MATRIX</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#4caf50;"></div>
+                    <span>NITROGEN / CARBON LOOPS</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#ff0080;"></div>
+                    <span>SEED DYNAMICS WAVE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. GALLERY/SHOW PANEL -->
+    <div class="panel" id="panel-gallery">
+        <div class="panel-title">
+            <span>Showcase: Garden Progress Chronicle</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">VISUAL TIMELINE LOGS</span>
+        </div>
+        <div class="gallery-grid" id="gallery-grid-box">
+            <!-- Loaded dynamically with local prints and placeholder structures -->
+        </div>
+    </div>
+
+    <!-- 8. APOTHECARY & HEALTH PANEL -->
+    <div class="panel" id="panel-apothecary">
+        <div class="panel-title">
+            <span>Botanical Apothecary &amp; Practical Health Hub</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;opacity:0.6;">PRACTICAL VITALITY RITUALS</span>
+        </div>
+        <div class="apothecary-grid">
+            <div class="apothecary-remedies-box">
+                <div class="tuner-label" style="margin-bottom: 10px;">Botanical Pharmacopoeia</div>
+                <div class="remedy-select-list" id="remedy-plant-list">
+                    <!-- Filled dynamically via JS -->
+                </div>
+                <div class="remedy-details-card" id="remedy-details-box" style="margin-top:16px;">
+                    <!-- Details rendered dynamically -->
+                </div>
+            </div>
+            <div class="apothecary-tuner-box">
+                <div class="tuner-label">Vitality Breathing Tuner</div>
+                <p class="tuner-desc" style="margin-bottom:12px; font-size: 0.7rem; line-height: 1.4; opacity: 0.85;">Sync your physical Yin and Yang. Follow the expanding circle to align your breathing cycle (Inhale 4s, Hold 4s, Exhale 4s, Hold 4s) to the Solfeggio 432Hz root frequency.</p>
+                <div class="breathing-visualizer-container">
+                    <div class="breathing-circle" id="breathing-circle-node"></div>
+                    <div class="breathing-phase-text" id="breathing-phase-label">STANDBY</div>
+                </div>
+                <button class="submit-btn" id="btn-toggle-breathing" style="width:100%; margin-top:16px; font-size: 0.75rem; padding: 12px;">🚀 START BREATH ALIGNMENT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hook Javascript Module -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>

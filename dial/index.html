@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 Temporal Interface</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(15, 15, 20, 0.6);
+            --accent-orange: #ff6b00;
+            --text-main: #f4e4bc;
+            --text-muted: #5d4e75;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.25);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient subtle background grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border-color);
+            max-width: 450px;
+            width: 90%;
+            box-sizing: border-box;
+            z-index: 10;
+            transition: border-color 0.5s ease;
+        }
+
+        .container:hover {
+            border-color: var(--gold);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(212, 175, 55, 0.15);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 0 0 0.5rem 0;
+            color: var(--gold);
+            text-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        #clock-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 1rem 0;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .telemetry {
+            width: 100%;
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .data-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .data-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .apex-active {
+            color: var(--accent-orange);
+            text-shadow: 0 0 8px rgba(255, 107, 0, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Dragon 9</h1>
+        <p class="subtitle">Temporal Dial Interface</p>
+    </header>
+
+    <div id="clock-container">
+        <canvas id="dragonClock" width="320" height="320"></canvas>
+    </div>
+
+    <div class="telemetry">
+        <div class="data-row">
+            <span class="data-label">Dragon Time:</span>
+            <span id="dragon-time" class="data-value">00:00:00</span>
+        </div>
+        <div class="data-row">
+            <span class="data-label">Active Block:</span>
+            <span id="block-info" class="data-value">Block 1</span>
+        </div>
+        <div class="data-row">
+            <span class="data-label">Block Progress:</span>
+            <span id="block-progress" class="data-value">0.0%</span>
+        </div>
+        <div class="data-row">
+            <span class="data-label">Alignment:</span>
+            <span id="apex-status" class="data-value">Standard Flow</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sync colors from parent theme dynamically if applicable
+    function syncParentTheme() {
+        try {
+            if (window.parent && window.parent.document) {
+                const rootStyle = window.getComputedStyle(window.parent.document.documentElement);
+                const accent = rootStyle.getPropertyValue('--accent').trim();
+                const text = rootStyle.getPropertyValue('--text').trim();
+                const panel = rootStyle.getPropertyValue('--secondary').trim();
+                if (accent) document.documentElement.style.setProperty('--gold', accent);
+                if (text) document.documentElement.style.setProperty('--text-main', text);
+            }
+        } catch (e) {
+            // Ignore cross-origin blocking
+        }
+    }
+    window.addEventListener('load', syncParentTheme);
+
+    const DRAGON_CONFIG = {
+        minutesPerDragonHour: 54,
+        dragonHoursPerDay: 80 / 3, // 26.666...
+        blocksPerDay: 9,
+        minutesPerBlock: 160,      // 160 standard minutes
+        apexDegrees: 9,            // 9-degree wedge at top
+        degreesPerMinute: 0.5,     // 360 degrees / 720 minutes per half-day cycle
+        cycleOffset: 4.5           // 4.5 degree offset to align center of Apex at 12 o'clock
+    };
+
+    const canvas = document.getElementById('dragonClock');
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.width / 2;
+    ctx.translate(radius, radius); // Move origin to canvas center
+
+    function updateClock() {
+        const now = new Date();
+        
+        // 1. Calculate base minutes from standard midnight
+        const standardMinutes = (now.getHours() * 60) + now.getMinutes() + (now.getSeconds() / 60);
+        
+        // 2. Map standard minutes to native Dragon metrics
+        const totalDragonHours = standardMinutes / DRAGON_CONFIG.minutesPerDragonHour;
+        const currentBlock = Math.floor(standardMinutes / DRAGON_CONFIG.minutesPerBlock) + 1;
+        const blockMinutesElapsed = standardMinutes % DRAGON_CONFIG.minutesPerBlock;
+        const blockPercent = (blockMinutesElapsed / DRAGON_CONFIG.minutesPerBlock) * 100;
+
+        // 3. Resolve Half-Day Dial Cycle (720 minutes per full 360 rotation)
+        const cycleMinutes = standardMinutes % 720;
+        
+        // 4. Determine Apex State (Last 18 minutes of each 720-minute half-day cycle)
+        const isApex = cycleMinutes >= 702;
+
+        // 5. Render Core Graphic Assets
+        drawClockFace(cycleMinutes, isApex);
+        
+        // 6. Push Data to UI Strings
+        updateUIElements(totalDragonHours, currentBlock, blockPercent, isApex);
+
+        requestAnimationFrame(updateClock);
+    }
+
+    function drawClockFace(cycleMinutes, isApex) {
+        ctx.clearRect(-radius, -radius, canvas.width, canvas.height);
+
+        // Fetch current accent colors from CSS variables
+        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#d4af37';
+
+        // Background Outer Ring Rim
+        ctx.beginPath();
+        ctx.arc(0, 0, radius - 10, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Render Symmetrical 9-Degree Orange Apex Wedge at top
+        const apexStartRad = (-90 - DRAGON_CONFIG.cycleOffset) * Math.PI / 180;
+        const apexEndRad = (-90 + DRAGON_CONFIG.cycleOffset) * Math.PI / 180;
+        
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius - 15, apexStartRad, apexEndRad);
+        ctx.closePath();
+        ctx.fillStyle = isApex ? 'rgba(255, 107, 0, 0.35)' : 'rgba(255, 107, 0, 0.08)';
+        ctx.fill();
+        ctx.strokeStyle = '#ff6b00';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Render 13 Hour Markers Spaced at 27-Degree Intervals
+        for (let i = 0; i < 13; i++) {
+            const angleDeg = (i * 27) - 90; 
+            const angleRad = angleDeg * Math.PI / 180;
+            
+            const startDist = radius - 25;
+            const endDist = radius - 15;
+
+            ctx.beginPath();
+            ctx.moveTo(startDist * Math.cos(angleRad), startDist * Math.sin(angleRad));
+            ctx.lineTo(endDist * Math.cos(angleRad), endDist * Math.sin(angleRad));
+            
+            if (i === 0 || i === 12) {
+                ctx.strokeStyle = accentColor;
+                ctx.lineWidth = 3;
+            } else {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.lineWidth = 1.5;
+            }
+            ctx.stroke();
+        }
+
+        // Draw Center Hub Anchor Pin
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = accentColor;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+
+        // Compute Hand Tracking Angle
+        const handAngleDeg = (cycleMinutes * DRAGON_CONFIG.degreesPerMinute) - 90 + DRAGON_CONFIG.cycleOffset;
+        const handAngleRad = handAngleDeg * Math.PI / 180;
+        const handLength = radius - 35;
+
+        // Render Sweep Vector Hand
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(handLength * Math.cos(handAngleRad), handLength * Math.sin(handAngleRad));
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    }
+
+    function updateUIElements(totalHours, blockNum, progress, apexActive) {
+        const hoursInt = Math.floor(totalHours);
+        const remainderMinutes = (totalHours - hoursInt) * DRAGON_CONFIG.minutesPerDragonHour;
+        const minsInt = Math.floor(remainderMinutes);
+        const secsInt = Math.floor((remainderMinutes - minsInt) * 60);
+
+        const pad = (num) => String(num).padStart(2, '0');
+        
+        document.getElementById('dragon-time').textContent = 
+            `${pad(hoursInt)}:${pad(minsInt)}:${pad(secsInt)}`;
+        
+        document.getElementById('block-info').textContent = `Block ${blockNum}`;
+        document.getElementById('block-progress').textContent = `${progress.toFixed(1)}%`;
+
+        const apexElement = document.getElementById('apex-status');
+        if (apexActive) {
+            apexElement.textContent = "Divine Apex Window Active";
+            apexElement.className = "data-value apex-active";
+        } else {
+            apexElement.textContent = "Standard Symmetric Flow";
+            apexElement.className = "data-value";
+        }
+    }
+
+    updateClock();
+</script>
+
+</body>
+</html>
