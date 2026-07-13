@@ -234,6 +234,10 @@
     {
       "timestamp": "2026-07-14T02:40:00+12:00",
       "summary": "Added a dedicated, direct 'Create Blank Album' button on the main player header next to the funnel selection dropdown in album.html for immediate visibility."
+    },
+    {
+      "timestamp": "2026-07-14T02:45:00+12:00",
+      "summary": "Updated sitemap.html with a description of the new Cooperative Shop Catalog features and recompiled sitemap.pdf using LibreOffice headless."
     }
   ]
 }
