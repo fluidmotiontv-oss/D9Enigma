@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | K.I.T.E. Digital Bodyguard</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- QRious QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        :root {
+            --red: #ff2200;
+            --red-glow: rgba(255, 34, 0, 0.3);
+            --bg-dark: #0a0505;
+            --panel-bg: rgba(20, 10, 10, 0.75);
+            --text-color: #ffcccc;
+            --accent: #ff2200;
+            --highlight: #00ff41; /* Matrix green */
+            --amber: #ffaa00;
+            --blue: #00e5ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-color); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            transition: background 0.1s;
+        }
+
+        /* Police Flashing Alert Strobe */
+        body.panic-strobe {
+            animation: strobe-anim 0.25s infinite alternate;
+        }
+
+        @keyframes strobe-anim {
+            0% { background-color: #500; }
+            100% { background-color: #005; }
+        }
+
+        /* Scanline HUD overlay matching 80s monitor screen */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.25;
+        }
+
+        .header {
+            padding: 16px 28px; 
+            border: 1.5px solid var(--red);
+            background: var(--panel-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; margin-bottom: 24px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(255, 34, 0, 0.15), inset 0 0 15px rgba(255, 34, 0, 0.05);
+            flex-wrap: wrap; gap: 15px;
+        }
+
+        .nav-links {
+            display: flex; gap: 10px; align-items: center;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--accent);
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(255, 34, 0, 0.05);
+            border: 1px solid rgba(255, 34, 0, 0.2);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            background: rgba(255, 34, 0, 0.15);
+            border-color: #ffffff;
+            box-shadow: 0 0 15px var(--red-glow);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr 1fr;
+            gap: 24px;
+            flex-grow: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--panel-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid var(--red);
+            border-radius: 12px; padding: 24px; 
+            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 34, 0, 0.05);
+            transition: all 0.5s ease;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 1.5px solid var(--red);
+            padding-bottom: 10px;
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-shadow: 0 0 8px var(--red-glow);
+        }
+
+        /* K.I.T.E. Pulsing Voice visualizer (KITT box) */
+        .voice-box-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 2px solid var(--red);
+            border-radius: 8px;
+            padding: 20px;
+            gap: 12px;
+            box-shadow: 0 0 15px rgba(255, 34, 0, 0.15);
+        }
+        .voice-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            height: 90px;
+            width: 100%;
+            max-width: 200px;
+        }
+        .voice-bar {
+            width: 12px;
+            background: #ff0000;
+            height: 6px;
+            border-radius: 1px;
+            transition: height 0.05s ease;
+            box-shadow: 0 0 12px #ff0000;
+        }
+        .voice-bar.center { height: 10px; }
+
+        /* Arming states */
+        .arm-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .btn-arm {
+            background: rgba(255, 34, 0, 0.05);
+            border: 1px solid var(--red);
+            color: var(--text-color);
+            padding: 10px 5px;
+            font-size: 0.6rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .btn-arm.active {
+            box-shadow: 0 0 12px var(--red-glow);
+            color: #000;
+            border-color: #fff;
+        }
+        .btn-arm.active.disarmed { background: var(--amber); }
+        .btn-arm.active.silent { background: var(--blue); }
+        .btn-arm.active.active-guard { background: var(--highlight); }
+
+        /* Threat Levels Monitor */
+        .threat-monitor {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid rgba(255, 34, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .threat-indicator-bar {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+        .threat-node {
+            flex: 1;
+            height: 25px;
+            border-radius: 4px;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            opacity: 0.25;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .threat-node.green.active { background: #00ff41; border-color: #00ff41; color: #000; opacity: 1; box-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+        .threat-node.amber.active { background: #ffaa00; border-color: #ffaa00; color: #000; opacity: 1; box-shadow: 0 0 10px rgba(255, 170, 0, 0.5); }
+        .threat-node.red.active { background: #ff2200; border-color: #ff2200; color: #fff; opacity: 1; box-shadow: 0 0 10px rgba(255, 34, 0, 0.6); }
+        .threat-node.critical.active { background: #ffffff; border-color: #ff0000; color: #ff0000; opacity: 1; font-weight: 900; animation: panic-pulse 0.5s infinite; }
+
+        @keyframes panic-pulse {
+            0% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.6); background: #fff; }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 0, 1); background: #ff0000; color: #fff; }
+            100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.6); background: #fff; }
+        }
+
+        .threat-instruction {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            padding: 8px 12px;
+            border-left: 2px solid var(--accent);
+            background: rgba(255, 34, 0, 0.03);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Large windshield display overlay */
+        .windshield-panel {
+            background: #000;
+            border: 2px solid var(--red);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 200px;
+            box-shadow: 0 0 20px rgba(255, 34, 0, 0.1);
+        }
+        .windshield-text {
+            flex-grow: 1;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            line-height: 1.5;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            border: 1px dashed rgba(255,34,0,0.3);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.01);
+            word-wrap: break-word;
+        }
+
+        /* Live Perimeter Monitor Video + Canvas */
+        .perimeter-visualizer-container {
+            border: 2px solid var(--red);
+            background: #000;
+            border-radius: 8px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .perimeter-visualizer-container::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 255, 65, 0) 50%, rgba(0, 255, 65, 0.1) 50%);
+            background-size: 100% 6px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        #webcamView {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) brightness(1.2) contrast(1.5);
+            z-index: 1;
+        }
+        .nv-tint {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 255, 65, 0.15);
+            mix-blend-mode: overlay;
+            z-index: 2;
+            pointer-events: none;
+        }
+        #radarCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 3;
+        }
+        .cam-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Sovereign Protocols rights buttons */
+        .protocols-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 600px) {
+            .protocols-grid { grid-template-columns: 1fr; }
+        }
+        .protocol-btn {
+            background: rgba(255, 34, 0, 0.04);
+            border: 1.5px solid var(--red);
+            color: var(--accent);
+            padding: 12px 10px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .protocol-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 15px var(--red-glow);
+            border-color: #ffffff;
+        }
+        .protocol-btn span {
+            font-size: 0.55rem;
+            opacity: 0.8;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Black Box recordings panel */
+        .blackbox-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1.5px solid var(--red);
+            border-radius: 6px;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+        }
+        .record-dot {
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            opacity: 0.2;
+            transition: all 0.3s;
+        }
+        .record-dot.recording {
+            opacity: 1;
+            box-shadow: 0 0 10px #ff0000;
+            animation: record-pulse 1s infinite;
+        }
+        @keyframes record-pulse {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.2; }
+        }
+        .btn-record {
+            background: #7a0000;
+            border: 1px solid var(--red);
+            color: #fff;
+            padding: 10px;
+            font-size: 0.75rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        .btn-record:hover {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+        .btn-record.recording {
+            background: #ff0000;
+            animation: panic-pulse 1s infinite;
+        }
+
+        .recordings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        .recording-card {
+            border: 1px solid rgba(255, 34, 0, 0.2);
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.2);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+        .recording-card:hover {
+            border-color: var(--accent);
+            background: rgba(255,34,0,0.02);
+        }
+        .recording-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Voice settings & volume controls */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 34, 0, 0.1);
+        }
+        .slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .slider-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--accent);
+        }
+        label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 34, 0, 0.2);
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        /* Emergency distress beacon */
+        .beacon-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.4);
+            gap: 10px;
+        }
+        #beaconQr {
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            display: none;
+            box-shadow: 0 0 15px rgba(255,255,255,0.8);
+        }
+
+        /* GPS PIN Coordinates */
+        .coordinates-box {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--highlight);
+            text-align: center;
+            border: 1px solid rgba(0,255,65,0.2);
+            background: rgba(0,255,65,0.02);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        /* HUD Ticker Bottom */
+        .kiterider-hud {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            align-items: center;
+            text-align: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            border: 1.5px solid var(--red);
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 8px 32px rgba(255, 34, 0, 0.1);
+            margin-bottom: 24px;
+        }
+        @media (max-width: 700px) {
+            .kiterider-hud { grid-template-columns: 1fr; gap: 15px; }
+        }
+
+        .clock-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.6rem;
+            color: var(--accent);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px var(--red-glow);
+        }
+        .clock-milli {
+            font-size: 0.8rem;
+            color: var(--amber);
+            opacity: 0.8;
+        }
+        .hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .log-panel {
+            grid-column: span 1; 
+            background: rgba(5, 2, 2, 0.85); 
+            color: var(--accent); 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem; 
+            padding: 12px 18px; 
+            border-radius: 8px; 
+            height: 100px;
+            overflow-y: auto; 
+            border: 1.5px solid var(--red);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .log-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .log-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 34, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .emergency-btn {
+            background: rgba(255, 34, 0, 0.1);
+            border: 2px solid var(--red);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 900;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 34, 0, 0.3);
+            transition: all 0.3s;
+        }
+        .emergency-btn:hover {
+            background: var(--red);
+            color: #000;
+            box-shadow: 0 0 30px var(--red);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <span style="color: var(--accent); font-size: 1.3rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--red-glow);">K.I.T.E. DIGITAL BODYGUARD</span>
+        </div>
+        
+        <div style="text-align: center; flex-grow: 1; padding-right: 80px;">
+            <div style="font-size: 0.6rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; margin-top: 4px;">APP8: DIGITAL BODYGUARD ESCORT SYSTEM</div>
+        </div>
+
+        <div class="nav-links">
+            <a href="../" class="nav-btn">Home</a>
+            <a href="../apps.html" class="nav-btn">Apps</a>
+            <a href="landing.html" class="nav-btn">Info</a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Left column: K.I.T.E. Voice & Bodyguard Arming -->
+        <div class="panel">
+            <div class="panel-title">BODYGUARD CORE CONTROLS</div>
+            
+            <div class="arm-grid">
+                <button class="btn-arm active disarmed" id="arm-disarmed" onclick="window.setGuardMode('disarmed')">Disarmed</button>
+                <button class="btn-arm silent" id="arm-silent" onclick="window.setGuardMode('silent')">Armed Silent</button>
+                <button class="btn-arm active-guard" id="arm-escort" onclick="window.setGuardMode('escort')">Escort Mode</button>
+            </div>
+
+            <div class="control-group">
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Audio Alarm Threshold</span>
+                        <span id="label-audio-thresh">60 dB</span>
+                    </div>
+                    <input type="range" id="slider-audio-thresh" min="30" max="100" value="60">
+                </div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--highlight);">
+                    Ambient Noise: <span id="label-ambient-db">0</span> dB
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Motion Alarm Threshold</span>
+                        <span id="label-motion-thresh">15%</span>
+                    </div>
+                    <input type="range" id="slider-motion-thresh" min="5" max="80" value="15">
+                </div>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--highlight);">
+                    Motion Deviation: <span id="label-motion-val">0%</span>
+                </div>
+            </div>
+
+            <div class="threat-monitor">
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: bold; color: var(--accent); margin-bottom: 5px;">STATION SAFETY ASSESSMENT</div>
+                <div class="threat-indicator-bar">
+                    <div class="threat-node green active" id="threatGreen" onclick="window.setThreatLevel('green')">SAFE</div>
+                    <div class="threat-node amber" id="threatAmber" onclick="window.setThreatLevel('amber')">WARN</div>
+                    <div class="threat-node red" id="threatRed" onclick="window.setThreatLevel('red')">RISK</div>
+                    <div class="threat-node critical" id="threatPanic" onclick="window.setThreatLevel('panic')">PANIC</div>
+                </div>
+                <div class="threat-instruction" id="threatInstruction">
+                    Keep hands visible on the steering wheel. Remain polite and state that you are audio-recording this encounter for mutual safety.
+                </div>
+            </div>
+
+            <div class="coordinates-box">
+                <div style="font-size: 0.55rem; opacity: 0.7;">ACTIVE LOCATION LOCK</div>
+                <div id="gpsCoords">COORD: Lat -36.9038, Lon 174.7820 (Okiwi Anchor)</div>
+            </div>
+        </div>
+
+        <!-- Middle column: Windshield Display & Perimeter camera -->
+        <div class="panel">
+            <div class="panel-title">Sovereign Right Proclamations</div>
+            
+            <div class="windshield-panel">
+                <div style="display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; color: var(--accent); font-weight: bold;">
+                    <span>WINDSHIELD DISPLAY TEXT</span>
+                    <span id="displayMode">STATUS: IDLE</span>
+                </div>
+                <div class="windshield-text" id="windshieldDisplay">
+                    Awaiting Protocol Trigger...
+                </div>
+                <button onclick="window.shutUp()" style="font-size: 0.7rem; padding: 6px; background: rgba(255, 34, 0, 0.15); border: 1px solid var(--red); color: #fff;">MUTING K.I.T.E. SPEECH</button>
+            </div>
+
+            <div class="panel-title">LIVE PERIMETER MONITOR</div>
+            <div class="perimeter-visualizer-container">
+                <video id="webcamView" autoplay muted playsinline style="display:none;"></video>
+                <div class="nv-tint" id="nightVisionTint" style="display:none;"></div>
+                <canvas id="radarCanvas"></canvas>
+            </div>
+            <div class="cam-controls">
+                <button class="btn-record" id="btn-toggle-cam" onclick="window.toggleCamera()" style="font-size: 0.65rem; padding: 6px 12px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15);">🔌 TOGGLE WEBCAM EYE</button>
+                <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; display: flex; align-items: center; color: var(--accent);" id="cam-status">CAMERA OFFLINE (RADAR SWEEP ACTIVE)</div>
+            </div>
+
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: bold; color: var(--accent); border-bottom: 1px solid rgba(255,34,0,0.2); padding-bottom: 6px;">QUICK SHIELD ACTIVATORS (NZBORA RIGHTS)</div>
+            <div class="protocols-grid">
+                <button class="protocol-btn" onclick="window.triggerProtocol('silence')">
+                    🗣️ RIGHT TO SILENCE
+                    <span>Section 23 Rights</span>
+                </button>
+                <button class="protocol-btn" onclick="window.triggerProtocol('warrant')">
+                    🛡️ SEARCH WARRANT DEMAND
+                    <span>Section 21 Shield</span>
+                </button>
+                <button class="protocol-btn" onclick="window.triggerProtocol('detention')">
+                    🛑 AM I FREE TO GO?
+                    <span>Detention Challenge</span>
+                </button>
+                <button class="protocol-btn" onclick="window.triggerProtocol('traffic')">
+                    🚘 TRAFFIC ENCOUNTER
+                    <span>Land Transport Act</span>
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="customInput" placeholder="Type custom statement to broadcast..." style="flex: 2; height: 36px;" />
+                <button onclick="window.speakCustom()" style="flex: 1; height: 36px; padding: 0 10px; font-size: 0.65rem;">SPEAK / VIEW</button>
+            </div>
+        </div>
+
+        <!-- Right column: Blackbox logs & Distress Beacons -->
+        <div class="panel">
+            <div class="panel-title">EMERGENCY CORE</div>
+            
+            <button class="emergency-btn" id="btn-trigger-alarm" onclick="window.triggerEmergencyAlarm()">🚨 TRIGGER PANIC ALERT</button>
+            
+            <div class="control-group">
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Siren Pitch Modulation</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span style="font-size:0.6rem; color: var(--accent);">VOLUME:</span>
+                        <input type="range" id="slider-siren-vol" min="0" max="100" value="80">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-title">BLACKBOX DIGITAL LOGS</div>
+
+            <div class="blackbox-status">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="record-dot" id="recordDot"></div>
+                    <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;" id="recStatus">IDLE VAULT</div>
+                </div>
+                <button class="btn-record" id="btnRecord" onclick="window.toggleRecording()">
+                    🎙️ START RECORDING
+                </button>
+            </div>
+
+            <div class="recordings-list" id="recordingsContainer">
+                <!-- Loaded dynamically -->
+            </div>
+
+            <div class="panel-title" style="margin-top: 10px;">DISTRESS BEACON QR</div>
+            
+            <div class="beacon-box">
+                <canvas id="beaconQr"></canvas>
+                <button onclick="window.activateBeacon()" style="font-size: 0.7rem; padding: 8px;">BROADCAST SECURITY PAYLOAD</button>
+                <div style="font-size: 0.55rem; opacity: 0.7; text-align: center; font-family: 'Share Tech Mono', monospace;" id="beaconStatus">
+                    Generate offline secure QR containing timestamp, coordinates, and threat level status for bystanders.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="kiterider-hud">
+        <div>
+            <div class="hud-title">DRAGON 9 TIME</div>
+            <div>
+                <span class="clock-display" id="clockD9">00:00:00</span>
+                <span class="clock-milli" id="clockMilli">.000000</span>
+            </div>
+        </div>
+        <div>
+            <div class="hud-title" style="letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 2px;">SHIELD STATUS</div>
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; letter-spacing: 3px; font-weight: 900; color: var(--accent);" id="systemStatus">SOVEREIGN PROTOCOLS ACTIVE</div>
+        </div>
+        <div>
+            <div class="hud-title">Root Signature</div>
+            <div id="rootDisplay" style="font-family: 'Share Tech Mono', monospace; font-size: 1.35rem; color: var(--accent); font-weight: 700; text-shadow: 0 0 5px var(--red-glow);">ROOT: --</div>
+        </div>
+    </div>
+
+    <div class="log-panel" id="logger">
+        <div>[SYSTEM] K.I.T.E. Sovereign Shield System initialized. Threat diagnostic links online.</div>
+    </div>
+
+    <div class="control-group" style="display: none;">
+        <label for="voicePitch">K.I.T.E. VOICE PITCH</label>
+        <input type="range" id="voicePitch" min="0.5" max="1.5" step="0.1" value="1.0" />
+        <label for="voiceRate">SPEECH SYNTH VELOCITY</label>
+        <input type="range" id="voiceRate" min="0.6" max="1.5" step="0.1" value="0.9" />
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

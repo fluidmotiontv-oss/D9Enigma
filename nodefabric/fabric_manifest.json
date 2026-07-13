@@ -1,0 +1,23 @@
+{
+    "master_host": "primary_portal_engine",
+    "connected_nodes": [
+        {
+            "id": "node_01",
+            "status": "active",
+            "type": "render_unit",
+            "ip": "127.0.0.1"
+        },
+        {
+            "id": "node_02",
+            "status": "idle",
+            "type": "compute_unit",
+            "ip": "127.0.0.1"
+        },
+        {
+            "id": "test_node_sydney",
+            "status": "active",
+            "type": "sensor",
+            "ip": "127.0.0.1"
+        }
+    ]
+}

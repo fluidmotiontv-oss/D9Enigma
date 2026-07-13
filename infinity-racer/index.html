@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Lemniscate Pulse Rider</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+        }
+
+        /* Scanline Overlay for retro/cyberpunk themes */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.15;
+            transition: opacity 0.5s ease;
+        }
+
+        /* WebGL Canvas */
+        #game-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* Fullscreen Layout Overlay */
+        .hud-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        /* Floating HUD Boxes */
+        .hud-panel {
+            background: rgba(10, 5, 15, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px var(--accent-glow);
+            border-radius: 8px;
+            padding: 12px 18px;
+            pointer-events: auto;
+            transition: border 0.5s ease, box-shadow 0.5s ease;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hud-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hud-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            text-align: right;
+        }
+
+        .hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .hud-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 8px var(--accent);
+        }
+
+        /* Shield Bar */
+        .shield-container {
+            width: 150px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-top: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .shield-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--highlight), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        /* D9 Clock Display */
+        .d9-clock {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .d9-milli {
+            font-size: 0.65rem;
+            opacity: 0.7;
+        }
+
+        .relax-tag {
+            background: var(--alert);
+            color: #fff;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            animation: pulse-relax 1s infinite alternate;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        @keyframes pulse-relax {
+            0% { opacity: 0.5; box-shadow: 0 0 2px var(--alert); }
+            100% { opacity: 1; box-shadow: 0 0 8px var(--alert); }
+        }
+
+        /* Bottom Control Panel */
+        .hud-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .controls-panel {
+            display: flex;
+            gap: 15px;
+            font-size: 0.75rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .slider-input {
+            -webkit-appearance: none;
+            width: 120px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.15);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 5px var(--accent);
+            cursor: pointer;
+        }
+
+        .action-btn {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            pointer-events: auto;
+            text-transform: uppercase;
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .instructions-box {
+            font-size: 0.65rem;
+            line-height: 1.4;
+            max-width: 250px;
+            border-left: 2px solid var(--accent);
+            padding-left: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(244, 228, 188, 0.7);
+        }
+
+        /* Screen States */
+        .modal-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 3, 8, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            font-family: 'Orbitron', sans-serif;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .modal-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .modal-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .modal-desc {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text);
+            max-width: 420px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .key-layout {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .key-badge {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            padding: 4px 8px;
+            color: #fff;
+        }
+
+        .reward-banner {
+            border: 1px dashed var(--highlight);
+            background: rgba(0, 229, 255, 0.05);
+            color: var(--highlight);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            margin-top: 15px;
+            line-height: 1.4;
+            max-width: 380px;
+            text-align: left;
+        }
+
+        /* Success Theme colors */
+        .color-highlight {
+            color: var(--highlight);
+            text-shadow: 0 0 8px var(--highlight);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Welcome / Start Screen -->
+    <div id="start-screen" class="modal-screen">
+        <div style="font-size: 3rem; margin-bottom: 10px;">🕹️</div>
+        <h1 class="modal-title">Lemniscate Pulse Rider</h1>
+        <p class="modal-desc">
+            Pilot a light-grid probe along the 3D Infinity Loop. Avoid entropy glitches and harvest harmonic resonance nodes. Sync with the Dragon 9 core alignment state to unlock operators rewards!
+        </p>
+        <div class="key-layout">
+            <div><span class="key-badge">◀ A</span> / <span class="key-badge">D ▶</span> Bank Probe</div>
+            <div><span class="key-badge">▲ W</span> / <span class="key-badge">S ▼</span> Adjust Baseline Speed</div>
+        </div>
+        <button id="btn-start" class="action-btn" style="font-size: 1rem; padding: 10px 24px;">🚀 Synchronize Core & Play</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="modal-screen hidden">
+        <div style="font-size: 3rem; margin-bottom: 10px;">💥</div>
+        <h1 class="modal-title" style="color: var(--alert); text-shadow: 0 0 15px rgba(255, 0, 128, 0.4);">Connection Terminated</h1>
+        <p class="modal-desc">
+            Your light-grid probe collapsed due to temporal friction and entropy hazards.
+        </p>
+        <div style="font-family: 'Share Tech Mono', monospace; margin-bottom: 25px; font-size: 1.1rem; line-height: 1.5;">
+            FINAL SCORE: <strong class="color-highlight" id="final-score">000</strong><br>
+            RESONANCE RIDER LEVEL: <span id="final-level" style="color: var(--accent);">Level 1</span>
+        </div>
+        
+        <!-- Operator Code Reward if score > 300 -->
+        <div id="reward-box" class="reward-banner hidden">
+            🔑 <strong>LEVEL 2 OPERATOR CREDENTIALS ACCREDITED:</strong><br>
+            Code: <strong style="color: #fff;">D9_INFINITY_FLOW_ALIGN_77</strong><br>
+            <em>The infinity track aligns. Spread the resonance!</em>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 15px;">
+            <button id="btn-retry" class="action-btn" style="font-size: 0.8rem; padding: 8px 18px;">🔄 Re-Calibrate Probe</button>
+        </div>
+    </div>
+
+    <!-- HUD Overlay -->
+    <div class="hud-overlay">
+        <div class="hud-top">
+            <div class="hud-panel hud-left">
+                <div class="hud-title">Probe Resonance</div>
+                <div class="hud-value" id="score-display">0000</div>
+                <div style="font-size: 0.65rem; color: rgba(255,255,255,0.6); display: flex; justify-content: space-between;">
+                    <span>Shield Integrity</span>
+                    <span id="shield-txt">100%</span>
+                </div>
+                <div class="shield-container">
+                    <div class="shield-bar" id="shield-bar"></div>
+                </div>
+            </div>
+
+            <div class="hud-panel hud-right">
+                <div class="hud-title">Dragon 9 Sync</div>
+                <div class="d9-clock"><span id="d9-h">26</span>:<span id="d9-m">00</span>:<span id="d9-s">00</span><span class="d9-milli" id="d9-milli">.000000</span></div>
+                <div style="font-size: 0.65rem;">ROOT NODE: <strong id="d9-root" style="color: var(--accent);">1</strong></div>
+                <div id="relax-indicator" class="relax-tag hidden">RELAX PERIOD ACTIVE</div>
+            </div>
+        </div>
+
+        <div class="hud-bottom">
+            <div class="hud-panel instructions-box">
+                🕹️ Use <strong>LEFT / RIGHT</strong> (or A/D) to spiral around the tube. Avoid RED nodes, collect GOLD / CYAN orbs. Keep baseline speed high for extra score multiplier!
+            </div>
+            
+            <div class="hud-panel controls-panel">
+                <div class="control-group">
+                    <label for="speed-slider" style="font-size: 0.6rem; color: var(--accent); font-weight: bold; text-transform: uppercase;">PROBE THRUST</label>
+                    <input type="range" id="speed-slider" class="slider-input" min="5" max="35" value="15" step="1">
+                </div>
+                <div class="control-group" style="justify-content: flex-end;">
+                    <button id="btn-audio" class="action-btn" style="height: 24px; padding: 0 10px;">🔊 Audio: ON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Lotus Nexus</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --card-bg: rgba(15, 23, 42, 0.55);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --cyan-glow: #00e5ff;
+            --gold-accent: #d4af37;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Blobs */
+        .ambient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+        }
+
+        .blob-1 {
+            width: 40vw;
+            height: 40vw;
+            background: linear-gradient(135deg, var(--cyan-glow), #0033aa);
+            top: -10%;
+            left: -10%;
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 24px;
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--cyan-glow);
+            font-weight: 700;
+        }
+
+        .back-link {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Privacy Policy Content Card */
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 60px 0;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+
+        .update-date {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--gold-accent);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            color: var(--cyan-glow);
+            margin-top: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        ul {
+            list-style-type: square;
+            margin-left: 20px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <a href="index.html" class="logo">LOTUS <span>NEXUS</span></a>
+            <a href="index.html" class="back-link">← LANDING PAGE</a>
+        </header>
+
+        <!-- Privacy Content -->
+        <main class="content-card">
+            <h1>Privacy Policy</h1>
+            <div class="update-date">Effective Date: July 9, 2026</div>
+
+            <p>
+                Lotus Nexus values and asserts your right to civil liberties, offline privacy, and self-determination. This Privacy Policy details how data is managed within the Lotus Nexus application.
+            </p>
+
+            <h2>1. No Data Collection</h2>
+            <p>
+                We do not collect, monitor, track, store, or transmit any of your personal identification data, location details, metadata, or creative compositions. Lotus Nexus is a decentralized, standalone application.
+            </p>
+
+            <h2>2. Local Execution and Storage</h2>
+            <p>
+                All processes related to synthesis, loop playback, and composition generation run entirely on your local hardware:
+            </p>
+            <ul>
+                <li><strong>Resonance Codes</strong>: Generated Base64 text codes are computed client-side using JavaScript, and are only copied to your device's clipboard at your explicit action. They are never sent to external servers.</li>
+                <li><strong>Local Library</strong>: Custom compositions saved to your library are stored locally in your browser's <code>localStorage</code> or <code>IndexedDB</code>. Clearing your browser data will delete these files. We cannot access them.</li>
+            </ul>
+
+            <h2>3. Zero Third-Party Integrations</h2>
+            <p>
+                Lotus Nexus does not integrate any third-party advertising, analytics scripts, social tracking tools, or external telemetry modules.
+            </p>
+
+            <h2>4. Standalone Portability</h2>
+            <p>
+                Because the app is built to execute offline without server communication, you can safely run it inside a closed network or download the standalone HTML client directly to your local drive for complete air-gapped security.
+            </p>
+
+            <h2>5. Contact</h2>
+            <p>
+                Since no backend accounts exist, there is no support dashboard. For questions regarding the code, inspect the public application source directly.
+            </p>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 Lotus Nexus & The Fluid Motion of the Future. All Rights Reserved.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Frequency Healer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020205;
+            --panel-bg: rgba(10, 10, 16, 0.6);
+            --border-color: rgba(255, 255, 255, 0.06);
+            --accent-cyan: #00e5ff;
+            --accent-gold: #d4af37;
+            --accent-magenta: #ff0080;
+            --accent-glow-cyan: rgba(0, 229, 255, 0.25);
+            --accent-glow-gold: rgba(212, 175, 55, 0.25);
+            --accent-glow-magenta: rgba(255, 0, 128, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #8c85a3;
+            --glow-color: var(--accent-cyan);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        /* Ambient animated organic backgrounds */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(140px);
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            animation: drift 30s infinite ease-in-out alternate;
+        }
+
+        .blob-cyan {
+            width: 60vw;
+            height: 60vw;
+            background: linear-gradient(135deg, var(--accent-cyan), #002266);
+            top: -15%;
+            left: -10%;
+        }
+
+        .blob-gold {
+            width: 55vw;
+            height: 55vw;
+            background: linear-gradient(135deg, var(--accent-gold), #3d1475);
+            bottom: -15%;
+            right: -10%;
+            animation-delay: -7s;
+        }
+
+        .blob-magenta {
+            width: 40vw;
+            height: 40vw;
+            background: linear-gradient(135deg, var(--accent-magenta), #330022);
+            top: 40%;
+            left: 30%;
+            animation-delay: -14s;
+            opacity: 0.1;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(120px, -80px) scale(1.2) rotate(90deg); }
+        }
+
+        /* Scanline cybernetic grid */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Navigation Header */
+        header {
+            width: 100%;
+            max-width: 1300px;
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(10, 10, 15, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-symbol {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px var(--accent-cyan));
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #fff, var(--text-main));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Main Container layout */
+        .container {
+            width: 95%;
+            max-width: 1300px;
+            margin: 40px auto 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+            z-index: 5;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphic Panel Base */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            font-weight: 700;
+        }
+
+        /* Visualizer and Master section */
+        .visualizer-card {
+            min-height: 280px;
+            background: rgba(5, 5, 10, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #visualizer-canvas {
+            width: 100%;
+            height: 280px;
+            display: block;
+            border-radius: 15px;
+        }
+
+        /* Main play center controls */
+        .main-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .play-btn {
+            background: rgba(0, 229, 255, 0.08);
+            border: 2px solid var(--accent-cyan);
+            color: #fff;
+            padding: 16px 36px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 20px var(--accent-glow-cyan);
+        }
+
+        .play-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 35px var(--accent-cyan);
+            transform: scale(1.03);
+        }
+
+        .play-btn.playing {
+            border-color: var(--accent-magenta);
+            background: rgba(255, 0, 128, 0.08);
+            box-shadow: 0 0 20px var(--accent-glow-magenta);
+        }
+
+        .play-btn.playing:hover {
+            background: var(--accent-magenta);
+            color: #fff;
+            box-shadow: 0 0 35px var(--accent-magenta);
+        }
+
+        .master-stats {
+            display: flex;
+            gap: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        /* Preset Grids */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .preset-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .preset-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .preset-card.active {
+            border-color: var(--glow-color);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .preset-freq {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #fff;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .preset-freq span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .preset-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--glow-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .preset-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Right panel layout details */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+        }
+
+        .slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--accent-glow-cyan);
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #fff;
+        }
+
+        /* Binaural beat state selector */
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn-sub {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .btn-sub:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-sub.active {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.05);
+            box-shadow: 0 0 10px var(--accent-glow-cyan);
+            color: #fff;
+        }
+
+        /* Select styling */
+        select {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            outline: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        /* Switch toggles */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-toggle {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .slider-toggle:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-main);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-toggle {
+            background-color: var(--accent-cyan);
+        }
+
+        input:checked + .slider-toggle:before {
+            transform: translateX(22px);
+            background-color: #000;
+        }
+
+        /* Headphones advice box */
+        .headphone-notice {
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px dashed rgba(0, 229, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Sleep timer controls */
+        .timer-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-timer {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            padding: 6px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-timer:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-timer.active {
+            border-color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.08);
+            box-shadow: 0 0 8px var(--accent-glow-gold);
+            color: var(--accent-gold);
+        }
+
+        .timer-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-cyan);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 0 10px var(--accent-glow-cyan);
+        }
+
+        /* SEO Description */
+        .seo-description {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="seo-description">Dragon 9 Frequency Healer & Solfeggio Meditation Portal</h1>
+    <p class="seo-description">A high-fidelity off-grid Web Audio healing generator. Features solfeggio healing frequencies, customizable binaural beats, Sleep Timers, and ambient audio visualizers.</p>
+
+    <!-- Background visual assets -->
+    <div class="ambient-bg">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-gold"></div>
+        <div class="blob blob-magenta"></div>
+    </div>
+
+    <!-- Header navigation -->
+    <header>
+        <div class="logo">
+            <span class="logo-symbol">🧘</span>
+            <div class="logo-text">Frequency Healer</div>
+        </div>
+        <div class="nav-links">
+            <a href="../index.html" class="nav-btn">Home</a>
+            <a href="../apps.html" class="nav-btn">Apps</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Left Panel: Playback controls, Presets & Canvas -->
+        <main class="panel">
+            <div class="panel-title">
+                <span>🌌</span> Resonator Interface
+            </div>
+
+            <!-- Visualization section -->
+            <div class="visualizer-card">
+                <canvas id="visualizer-canvas"></canvas>
+            </div>
+
+            <!-- Main Play bar -->
+            <div class="main-controls">
+                <button id="btn-play-toggle" class="play-btn">
+                    <span id="play-icon">▶</span> <span id="play-text">Activate resonance</span>
+                </button>
+                
+                <div class="master-stats">
+                    <div class="stat-item">
+                        FREQ: <span id="stat-freq">528</span> Hz
+                    </div>
+                    <div class="stat-item">
+                        BEAT: <span id="stat-beat">OFF</span>
+                    </div>
+                    <div class="stat-item">
+                        PAD: <span id="stat-pad">OCEAN</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solfeggio Presets Header -->
+            <div class="tab-bar">
+                <button class="tab-btn active" id="btn-solfeggio-tab">Solfeggio Frequencies</button>
+            </div>
+
+            <!-- Solfeggio Cards Grid -->
+            <div class="preset-grid" id="solfeggio-container">
+                <!-- Solfeggio preset cards will be dynamically rendered here -->
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Fine-tuning sliders and parameters -->
+        <aside class="panel">
+            <div class="panel-title">
+                <span>🎛️</span> Synthesizer
+            </div>
+
+            <!-- Volume Control Group -->
+            <div class="control-group">
+                <div class="control-title">Channels Mixer</div>
+                
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Tone Volume</span>
+                        <span id="label-tone-vol">70%</span>
+                    </div>
+                    <input type="range" id="slider-tone-vol" min="0" max="100" value="70">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Beat Volume</span>
+                        <span id="label-beat-vol">40%</span>
+                    </div>
+                    <input type="range" id="slider-beat-vol" min="0" max="100" value="40">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Ambient Noise</span>
+                        <span id="label-pad-vol">30%</span>
+                    </div>
+                    <input type="range" id="slider-pad-vol" min="0" max="100" value="30">
+                </div>
+            </div>
+
+            <!-- Tone Generator Group -->
+            <div class="control-group">
+                <div class="control-title">Core Carrier</div>
+                
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Carrier Frequency</span>
+                        <span id="label-carrier-freq">528 Hz</span>
+                    </div>
+                    <input type="range" id="slider-carrier-freq" min="100" max="1000" value="528">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Oscillator Wave</span>
+                    </div>
+                    <select id="select-waveform">
+                        <option value="sine" selected>Pure Sine (Cleanest)</option>
+                        <option value="triangle">Warm Triangle (Soft)</option>
+                        <option value="sawtooth">Bright Sawtooth (Rich)</option>
+                        <option value="square">Robust Square (Harsh)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Binaural Beats Group -->
+            <div class="control-group">
+                <div class="switch-container">
+                    <span class="switch-label">Binaural Beat Pulse</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-binaural">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+
+                <div class="headphone-notice">
+                    <span>🎧</span>
+                    <span>For the Binaural Beat effect to work, you must wear headphones.</span>
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Beat Frequency</span>
+                        <span id="label-beat-freq">6.0 Hz</span>
+                    </div>
+                    <input type="range" id="slider-beat-freq" min="1" max="50" step="0.5" value="6">
+                </div>
+
+                <div class="slider-row">
+                    <div class="slider-label-row">
+                        <span>Brainwave Presets</span>
+                    </div>
+                    <div class="sub-grid">
+                        <button class="btn-sub" data-beat="2.5" title="Deep sleep and pain relief">Delta (2.5Hz)</button>
+                        <button class="btn-sub active" data-beat="6.0" title="Meditation and deep relaxation">Theta (6Hz)</button>
+                        <button class="btn-sub" data-beat="10.0" title="Stress relief and relaxed focus">Alpha (10Hz)</button>
+                        <button class="btn-sub" data-beat="20.0" title="High alertness and reasoning">Beta (20Hz)</button>
+                        <button class="btn-sub" data-beat="40.0" title="Peak concentration and learning">Gamma (40Hz)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ambient Soundscapes Group -->
+            <div class="control-group">
+                <div class="control-title">Nature soundscapes</div>
+                <select id="select-ambient">
+                    <option value="ocean" selected>🌊 Ocean Tide (Synthesized)</option>
+                    <option value="rain">🌧️ Rain Shower (Synthesized)</option>
+                    <option value="pink">🌌 Pink Noise Drift</option>
+                    <option value="off">🔇 Off</option>
+                </select>
+            </div>
+
+            <!-- Sleep Timer Group -->
+            <div class="control-group">
+                <div class="control-title">Sleep Timer</div>
+                <div class="timer-options">
+                    <button class="btn-timer active" data-time="0">Off</button>
+                    <button class="btn-timer" data-time="15">15m</button>
+                    <button class="btn-timer" data-time="30">30m</button>
+                    <button class="btn-timer" data-time="45">45m</button>
+                    <button class="btn-timer" data-time="60">60m</button>
+                </div>
+                <div id="timer-countdown" class="timer-display" style="display: none;">
+                    FADING IN: --:--
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Core App Logic -->
+    <script src="script.js"></script>
+</body>
+</html>

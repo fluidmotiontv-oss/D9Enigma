@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Flow - The Harmonic Dawn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --cyan-glow: #00e5ff;
+            --gold-accent: #d4af37;
+            --glass-bg: rgba(15, 23, 42, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Fluid Background */
+        .fluid-bg {
+            position: absolute;
+            top: -10%; left: -10%; width: 120vw; height: 120vh;
+            filter: blur(90px);
+            z-index: 0;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: float 25s infinite ease-in-out alternate;
+        }
+        
+        .blob-1 {
+            width: 60vw; height: 60vw;
+            background: linear-gradient(135deg, var(--cyan-glow), #0033aa);
+            top: 0; left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .blob-2 {
+            width: 50vw; height: 50vw;
+            background: linear-gradient(135deg, var(--gold-accent), #8a2be2);
+            bottom: -10%; right: -10%;
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            width: 45vw; height: 45vw;
+            background: linear-gradient(135deg, #020617, var(--cyan-glow));
+            top: 40%; left: 40%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(150px, -100px) scale(1.1) rotate(45deg); }
+        }
+
+        /* Glassmorphism UI */
+        .glass-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 6, 23, 0.4); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .hero-entrance {
+            position: absolute;
+            top: 8%;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            animation: fadeInDown 2s ease-out;
+        }
+        
+        .hero-entrance h1 {
+            font-size: 2.8rem;
+            letter-spacing: 6px;
+            font-weight: 400;
+        }
+        .hero-entrance .highlight {
+            color: var(--cyan-glow);
+            font-weight: 700;
+        }
+        .hero-entrance p {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            color: var(--gold-accent);
+        }
+
+        /* Apex Null Point Dial */
+        .apex-null-point {
+            position: relative;
+            width: 550px;
+            height: 550px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .dial-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: inset 0 0 50px rgba(0, 229, 255, 0.05), 0 0 50px rgba(0, 229, 255, 0.05);
+        }
+        
+        .dial-ring {
+            position: absolute;
+            top: 4%; left: 4%; right: 4%; bottom: 4%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212, 175, 55, 0.25);
+            animation: spin-slow-reverse 60s linear infinite;
+        }
+        
+        .dial-inner {
+            position: absolute;
+            top: 15%; left: 15%; right: 15%; bottom: 15%;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 229, 255, 0.1);
+            animation: spin-slow 40s linear infinite;
+        }
+
+        .deg-wrapper {
+            position: absolute;
+            top: 0; left: 50%;
+            width: 0; height: 50%;
+            transform-origin: bottom center;
+        }
+        
+        /* 0 degrees is top. We rotate the wrapper, and counter-rotate the point */
+        .deg-wrap-0 { transform: rotate(0deg); }
+        .deg-wrap-18 { transform: rotate(45deg); } /* Visually at 45deg for balance */
+        .deg-wrap-180 { transform: rotate(180deg); }
+        .deg-wrap-360 { transform: rotate(270deg); }
+
+        .degree-point {
+            position: absolute;
+            top: -35px; /* Radius of point + half border */
+            left: -35px;
+            width: 70px;
+            height: 70px;
+            background: var(--glass-bg);
+            border: 1.5px solid var(--cyan-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        }
+
+        .deg-wrap-0 .degree-point { transform: rotate(0deg); }
+        .deg-wrap-18 .degree-point { transform: rotate(-45deg); }
+        .deg-wrap-180 .degree-point { transform: rotate(-180deg); }
+        .deg-wrap-360 .degree-point { transform: rotate(-270deg); }
+
+        .degree-point:hover {
+            background: rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 30px var(--cyan-glow), inset 0 0 10px var(--cyan-glow);
+            transform: scale(1.15) !important;
+            color: var(--cyan-glow);
+            text-shadow: 0 0 5px var(--cyan-glow);
+        }
+        
+        .degree-point.active {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--gold-accent);
+            color: var(--gold-accent);
+            box-shadow: 0 0 30px var(--gold-accent), inset 0 0 10px var(--gold-accent);
+        }
+
+        .dial-display {
+            position: absolute;
+            width: 320px;
+            text-align: center;
+            padding: 30px;
+            background: rgba(2, 6, 23, 0.6);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            z-index: 20;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            opacity: 1;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        .dial-display.fade {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        
+        .dial-display h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-accent);
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .dial-display p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+
+        /* Clock */
+        .flux-clock {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            text-align: right;
+            background: rgba(2, 6, 23, 0.5);
+            padding: 25px 35px;
+            border-radius: 16px;
+            border-left: 3px solid var(--gold-accent);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border-top: 1px solid var(--glass-border);
+            border-right: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .clock-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--cyan-glow);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .clock-time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 2px 0 8px 0;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            letter-spacing: -1px;
+        }
+        
+        .lunar-phase {
+            font-size: 0.95rem;
+            color: var(--gold-accent);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
+        
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Interactive Nav Link to Home */
+        .nav-home {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            color: var(--cyan-glow);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            transition: all 0.3s;
+        }
+        .nav-home:hover {
+            background: rgba(0, 229, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Fluid Background -->
+    <div class="fluid-bg" id="fluid-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- UI Overlay -->
+    <div class="glass-overlay">
+        <a href="index.html" class="nav-home">← RETURN TO NEXUS</a>
+
+        <header class="hero-entrance">
+            <h1>FLUIDMOTIONTV: <span class="highlight">THE HARMONIC DAWN</span></h1>
+            <p>Step into the 26-hour day.</p>
+        </header>
+
+        <main class="apex-null-point">
+            <!-- Center Display (Codex text) -->
+            <div class="dial-display" id="dial-display">
+                <h2 id="dial-title">Apex Null Point</h2>
+                <p id="dial-desc">Hover a degree to reveal the hidden architecture of the sovereign domain.</p>
+            </div>
+
+            <!-- The Dial -->
+            <div class="dial-container">
+                <div class="dial-ring"></div>
+                <div class="dial-inner"></div>
+                
+                <div class="deg-wrapper deg-wrap-0">
+                    <div class="degree-point" data-deg="0">0°</div>
+                </div>
+                <div class="deg-wrapper deg-wrap-18">
+                    <div class="degree-point" data-deg="18">18°</div>
+                </div>
+                <div class="deg-wrapper deg-wrap-180">
+                    <div class="degree-point" data-deg="180">180°</div>
+                </div>
+                <div class="deg-wrapper deg-wrap-360">
+                    <div class="degree-point" data-deg="360">360°</div>
+                </div>
+            </div>
+        </main>
+
+        <div class="flux-clock">
+            <div class="clock-label">Current Solar Flux</div>
+            <div class="clock-time" id="flux-time">00:00:00</div>
+            <div class="lunar-phase" id="lunar-phase">Lunar Phase: Synchronizing...</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. The Real-Time Flux (26.66 Hour Clock) ---
+        function updateFluxClock() {
+            const now = new Date();
+            // Get standard time in milliseconds since start of day
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const elapsedStandardMs = now.getTime() - startOfDay;
+            
+            // Formula: T(fluid) = T(standard) * (26 / 24)
+            const fluidMultiplier = 26 / 24;
+            const elapsedFluidMs = elapsedStandardMs * fluidMultiplier;
+            
+            // Convert back to hours, minutes, seconds for fluid time
+            let fluidHours = Math.floor(elapsedFluidMs / (1000 * 60 * 60));
+            const remainingMs = elapsedFluidMs % (1000 * 60 * 60);
+            let fluidMinutes = Math.floor(remainingMs / (1000 * 60));
+            let fluidSeconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+            
+            // Format with leading zeros
+            const h = fluidHours.toString().padStart(2, '0');
+            const m = fluidMinutes.toString().padStart(2, '0');
+            const s = fluidSeconds.toString().padStart(2, '0');
+            
+            document.getElementById('flux-time').innerText = `${h}:${m}:${s}`;
+            
+            // Lunar Phase (Simulated 13-month cycle)
+            // Just a fun mathematical aesthetic based on day of year
+            const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const cycleDay = dayOfYear % 28; // 28 day lunar cycle roughly
+            
+            let phase = "New Moon";
+            if(cycleDay > 3 && cycleDay <= 7) phase = "Waxing Crescent";
+            else if(cycleDay > 7 && cycleDay <= 11) phase = "First Quarter";
+            else if(cycleDay > 11 && cycleDay <= 14) phase = "Waxing Gibbous";
+            else if(cycleDay > 14 && cycleDay <= 17) phase = "Full Resonance (Moon)";
+            else if(cycleDay > 17 && cycleDay <= 21) phase = "Waning Gibbous";
+            else if(cycleDay > 21 && cycleDay <= 25) phase = "Last Quarter";
+            else if(cycleDay > 25) phase = "Waning Crescent";
+            
+            document.getElementById('lunar-phase').innerText = `LUNAR PHASE: ${phase}`;
+            
+            requestAnimationFrame(updateFluxClock);
+        }
+        
+        requestAnimationFrame(updateFluxClock);
+
+        // --- 2. The Apex Null Point (Navigation Logic) ---
+        const codexData = {
+            '0': {
+                title: 'Codex of Sovereignty',
+                desc: 'The foundational philosophy and immutable laws of Fluidmotion. Here begins the path to true self-mastery.'
+            },
+            '18': {
+                title: 'The 13th Month',
+                desc: 'Access the hidden archives and decode the lunar transition mechanics. The time outside of time.'
+            },
+            '180': {
+                title: 'Live Stream',
+                desc: 'Enter the "Resonance" broadcast. Real-time fluid motion visuals and high-frequency soundscapes.'
+            },
+            '360': {
+                title: 'Community Hub',
+                desc: 'Where the Sovereign Souls connect. The circle completes, and collective intelligence awakens.'
+            }
+        };
+
+        const degreePoints = document.querySelectorAll('.degree-point');
+        const dialDisplay = document.getElementById('dial-display');
+        const dialTitle = document.getElementById('dial-title');
+        const dialDesc = document.getElementById('dial-desc');
+
+        degreePoints.forEach(point => {
+            point.addEventListener('mouseenter', () => {
+                // Remove active from all
+                degreePoints.forEach(p => p.classList.remove('active'));
+                point.classList.add('active');
+                
+                const deg = point.getAttribute('data-deg');
+                const data = codexData[deg];
+                
+                // Fade out, update, fade in
+                dialDisplay.classList.add('fade');
+                setTimeout(() => {
+                    dialTitle.innerText = data.title;
+                    dialDesc.innerText = data.desc;
+                    dialDisplay.classList.remove('fade');
+                }, 200); // Wait for half the CSS transition
+            });
+            
+            point.addEventListener('mouseleave', () => {
+                // Optional: reset to default when not hovering anywhere
+                // point.classList.remove('active');
+            });
+        });
+
+        // --- 3. Fluid Mouse Interaction ---
+        const fluidBg = document.getElementById('fluid-bg');
+        let mouseX = 0;
+        let mouseY = 0;
+        let bgX = 0;
+        let bgY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            // Calculate mouse position relative to center (-1 to 1)
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        function renderFluid() {
+            // Smoothly move background based on mouse
+            bgX += (mouseX * 40 - bgX) * 0.05;
+            bgY += (mouseY * 40 - bgY) * 0.05;
+            
+            fluidBg.style.transform = `translate(${bgX}px, ${bgY}px)`;
+            requestAnimationFrame(renderFluid);
+        }
+        renderFluid();
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Maximised Temporal Dial</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(15, 15, 22, 0.75);
+            --accent-orange: #ff6b00;
+            --text-main: #f4e4bc;
+            --text-muted: #6e5c8a;
+            --border-color: rgba(212, 175, 55, 0.25);
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.3);
+            --highlight: #00e5ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient subtle background grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Retro screen scanline filter */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.85), 0 0 40px rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border-color);
+            max-width: 1000px;
+            width: 95%;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        @media (max-width: 850px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 25px;
+            }
+        }
+
+        header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+
+        .clock-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(0,0,0,0.4);
+            border-radius: 16px;
+            border: 1px dashed rgba(212, 175, 55, 0.15);
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        #clock-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .dashboard-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .panel-section {
+            background: rgba(10, 10, 15, 0.4);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .telemetry {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .data-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .data-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .apex-active {
+            color: var(--accent-orange);
+            text-shadow: 0 0 8px rgba(255, 107, 0, 0.6);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Sound Metronome synthesizer panels */
+        .metronome-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-toggle {
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .btn-toggle:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+        .btn-toggle.active {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* Select styling matching Cyber theme */
+        select {
+            background: #000;
+            color: var(--gold);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            width: 100%;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(212, 175, 55, 0.2);
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            box-shadow: 0 0 5px var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .nav-btn {
+            flex: 1;
+            text-decoration: none;
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Left Column: Clock visualizer -->
+    <div class="clock-column">
+        <div id="clock-wrapper">
+            <canvas id="dragonClock"></canvas>
+        </div>
+        
+        <div style="font-family: 'Share Tech Mono', monospace; font-size: 2.2rem; margin-top: 15px; letter-spacing: 2px;" id="digital-big">00:00:00</div>
+    </div>
+
+    <!-- Right Column: Dashboard Controls -->
+    <div class="dashboard-column">
+        <div>
+            <header>
+                <h1>Dragon Dial</h1>
+                <p class="subtitle">Maximised Temporal Clock</p>
+            </header>
+
+            <div class="panel-section" style="margin-bottom: 20px;">
+                <div class="section-title">Dial Timezone Escort</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <select id="tz-selector">
+                        <option value="local">USE LOCAL SYSTEM OFFSET</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="panel-section" style="margin-bottom: 20px;">
+                <div class="section-title">Temporal Telemetries</div>
+                <div class="telemetry">
+                    <div class="data-row">
+                        <span class="data-label">Active Block:</span>
+                        <span id="block-info" class="data-value">Block 1</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Block Progress:</span>
+                        <span id="block-progress" class="data-value">0.0%</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Alignment Index:</span>
+                        <span id="apex-status" class="data-value">Standard Flow</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Drift Calibration:</span>
+                        <span id="drift-status" class="data-value">0ms</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section" style="margin-bottom: 20px;">
+                <div class="section-title">Planetary Orbital Alignment</div>
+                <div class="telemetry">
+                    <div class="data-row">
+                        <span class="data-label">Mercury Resonance:</span>
+                        <span id="orbit-mercury" class="data-value">0.00°</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Venus Alignment:</span>
+                        <span id="orbit-venus" class="data-value">0.00°</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Lunar Node Deflection:</span>
+                        <span id="orbit-lunar" class="data-value">0.00°</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="section-title">Web Audio Metronome</div>
+                <div class="metronome-controls">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-toggle" id="btn-metronome" onclick="window.toggleMetronome()" style="flex: 1;">📻 SOUND OFF</button>
+                        <select id="metronome-sound" style="flex: 1.2;">
+                            <option value="zen">Zen Singing Bowl</option>
+                            <option value="synth">Synthesized Beep</option>
+                            <option value="click">Percussive Woodblock</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
+                        <span style="font-size:0.55rem; font-family:'Orbitron',sans-serif; color: var(--gold);">VOL:</span>
+                        <input type="range" id="slider-volume" min="0" max="100" value="50">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="../apps.html" class="nav-btn">Hub</a>
+            <a href="../grid/" class="nav-btn">Sovereign Grid 🌐</a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { countryNodes } from '../scripts/data.js';
+
+    // Core Constants & Variables
+    const DRAGON_CONFIG = {
+        minutesPerDragonHour: 54,
+        dragonHoursPerDay: 80 / 3,
+        blocksPerDay: 9,
+        minutesPerBlock: 160,
+        apexDegrees: 9,
+        degreesPerMinute: 0.5,
+        cycleOffset: 4.5
+    };
+
+    let audioCtx = null;
+    let metronomeMode = 'off'; // off, on
+    let lastSecond = -1;
+
+    const canvas = document.getElementById('dragonClock');
+    const ctx = canvas.getContext('2d');
+
+    // Populate Timezone selector options dynamically from data.js country list
+    const tzSelector = document.getElementById('tz-selector');
+    countryNodes.forEach(node => {
+        if (!node.isVirtual) {
+            const opt = document.createElement('option');
+            opt.value = node.o;
+            opt.textContent = `${node.n.toUpperCase()} (UTC${node.o >= 0 ? '+' : ''}${node.o})`;
+            tzSelector.appendChild(opt);
+        }
+    });
+
+    // Handle resizing clock canvas nicely to occupy full container width/height
+    function resizeCanvas() {
+        const wrapper = document.getElementById('clock-wrapper');
+        const size = Math.min(wrapper.clientWidth, wrapper.clientHeight);
+        canvas.width = size;
+        canvas.height = size;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Sync colors from parent theme dynamically
+    function syncParentTheme() {
+        try {
+            if (window.parent && window.parent.document) {
+                const rootStyle = window.getComputedStyle(window.parent.document.documentElement);
+                const accent = rootStyle.getPropertyValue('--accent').trim();
+                const text = rootStyle.getPropertyValue('--text').trim();
+                if (accent) document.documentElement.style.setProperty('--gold', accent);
+                if (text) document.documentElement.style.setProperty('--text-main', text);
+            }
+        } catch (e) {}
+    }
+    window.addEventListener('load', syncParentTheme);
+
+    // Sound Synthesizers
+    window.toggleMetronome = function() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (metronomeMode === 'off') {
+            metronomeMode = 'on';
+            document.getElementById('btn-metronome').textContent = "📻 SOUND ON";
+            document.getElementById('btn-metronome').classList.add('active');
+        } else {
+            metronomeMode = 'off';
+            document.getElementById('btn-metronome').textContent = "📻 SOUND OFF";
+            document.getElementById('btn-metronome').classList.remove('active');
+        }
+    };
+
+    function triggerMetronomeTick(isHourChange) {
+        if (metronomeMode !== 'on' || !audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const vol = parseFloat(document.getElementById('slider-volume').value) / 100;
+        const soundType = document.getElementById('metronome-sound').value;
+
+        if (soundType === 'zen') {
+            // Synthesize Zen Singing Bowl: Multiple partials decaying slowly
+            const frequencies = isHourChange ? [220, 330, 440, 550] : [330, 495, 660];
+            const now = audioCtx.currentTime;
+            
+            frequencies.forEach((f, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f, now);
+                
+                // Set volume decay
+                gain.gain.setValueAtTime(vol * 0.15 * (1 / (idx + 1)), now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + (isHourChange ? 2.5 : 1.2));
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + (isHourChange ? 2.6 : 1.3));
+            });
+        } else if (soundType === 'synth') {
+            // Clean beep
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const now = audioCtx.currentTime;
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(isHourChange ? 880 : 440, now);
+            
+            gain.gain.setValueAtTime(vol * 0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        } else if (soundType === 'click') {
+            // Woodblock percussive tick using bandpass noise burst
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(isHourChange ? 1200 : 800, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
+            
+            gain.gain.setValueAtTime(vol * 0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.05);
+        }
+    }
+
+    // Main Clock Engine
+    function updateClock() {
+        const now = new Date();
+        
+        let drift = 0;
+        try {
+            if (window.parent && window.parent.timeDriftOffset) {
+                drift = window.parent.timeDriftOffset;
+            }
+        } catch (e) {}
+        
+        document.getElementById('drift-status').textContent = `${drift >= 0 ? '+' : ''}${drift}ms`;
+
+        // Calculate offset (default to local timezone of user if "local" selected)
+        let activeOffset = -(now.getTimezoneOffset() / 60);
+        const selectedVal = tzSelector.value;
+        if (selectedVal !== 'local') {
+            activeOffset = parseFloat(selectedVal);
+        }
+
+        // Shift Date UTC value by offset to calculate correct local standard minutes
+        const standardDate = new Date(now.getTime() + drift + (now.getTimezoneOffset() * 60000) + (activeOffset * 3600000));
+        
+        const standardMinutes = (standardDate.getHours() * 60) + standardDate.getMinutes() + (standardDate.getSeconds() / 60);
+        
+        // Map to native Dragon metrics
+        const totalDragonHours = standardMinutes / DRAGON_CONFIG.minutesPerDragonHour;
+        const currentBlock = Math.floor(standardMinutes / DRAGON_CONFIG.minutesPerBlock) + 1;
+        const blockMinutesElapsed = standardMinutes % DRAGON_CONFIG.minutesPerBlock;
+        const blockPercent = (blockMinutesElapsed / DRAGON_CONFIG.minutesPerBlock) * 100;
+
+        const cycleMinutes = standardMinutes % 720;
+        const isApex = cycleMinutes >= 702;
+
+        // Sound metronome tick trigger on seconds
+        const currentSec = standardDate.getSeconds();
+        if (currentSec !== lastSecond) {
+            lastSecond = currentSec;
+            // Check if hour changed
+            const isHourChange = Math.floor(totalDragonHours * 10) % 10 === 0;
+            triggerMetronomeTick(isHourChange);
+        }
+
+        // Render Dial Clock and update text HUDs
+        drawClockFace(cycleMinutes, isApex);
+        updateUIElements(totalDragonHours, currentBlock, blockPercent, isApex, standardDate);
+
+        requestAnimationFrame(updateClock);
+    }
+
+    function drawClockFace(cycleMinutes, isApex) {
+        const radius = canvas.width / 2;
+        const cx = radius;
+        const cy = radius;
+        const clockRadius = radius - 15;
+
+        // Fetch current accent colors from CSS
+        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#d4af37';
+
+        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.translate(cx, cy);
+
+        // Background Glass Sphere Outer Rim Ring
+        ctx.beginPath();
+        ctx.arc(0, 0, clockRadius, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Inner glowing ring
+        ctx.beginPath();
+        ctx.arc(0, 0, clockRadius - 10, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.05)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Symmetrical 9-Degree Orange Apex Wedge at top (midnight/midday align)
+        const apexStartRad = (-90 - DRAGON_CONFIG.cycleOffset) * Math.PI / 180;
+        const apexEndRad = (-90 + DRAGON_CONFIG.cycleOffset) * Math.PI / 180;
+        
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, clockRadius - 5, apexStartRad, apexEndRad);
+        ctx.closePath();
+        ctx.fillStyle = isApex ? 'rgba(255, 107, 0, 0.4)' : 'rgba(255, 107, 0, 0.08)';
+        ctx.fill();
+        ctx.strokeStyle = '#ff6b00';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Render 13 Hour Markers spaced at 27-Degree Intervals
+        for (let i = 0; i < 13; i++) {
+            const angleDeg = (i * 27) - 90; 
+            const angleRad = angleDeg * Math.PI / 180;
+            
+            const startDist = clockRadius - 18;
+            const endDist = clockRadius - 6;
+
+            ctx.beginPath();
+            ctx.moveTo(startDist * Math.cos(angleRad), startDist * Math.sin(angleRad));
+            ctx.lineTo(endDist * Math.cos(angleRad), endDist * Math.sin(angleRad));
+            
+            if (i === 0 || i === 12) {
+                ctx.strokeStyle = accentColor;
+                ctx.lineWidth = 4;
+            } else {
+                ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+                ctx.lineWidth = 1.5;
+            }
+            ctx.stroke();
+            
+            // Draw numeric hours text
+            ctx.save();
+            ctx.fillStyle = i === 0 || i === 12 ? accentColor : 'rgba(255,255,255,0.4)';
+            ctx.font = `bold ${Math.max(10, clockRadius * 0.075)}px 'Orbitron', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const textDist = clockRadius - 32;
+            const tx = textDist * Math.cos(angleRad);
+            const ty = textDist * Math.sin(angleRad);
+            ctx.fillText(i, tx, ty);
+            ctx.restore();
+        }
+
+        // Draw Center Hub Anchor Pin
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = accentColor;
+        ctx.shadowBlur = 15;
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+
+        // Compute Hand Tracking Angle
+        const handAngleDeg = (cycleMinutes * DRAGON_CONFIG.degreesPerMinute) - 90 + DRAGON_CONFIG.cycleOffset;
+        const handAngleRad = handAngleDeg * Math.PI / 180;
+        const handLength = clockRadius - 40;
+
+        // Render Sweep Vector Hand
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(handLength * Math.cos(handAngleRad), handLength * Math.sin(handAngleRad));
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function updateUIElements(totalHours, blockNum, progress, apexActive, dateObj) {
+        const hoursInt = Math.floor(totalHours);
+        const remainderMinutes = (totalHours - hoursInt) * DRAGON_CONFIG.minutesPerDragonHour;
+        const minsInt = Math.floor(remainderMinutes);
+        const secsInt = Math.floor((remainderMinutes - minsInt) * 60);
+
+        const pad = (num) => String(num).padStart(2, '0');
+        const timeStr = `${pad(hoursInt)}:${pad(minsInt)}:${pad(secsInt)}`;
+        
+        document.getElementById('dragon-time').textContent = timeStr;
+        document.getElementById('digital-big').textContent = timeStr;
+        
+        document.getElementById('block-info').textContent = `Block ${blockNum}`;
+        document.getElementById('block-progress').textContent = `${progress.toFixed(1)}%`;
+
+        const apexElement = document.getElementById('apex-status');
+        if (apexActive) {
+            apexElement.textContent = "Divine Apex Window";
+            apexElement.className = "data-value apex-active";
+        } else {
+            apexElement.textContent = "Symmetric Flow";
+            apexElement.className = "data-value";
+        }
+
+        // Calculate and update Planetary Resonance alignment angles
+        const totalMinutes = (dateObj.getHours() * 60) + dateObj.getMinutes() + (dateObj.getSeconds() / 60);
+        
+        const mercuryAngle = ((totalMinutes * 0.075) % 360).toFixed(2);
+        const venusAngle = ((totalMinutes * 0.035) % 360).toFixed(2);
+        const lunarAngle = ((totalMinutes * 0.115) % 360).toFixed(2);
+        
+        document.getElementById('orbit-mercury').textContent = `${mercuryAngle}°`;
+        document.getElementById('orbit-venus').textContent = `${venusAngle}°`;
+        document.getElementById('orbit-lunar').textContent = `${lunarAngle}°`;
+    }
+
+    // Run Engine
+    updateClock();
+</script>
+
+</body>
+</html>

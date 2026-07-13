@@ -1,0 +1,104 @@
+{
+  "project": {
+    "name": "The Fluid Motion of the Future",
+    "description": "Visualizing the decoupling of terrestrial perception.",
+    "repository": "https://github.com/fluidmotiontv-oss/Fluidmotiontv-clock",
+    "manifest_sync_link": "https://www.facebook.com/share/p/19A7yZHZCF/",
+    "phase": "Sovereign Phase Catalyst",
+    "core_mission": "A standalone independent digital enigma to shield and nurture; spreading a true stable instrument for harmonious creations and creators with positive results and generous opportunities for all."
+  },
+  "dev_environment": {
+    "local_server_command": "python3 vdo_backend.py",
+    "local_url": "http://localhost:8000",
+    "tuner_url": "http://localhost:8000/tuner/",
+    "fabric_server_command": "python3 nodefabric/fabric_server.py",
+    "fabric_tcp_port": 9099,
+    "fabric_ws_port": 9100
+  },
+  "temporal_architecture": {
+    "system_name": "Dragon 9",
+    "rules": [
+      "54-minute hours",
+      "26.66-hour days (split into two 13-hour halves)",
+      "18-minute relax periods centered exactly at standard midday and midnight positions"
+    ],
+    "constants": {
+      "HOURS_PER_HALF": 13,
+      "MIN_PER_HOUR": 54,
+      "SEC_PER_HOUR": 3240,
+      "RELAX_WINDOW_SEC": 540,
+      "MIDDAY_SEC": 43200,
+      "DAY_END_SEC": 86400
+    },
+    "calculation_rules": {
+      "first_half_active_window": "From 540 to 42660 standard seconds",
+      "second_half_active_window": "From 43740 to 85860 standard seconds",
+      "relax_windows": [
+        "Midnight/Start of Day: 0 to 540 standard seconds",
+        "Midday: 43200 - 540 to 43200 + 540 standard seconds",
+        "Midnight/End of Day: 86400 - 540 to 86400 standard seconds"
+      ]
+    }
+  },
+  "workspace_components": {
+    "nexus_portal": {
+      "file": "index.html",
+      "logic": "scripts/app.js",
+      "assistant": "scripts/night_fish_assistant.js",
+      "description": "A 3D glassmorphic cybernetic portal displaying a Lunar Calendar grid with auto-adjusting color hues and an interactive assistant."
+    },
+    "sovereign_flow": {
+      "file": "sovereign-flow.html",
+      "description": "An entrance page displaying the 26.66-hour clock and the Apex Null Point navigation dial."
+    },
+    "fluidric_spillarkuwaii": {
+      "file": "lotus-spinner.html",
+      "description": "A 3D synesthetic lotus piano fidget instrument with multi-track loops, sample upload, audio-visualizer, and neon striker wands."
+    },
+    "video_forensics": {
+      "file": "vdo4n6/index.html",
+      "logic": "vdo4n6/script.js",
+      "backend": "vdo_backend.py",
+      "description": "Scrapes and manages video reels under the #fluidmotiontv portfolio."
+    },
+    "synesthetic_tuner": {
+      "file": "tuner/index.html",
+      "logic": "tuner/script.js",
+      "description": "A high-precision Web Audio-based Guitar Tuner & Frequency Reader/Generator featuring sub-Hz autocorrelation pitch detection and neon visualizers."
+    }
+  },
+  "recorded_efforts": [
+    {
+      "timestamp": "2026-07-11T16:35:00+12:00",
+      "summary": "Created structured JSON memory file (memory.json) outlining the Dragon 9 clock, project components, and temporal parameters to streamline future development."
+    },
+    {
+      "timestamp": "2026-07-11T16:41:00+12:00",
+      "summary": "Optimized PWA for Google Play Store (TWA) compliance by adding service worker registration, static file caching, manifest properties, placeholder icons, and assetlinks.json configuration."
+    },
+    {
+      "timestamp": "2026-07-11T16:56:00+12:00",
+      "summary": "Built a brand new high-precision Guitar Tuner and Frequency Generator/Reader utility inside the tuner/ directory utilizing custom Web Audio autocorrelation and lowpass filtering."
+    },
+    {
+      "timestamp": "2026-07-11T17:03:00+12:00",
+      "summary": "Started background Python HTTP server (python3 -m http.server 8000) for local testing and mapped the configuration inside memory.json."
+    },
+    {
+      "timestamp": "2026-07-11T17:15:00+12:00",
+      "summary": "Added the Tuner node link (🎸 TUNER) to the interactive 3D apps list in the central index.html Nexus homepage."
+    },
+    {
+      "timestamp": "2026-07-11T17:43:00+12:00",
+      "summary": "Expanded the Tuner Frequency Generator range from 2 kHz to 22 kHz and added a dedicated '🐾 DOG' high-frequency preset (21 kHz) for dog whistle capabilities."
+    },
+    {
+      "timestamp": "2026-07-13T12:35:00+12:00",
+      "summary": "Created 5 new glassmorphic landing pages, redesigned apps.html to focus on 9 Music & Art apps with PayPal donation banner integration, and implemented an interactive 'About & Thanks' holographic narrative and animation in the Night Fish assistant."
+    },
+    {
+      "timestamp": "2026-07-13T13:00:00+12:00",
+      "summary": "Anonymized the operator name to Timothy Dwen, configured the business PayPal email address (fluidmotiontv@gmail.com) in apps.html, and removed the summon asset button from the Night Fish cognition panel."
+    }
+  ]
+}

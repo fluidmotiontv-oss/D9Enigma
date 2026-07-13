@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Global Sovereign Network Grid</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6e5c8a;
+            --panel-bg: rgba(15, 15, 20, 0.75);
+            --border-color: rgba(212, 175, 55, 0.2);
+            --highlight: #00e5ff;
+            --highlight-glow: rgba(0, 229, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Ambient background grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Retro screen scanline filter */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .network-header {
+            max-width: 1600px;
+            margin: 0 auto 30px auto;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            z-index: 10;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .network-title-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .network-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+        .liquidity-counter {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.4rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            margin-top: 5px;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Search & Filters Controls Panel */
+        .filter-panel {
+            max-width: 1600px;
+            margin: 0 auto 24px auto;
+            padding: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            z-index: 10;
+            position: relative;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        input[type="text"] {
+            background: #000;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            outline: none;
+            width: 100%;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-filter {
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        .btn-filter:hover, .btn-filter.active {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .sort-select {
+            background: #000;
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .world-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            z-index: 10;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .station { 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            padding: 22px;
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .station:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        }
+
+        /* Ambient rotating water wheel */
+        .wheel-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px; height: 220px;
+            opacity: 0.05;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .water-wheel {
+            position: absolute;
+            width: 100%; height: 100%;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            transition: transform 0.1s linear;
+        }
+
+        .bucket {
+            position: absolute;
+            width: 18px; height: 14px;
+            background: currentColor;
+            left: 101px; top: 0;
+            transform-origin: 9px 110px;
+        }
+
+        .station-content { z-index: 10; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .station-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; }
+        
+        .station-name { font-family: 'Orbitron', sans-serif; font-size: 1.05rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+        
+        .fluid-time { font-family: 'Share Tech Mono', monospace; font-size: 2.3rem; font-weight: bold; margin: 15px 0 5px 0; text-align: center; letter-spacing: 2px; }
+
+        .micros { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; opacity: 0.6; text-align: center; letter-spacing: 1.5px; margin-bottom: 10px; }
+
+        /* Dynamic Oscilloscope Canvas inside card */
+        .card-oscilloscope {
+            width: 100%;
+            height: 45px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            border: 1.5px solid rgba(212, 175, 55, 0.1);
+            margin-top: 10px;
+        }
+
+        .split-bar { display: flex; height: 6px; margin-top: 15px; border-radius: 3px; overflow: hidden; }
+        .split-shield { background: #4b0082; flex: 9; }
+        .split-kitties { background: #00ff41; flex: 0.9; }
+        .split-master { background: #ffd700; flex: 0.1; }
+
+        .relax-mode { animation: pulse 2s infinite ease-in-out; color: #ffaa00 !important; }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--accent);
+            background: rgba(212, 175, 55, 0.05);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 10px 18px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+
+<div class="network-header">
+    <div class="network-title-wrapper">
+        <div class="network-title">Global Sovereign Network</div>
+        <div id="total-liquidity" class="liquidity-counter">HARMONY NOTES: 1.000000</div>
+        <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 5px; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">ACTIVE TRANSMISSION GRIDS • 90/9/1 MULTIPLEX</div>
+    </div>
+    
+    <div style="display: flex; gap: 10px;">
+        <a href="../apps.html" class="nav-btn">Hub</a>
+        <a href="../dial/" class="nav-btn">Core Dial ⏱️</a>
+    </div>
+</div>
+
+<div class="filter-panel">
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="SEARCH ACTIVE NODE COORD..." oninput="window.filterStations()">
+    </div>
+    
+    <div class="filter-buttons">
+        <button class="btn-filter active" id="filter-all" onclick="window.setRegionFilter('all')">ALL</button>
+        <button class="btn-filter" id="filter-pacific" onclick="window.setRegionFilter('Pacific')">Pacific</button>
+        <button class="btn-filter" id="filter-asia" onclick="window.setRegionFilter('Asia')">Asia</button>
+        <button class="btn-filter" id="filter-europe" onclick="window.setRegionFilter('Europe')">Europe</button>
+        <button class="btn-filter" id="filter-americas" onclick="window.setRegionFilter('Americas')">Americas</button>
+        <button class="btn-filter" id="filter-africa" onclick="window.setRegionFilter('Africa')">Africa</button>
+    </div>
+
+    <div>
+        <select class="sort-select" id="sort-selector" onchange="window.filterStations()">
+            <option value="offset-asc">SORT BY OFFSET (ASC)</option>
+            <option value="offset-desc">SORT BY OFFSET (DESC)</option>
+            <option value="name-asc">SORT BY CITY NAME</option>
+        </select>
+    </div>
+</div>
+
+<div class="world-grid" id="network"></div>
+
+<script type="module">
+    import { countryNodes } from '../scripts/data.js';
+
+    // Synchronize parent colors
+    function syncParentTheme() {
+        try {
+            if (window.parent && window.parent.document) {
+                const rootStyle = window.getComputedStyle(window.parent.document.documentElement);
+                const accent = rootStyle.getPropertyValue('--accent').trim();
+                const text = rootStyle.getPropertyValue('--text').trim();
+                const highlight = rootStyle.getPropertyValue('--highlight').trim();
+                if (accent) document.documentElement.style.setProperty('--accent', accent);
+                if (text) document.documentElement.style.setProperty('--text-main', text);
+                if (highlight) document.documentElement.style.setProperty('--highlight', highlight);
+            }
+        } catch (e) {}
+    }
+    window.addEventListener('load', syncParentTheme);
+
+    // List of 24 distinct timezone stations
+    const stations = [
+        { name: 'Chatham Islands', region: 'Pacific', offset: countryNodes.find(n => n.n === 'Chatham Islands')?.o || 12.75 },
+        { name: 'Auckland', region: 'Pacific', offset: countryNodes.find(n => n.n === 'Auckland')?.o || 12 },
+        { name: 'Fiji', region: 'Pacific', offset: countryNodes.find(n => n.n === 'Fiji')?.o || 12 },
+        { name: 'Sydney', region: 'Pacific', offset: countryNodes.find(n => n.n === 'Sydney')?.o || 11 },
+        { name: 'Tokyo', region: 'Asia', offset: countryNodes.find(n => n.n === 'Tokyo')?.o || 9 },
+        { name: 'Seoul', region: 'Asia', offset: countryNodes.find(n => n.n === 'Seoul')?.o || 9 },
+        { name: 'Singapore', region: 'Asia', offset: countryNodes.find(n => n.n === 'Singapore')?.o || 8 },
+        { name: 'Hong Kong', region: 'Asia', offset: countryNodes.find(n => n.n === 'Hong Kong')?.o || 8 },
+        { name: 'Mumbai', region: 'Asia', offset: countryNodes.find(n => n.n === 'Mumbai')?.o || 5.5 },
+        { name: 'Dubai', region: 'Asia', offset: countryNodes.find(n => n.n === 'Dubai')?.o || 4 },
+        { name: 'Moscow', region: 'Europe', offset: countryNodes.find(n => n.n === 'Moscow')?.o || 3 },
+        { name: 'Nairobi', region: 'Africa', offset: countryNodes.find(n => n.n === 'Nairobi')?.o || 3 },
+        { name: 'Cairo', region: 'Africa', offset: countryNodes.find(n => n.n === 'Cairo')?.o || 2 },
+        { name: 'Paris', region: 'Europe', offset: countryNodes.find(n => n.n === 'Paris')?.o || 1 },
+        { name: 'Berlin', region: 'Europe', offset: countryNodes.find(n => n.n === 'Berlin')?.o || 1 },
+        { name: 'London', region: 'Europe', offset: countryNodes.find(n => n.n === 'London')?.o || 0 },
+        { name: 'Azores', region: 'Europe', offset: countryNodes.find(n => n.n === 'Azores')?.o || -1 },
+        { name: 'Rio de Janeiro', region: 'Americas', offset: countryNodes.find(n => n.n === 'Rio de Janeiro')?.o || -3 },
+        { name: 'Buenos Aires', region: 'Americas', offset: countryNodes.find(n => n.n === 'Buenos Aires')?.o || -3 },
+        { name: 'Santiago', region: 'Americas', offset: countryNodes.find(n => n.n === 'Santiago')?.o || -4 },
+        { name: 'New York', region: 'Americas', offset: countryNodes.find(n => n.n === 'New York')?.o || -5 },
+        { name: 'Denver', region: 'Americas', offset: countryNodes.find(n => n.n === 'Denver')?.o || -7 },
+        { name: 'Los Angeles', region: 'Americas', offset: countryNodes.find(n => n.n === 'Los Angeles')?.o || -8 },
+        { name: 'Honolulu', region: 'Pacific', offset: countryNodes.find(n => n.n === 'Honolulu')?.o || -10 }
+    ];
+
+    let activeRegionFilter = 'all';
+    let totalHarmonyNotes = 1.000000;
+
+    // Render Station Cards dynamically
+    function renderStations() {
+        const networkEl = document.getElementById('network');
+        networkEl.innerHTML = '';
+
+        // Apply filters & sorts
+        let filtered = stations.filter(s => {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const matchesQuery = s.name.toLowerCase().includes(query) || s.region.toLowerCase().includes(query);
+            const matchesRegion = activeRegionFilter === 'all' || s.region === activeRegionFilter;
+            return matchesQuery && matchesRegion;
+        });
+
+        const sortVal = document.getElementById('sort-selector').value;
+        if (sortVal === 'offset-asc') {
+            filtered.sort((a, b) => a.offset - b.offset);
+        } else if (sortVal === 'offset-desc') {
+            filtered.sort((a, b) => b.offset - a.offset);
+        } else if (sortVal === 'name-asc') {
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        filtered.forEach((station, index) => {
+            const card = document.createElement('div');
+            card.className = 'station';
+            card.id = `station-${index}`;
+            card.dataset.offset = station.offset;
+
+            let bucketsHTML = '';
+            for (let i = 0; i < 9; i++) {
+                bucketsHTML += `<div class="bucket" style="transform: rotate(${i * 40}deg);"></div>`;
+            }
+
+            card.innerHTML = `
+                <div class="wheel-container">
+                    <div class="water-wheel" id="wheel-${index}">${bucketsHTML}</div>
+                </div>
+                <div class="station-content">
+                    <div class="station-header">
+                        <div>
+                            <div class="station-name">${station.name}</div>
+                            <div style="font-size: 0.6rem; opacity: 0.6;">${station.region.toUpperCase()} • UTC${station.offset >= 0 ? '+' : ''}${station.offset}</div>
+                        </div>
+                        <div id="status-${index}" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                    </div>
+                    <div>
+                        <div class="fluid-time" id="fluid-${index}">--:--:--</div>
+                        <div class="micros" id="micros-${index}">000000</div>
+                        <canvas class="card-oscilloscope" id="scope-${index}"></canvas>
+                    </div>
+                    <div class="split-bar">
+                        <div class="split-shield"></div>
+                        <div class="split-kitties"></div>
+                        <div class="split-master"></div>
+                    </div>
+                </div>
+            `;
+            networkEl.appendChild(card);
+            
+            // Adjust canvas resolution dynamically
+            const scopeCanvas = card.querySelector('.card-oscilloscope');
+            scopeCanvas.width = scopeCanvas.clientWidth;
+            scopeCanvas.height = scopeCanvas.clientHeight || 45;
+        });
+    }
+
+    window.setRegionFilter = function(region) {
+        activeRegionFilter = region;
+        
+        document.querySelectorAll('.btn-filter').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById(`filter-${region.toLowerCase()}`).classList.add('active');
+        
+        renderStations();
+    };
+
+    window.filterStations = function() {
+        renderStations();
+    };
+
+    function getDragonNineTime(date) {
+        const totalSeconds = (date.getHours() * 3600) + (date.getMinutes() * 60) + date.getSeconds();
+        const isRelax = (totalSeconds < 540) || (totalSeconds >= 42660 && totalSeconds < 43740) || (totalSeconds >= 85860);
+        let h = 0, m = 0, s = date.getSeconds();
+        const secPerDragonHour = 3240;
+        
+        if (totalSeconds >= 540 && totalSeconds < 42660) {
+            const adj = totalSeconds - 540;
+            h = Math.floor(adj / secPerDragonHour);
+            m = Math.floor((adj % secPerDragonHour) / 60);
+        } else if (totalSeconds >= 43740 && totalSeconds < 85860) {
+            const adj = totalSeconds - 43740;
+            h = Math.floor(adj / secPerDragonHour) + 13;
+            m = Math.floor((adj % secPerDragonHour) / 60);
+        } else {
+            h = 26; m = 0;
+        }
+
+        return {
+            mode: isRelax ? 'relax' : 'active',
+            h: h, m: m, s: s,
+            rawHour: (totalSeconds / secPerDragonHour)
+        };
+    }
+
+    // Oscilloscope visualizer trace loop
+    function drawOscilloscopes() {
+        const canvases = document.querySelectorAll('.card-oscilloscope');
+        const time = Date.now() * 0.006;
+        const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4af37';
+        
+        canvases.forEach((canvas, idx) => {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            // Draw central grid line
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h/2);
+            ctx.lineTo(w, h/2);
+            ctx.stroke();
+
+            // Draw sine wave
+            ctx.strokeStyle = currentAccent;
+            ctx.lineWidth = 1.5;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = currentAccent;
+            ctx.beginPath();
+            
+            const offset = parseFloat(canvas.closest('.station').dataset.offset || 0);
+            
+            for (let x = 0; x < w; x++) {
+                // Modulate frequency based on timezone offset to make them distinct!
+                const freq = 0.04 + (Math.abs(offset) * 0.002);
+                const amp = (h / 3) * (0.8 + Math.sin(time * 0.2 + offset) * 0.2);
+                const y = h/2 + Math.sin(x * freq + time + idx) * amp;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0; // reset
+        });
+        
+        requestAnimationFrame(drawOscilloscopes);
+    }
+
+    // Main ticking loop
+    function tick() {
+        const now = new Date();
+        let drift = 0;
+        try {
+            if (window.parent && window.parent.timeDriftOffset) {
+                drift = window.parent.timeDriftOffset;
+            }
+        } catch (e) {}
+
+        const utc = now.getTime() + drift + (now.getTimezoneOffset() * 60000);
+        const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4af37';
+        
+        const cardElements = document.querySelectorAll('.station');
+        
+        cardElements.forEach((card, index) => {
+            const offset = parseFloat(card.dataset.offset);
+            const zoneTime = new Date(utc + (3600000 * offset));
+            const dragon = getDragonNineTime(zoneTime);
+            
+            const fluidEl = card.querySelector('.fluid-time');
+            const statusEl = card.querySelector('[id^="status-"]');
+            const wheel = card.querySelector('.water-wheel');
+            const microsEl = card.querySelector('.micros');
+
+            if (dragon.mode === 'relax') {
+                fluidEl.innerText = "RELAX";
+                fluidEl.className = "fluid-time relax-mode";
+                card.style.borderColor = "#ffaa00";
+                statusEl.style.backgroundColor = "#ffaa00";
+                if(wheel) wheel.style.color = "#ffaa00";
+            } else {
+                fluidEl.innerText = `${String(dragon.h).padStart(2,'0')}:${String(dragon.m).padStart(2,'0')}:${String(dragon.s).padStart(2,'0')}`;
+                fluidEl.className = "fluid-time";
+                fluidEl.style.color = currentAccent;
+                card.style.borderColor = currentAccent;
+                card.style.boxShadow = `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px ${currentAccent}15`;
+                statusEl.style.backgroundColor = currentAccent;
+                if(wheel) wheel.style.color = currentAccent;
+            }
+
+            // Spin water wheel dynamically
+            if(wheel) {
+                const rpm = 5;
+                const degrees = (now.getTime() / 1000) * (rpm * 6) + (offset * 15);
+                wheel.style.transform = `rotate(${degrees % 360}deg)`;
+            }
+            
+            // Real-time ticking hash telemetry
+            if(microsEl) {
+                const randHex = Math.floor(Math.random() * 16777215).toString(16).toUpperCase().padStart(6, '0');
+                microsEl.innerText = `SIG: [0x${randHex}] • LAT: ${Math.floor(10 + Math.random() * 45)}ms`;
+            }
+        });
+
+        totalHarmonyNotes += 0.000001; 
+        document.getElementById('total-liquidity').innerText = `HARMONY NOTES: ${totalHarmonyNotes.toFixed(6)}`;
+
+        requestAnimationFrame(tick);
+    }
+
+    // Initialize
+    renderStations();
+    drawOscilloscopes();
+    tick();
+</script>
+</body>
+</html>

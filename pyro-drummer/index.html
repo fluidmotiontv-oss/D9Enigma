@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyro-Drummer - 3D Drum Synth & Fireworks</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --glass-bg: rgba(9, 13, 26, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --cyan-glow: #00e5ff;
+            --gold-accent: #d4af37;
+            --magenta-glow: #ff007f;
+            --green-glow: #39ff14;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Ambient background nebulas */
+        .fluid-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.25;
+            filter: blur(140px);
+            animation: float 25s infinite ease-in-out alternate;
+        }
+        .blob-1 {
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, var(--cyan-glow) 0%, rgba(0,0,0,0) 70%);
+            top: -10%; left: 5%;
+        }
+        .blob-2 {
+            width: 45vw; height: 45vw;
+            background: radial-gradient(circle, var(--magenta-glow) 0%, rgba(0,0,0,0) 70%);
+            bottom: -10%; right: 10%;
+            animation-delay: -5s;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(80px, -80px) scale(1.1) rotate(45deg); }
+        }
+
+        /* WebGL Canvas */
+        #canvas-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 2;
+        }
+
+        /* UI Shell Overlays */
+        .glass-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 70px 1fr 190px 45px;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .interactive-panel {
+            pointer-events: auto;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.01);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        header {
+            grid-column: 1 / 4;
+            grid-row: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Cinzel', serif;
+            padding: 0 10px;
+        }
+        header h1 {
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            font-weight: 400;
+        }
+        header h1 span {
+            color: var(--magenta-glow);
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+        }
+        .btn-nav {
+            color: #94a3b8;
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            padding: 6px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.01);
+            transition: all 0.3s;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        .btn-nav:hover {
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
+
+        /* Sidebars */
+        .left-sidebar {
+            grid-column: 1;
+            grid-row: 2;
+            gap: 15px;
+        }
+        .right-sidebar {
+            grid-column: 3;
+            grid-row: 2;
+            gap: 15px;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--gold-accent);
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .control-label {
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        /* Sliders */
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            outline: none;
+            pointer-events: auto;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--cyan-glow);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--cyan-glow);
+            transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+
+        /* Buttons & Toggles */
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .toggle-btn:hover {
+            border-color: var(--magenta-glow);
+            background: rgba(255, 0, 127, 0.05);
+        }
+        .toggle-btn .indicator {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s;
+        }
+        .toggle-btn.active .indicator {
+            background: var(--magenta-glow);
+            box-shadow: 0 0 8px var(--magenta-glow);
+        }
+
+        /* Visual mappings */
+        .key-map-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+        .key-badge {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--cyan-glow);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            box-shadow: 0 0 5px rgba(0, 229, 255, 0.15);
+        }
+
+        /* Sequencer (Bottom) */
+        .sequencer-panel {
+            grid-column: 1 / 4;
+            grid-row: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .seq-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .seq-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--cyan-glow);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .seq-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .seq-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .seq-btn:hover {
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+        }
+        .seq-btn.active {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+        }
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+        .seq-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .row-label {
+            width: 70px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: right;
+            color: #94a3b8;
+        }
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 5px;
+            flex-grow: 1;
+        }
+        .step-node {
+            height: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .step-node:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .step-node.active-kick {
+            background: rgba(255, 0, 127, 0.4);
+            border-color: var(--magenta-glow);
+            box-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
+        }
+        .step-node.active-snare {
+            background: rgba(0, 229, 255, 0.4);
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+        }
+        .step-node.active-hat {
+            background: rgba(212, 175, 55, 0.45);
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        }
+        .step-node.active-crash {
+            background: rgba(255, 165, 0, 0.45);
+            border-color: var(--amber-glow);
+            box-shadow: 0 0 8px rgba(255, 165, 0, 0.4);
+        }
+        .step-node.active-tomHigh {
+            background: rgba(57, 255, 20, 0.4);
+            border-color: var(--green-glow);
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+        }
+        .step-node.active-tomLow {
+            background: rgba(168, 85, 247, 0.4);
+            border-color: #a855f7;
+            box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+        }
+        .step-node.current {
+            border: 1.5px solid #fff !important;
+        }
+        .step-node.current::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.25);
+            border-radius: 3px;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            grid-column: 1 / 4;
+            grid-row: 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            color: #64748b;
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 8px;
+        }
+        .status-metric span {
+            color: var(--cyan-glow);
+            font-weight: 700;
+        }
+
+        /* Floating Play Mode Button */
+        .btn-play-mode {
+            position: fixed;
+            bottom: 220px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            background: rgba(9, 13, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            pointer-events: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .btn-play-mode:hover {
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            transform: translateX(-50%) translateY(-1px);
+        }
+        .btn-play-mode.active {
+            border-color: var(--magenta-glow);
+            color: var(--magenta-glow);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+            background: rgba(255, 0, 127, 0.1);
+        }
+
+        /* Play Mode active states */
+        header, .left-sidebar, .right-sidebar, .sequencer-panel, .bottom-bar {
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        body.play-mode-active header {
+            transform: translateY(-120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.play-mode-active .left-sidebar {
+            transform: translateX(-120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.play-mode-active .right-sidebar {
+            transform: translateX(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.play-mode-active .sequencer-panel {
+            transform: translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.play-mode-active .bottom-bar {
+            transform: translateY(140%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.play-mode-active .btn-play-mode {
+            bottom: 30px; /* reposition close to bottom */
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 4px rgba(255, 0, 127, 0.2); }
+            50% { box-shadow: 0 0 12px rgba(255, 0, 127, 0.6); }
+            100% { box-shadow: 0 0 4px rgba(255, 0, 127, 0.2); }
+        }
+        .recording-pulse {
+            animation: pulse-red 1.2s infinite;
+        }
+
+        /* PRO Modal Styling */
+        .pro-modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+        .pro-modal-content {
+            background: rgba(9, 13, 26, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 40px rgba(212, 175, 55, 0.2);
+            position: relative;
+            animation: modal-zoom 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modal-zoom {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .pro-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #94a3b8;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .pro-close:hover {
+            color: #fff;
+        }
+        .pro-modal h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .pro-modal h2 span {
+            color: var(--gold-accent);
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        .pro-upgrade-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, var(--gold-accent), #b48a1d);
+            color: #020617;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            width: 100%;
+        }
+        .pro-upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+            background: #fff;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fluid background glow blobs -->
+    <div class="fluid-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <!-- WebGL Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- PRO Upgrade Modal -->
+    <div id="pro-modal" class="pro-modal">
+        <div class="pro-modal-content">
+            <span class="pro-close" id="pro-close-btn">&times;</span>
+            <h2>🎆 PYRO-<span>DRUMMER PRO</span></h2>
+            <p style="margin: 15px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+                Unlock professional tools to load custom samples, shape fireworks, and control master effects.
+            </p>
+            <ul style="text-align: left; margin: 15px auto; max-width: 380px; color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; flex-direction: column; gap: 10px; list-style-type: none; padding-left: 0;">
+                <li style="display: flex; gap: 10px; align-items: center;">📂 <span><strong>Custom Sample Loading</strong>: Load your own .wav/.mp3 beats into any pad.</span></li>
+                <li style="display: flex; gap: 10px; align-items: center;">✨ <span><strong>Advanced Fireworks</strong>: Unlock Ghost Nebula and Supernova Flash styles.</span></li>
+                <li style="display: flex; gap: 10px; align-items: center;">🎛️ <span><strong>High-Pass & Resonant Filters</strong>: Shape sweeps with advanced bandpass engines.</span></li>
+            </ul>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <a href="https://paypal.me/dragon9" target="_blank" class="pro-upgrade-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #0070ba; color: #fff; box-shadow: 0 0 15px rgba(0, 112, 186, 0.4);" onmouseover="this.style.background='#007ed6'" onmouseout="this.style.background='#0070ba'">SUPPORT VIA PAYPAL DONATION</a>
+                <button class="pro-upgrade-btn" id="pro-upgrade-action-btn" style="background: rgba(255,255,255,0.05); color: var(--gold-accent); border: 1px solid rgba(255,255,255,0.1); box-shadow: none;">UNLOCK FREE / DONATOR SESSION</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Play Mode Toggle -->
+    <button id="btn-play-mode" class="btn-play-mode" title="Toggle Play Mode (Hide UI)">
+        <span class="icon">✨</span> Play Mode
+    </button>
+
+    <!-- UI Overlay Panels -->
+    <div class="glass-overlay">
+        <header>
+            <a href="../landing-page/index.html" class="btn-nav">← EXIT TO HUB</a>
+            <h1>PYRO-<span>DRUMMER</span></h1>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <!-- Radio Station Toggle -->
+                <button id="btn-radio-toggle" class="btn-nav" style="border-color: rgba(0, 229, 255, 0.3); color: var(--cyan-glow); padding: 6px 12px; font-size: 0.65rem;" title="Listen to Dragon 9 Live Resonance Radio">
+                    📻 RADIO <span id="radio-on-air-indicator" style="display:inline-block; width: 6px; height: 6px; background: #64748b; border-radius: 50%; margin-left: 5px; transition: background 0.3s, box-shadow 0.3s;"></span>
+                </button>
+                <!-- PRO Upgrade Button -->
+                <button id="btn-upgrade-pro" class="btn-nav" style="border-color: rgba(212, 175, 55, 0.4); color: var(--gold-accent); padding: 6px 12px; font-size: 0.65rem;" title="Upgrade to PRO Version">
+                    ★ UPGRADE TO PRO
+                </button>
+            </div>
+        </header>
+
+        <!-- Left Sidebar - Settings -->
+        <div class="interactive-panel left-sidebar">
+            <h2 class="panel-title">Drums & FX</h2>
+            
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>Master Volume</span>
+                    <span id="val-vol">75%</span>
+                </div>
+                <input type="range" id="slider-vol" min="0" max="100" value="75">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>Filter Cutoff</span>
+                    <span id="val-cutoff">80%</span>
+                </div>
+                <input type="range" id="slider-cutoff" min="10" max="100" value="80">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>Delay Feedback</span>
+                    <span id="val-delay">30%</span>
+                </div>
+                <input type="range" id="slider-delay" min="0" max="85" value="30">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span>Sequence Tempo</span>
+                    <span id="val-bpm">120 BPM</span>
+                </div>
+                <input type="range" id="slider-bpm" min="60" max="220" value="120">
+            </div>
+
+            <!-- Firework Customization -->
+            <h2 class="panel-title" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 15px;">Fireworks Display</h2>
+
+            <div class="control-group">
+                <label class="control-label">Explosion Style</label>
+                <select class="control-dropdown" id="dropdown-firework-style" style="font-size: 0.72rem; padding: 6px;">
+                    <option value="classic">Classic Sparks</option>
+                    <option value="willow">Gravity Willow (Weeping)</option>
+                    <option value="nebula">Ghost Nebula (Floating)</option>
+                    <option value="supernova">Supernova Flash (Huge)</option>
+                </select>
+            </div>
+
+            <div class="slider-container" style="margin-top: 10px;">
+                <div class="slider-header">
+                    <span>Spark Intensity</span>
+                    <span id="val-firework-intensity">100%</span>
+                </div>
+                <input type="range" id="slider-firework-intensity" min="30" max="250" value="100">
+            </div>
+
+            <div class="control-group" style="margin-top: auto;">
+                <button class="toggle-btn" id="btn-auto-camera">
+                    <span>Auto-Orbit Cam</span>
+                    <span class="indicator"></span>
+                </button>
+            </div>
+            
+            <div class="control-group" style="margin-top: 5px;">
+                <button class="toggle-btn" id="btn-particle-trails">
+                    <span>Particle Trails</span>
+                    <span class="indicator"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Pad Customizer & FX -->
+        <div class="interactive-panel right-sidebar">
+            <h2 class="panel-title">Pad Customizer</h2>
+            
+            <div class="control-group">
+                <label class="control-label">Select Drum Pad</label>
+                <select class="control-dropdown" id="dropdown-select-pad" style="font-size: 0.75rem; padding: 6px;">
+                    <option value="kick">Bass Kick (Space)</option>
+                    <option value="snare">Snare Crack (J)</option>
+                    <option value="hat">Closed Hi-Hat (K)</option>
+                    <option value="tomHigh">High Tom-Tom (F)</option>
+                    <option value="tomLow">Low Tom-Tom (D)</option>
+                    <option value="crash">Crash Cymbal (L)</option>
+                </select>
+            </div>
+
+            <!-- Custom Sample Upload -->
+            <div class="control-group" style="margin-top: 10px;">
+                <label class="control-label">Custom Audio Sample</label>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="input-sample-file" class="btn-nav" style="text-align: center; font-size: 0.65rem; display: block; width: 100%; border-style: dashed; padding: 8px; cursor: pointer;">
+                        📂 Choose Sample (.mp3, .wav)
+                    </label>
+                    <input type="file" id="input-sample-file" accept="audio/*" style="display: none;">
+                    <div id="sample-name-display" style="font-size: 0.62rem; color: var(--cyan-glow); text-align: center; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-top: 2px; font-weight: 600; font-family: 'Orbitron';">Using Synthesizer Engine</div>
+                    <button class="seq-btn" id="btn-clear-sample" style="display: none; border-color: rgba(239, 68, 68, 0.3); color: #ef4444; width: 100%; font-size: 0.62rem; padding: 4px; margin-top: 2px;">Clear Custom Sample</button>
+                </div>
+            </div>
+
+            <!-- Tuning / Pitch Control -->
+            <div class="slider-container" style="margin-top: 10px;">
+                <div class="slider-header">
+                    <span>Pad Pitch / Speed</span>
+                    <span id="val-pad-pitch">100%</span>
+                </div>
+                <input type="range" id="slider-pad-pitch" min="20" max="250" value="100">
+            </div>
+
+            <!-- Decay Control -->
+            <div class="slider-container" style="margin-top: 10px;">
+                <div class="slider-header">
+                    <span>Pad Decay / Length</span>
+                    <span id="val-pad-decay">100%</span>
+                </div>
+                <input type="range" id="slider-pad-decay" min="10" max="300" value="100">
+            </div>
+
+            <!-- Position X Control -->
+            <div class="slider-container" style="margin-top: 10px;">
+                <div class="slider-header">
+                    <span>Pad X (Left / Right)</span>
+                    <span id="val-pad-x">0.0</span>
+                </div>
+                <input type="range" id="slider-pad-x" min="-30" max="30" value="0" step="1">
+            </div>
+
+            <!-- Position Z Control -->
+            <div class="slider-container" style="margin-top: 10px;">
+                <div class="slider-header">
+                    <span>Pad Z (Front / Back)</span>
+                    <span id="val-pad-z">0.0</span>
+                </div>
+                <input type="range" id="slider-pad-z" min="-20" max="25" value="0" step="1">
+            </div>
+
+            <h2 class="panel-title" style="margin-top: 18px;">Master Filters</h2>
+
+            <div class="control-group">
+                <label class="control-label">Filter Type</label>
+                <select class="control-dropdown" id="dropdown-filter-type" style="font-size: 0.72rem; padding: 6px;">
+                    <option value="lowpass">Lowpass (Smooth)</option>
+                    <option value="highpass">Highpass (Bright)</option>
+                    <option value="bandpass">Bandpass (Resonant)</option>
+                </select>
+            </div>
+
+            <div class="slider-container" style="margin-top: 10px;">
+                <div class="slider-header">
+                    <span>Filter Resonance (Q)</span>
+                    <span id="val-filter-q">1.0</span>
+                </div>
+                <input type="range" id="slider-filter-q" min="10" max="150" value="10">
+            </div>
+        </div>
+
+        <!-- Bottom - Step Sequencer -->
+        <div class="interactive-panel sequencer-panel">
+            <div class="seq-controls">
+                <span class="seq-title">Step Sequencer</span>
+                <div class="seq-buttons">
+                    <button class="seq-btn" id="btn-seq-play">Play Sequencer</button>
+                    <button class="seq-btn" id="btn-seq-clear" style="color: #ef4444; border-color: rgba(239,68,68,0.2);">Clear Steps</button>
+                    <button class="seq-btn" id="btn-seq-demo">Load Demo Beat</button>
+                    <span style="width: 1px; height: 18px; background: rgba(255,255,255,0.15); margin: 0 4px;"></span>
+                    <button class="seq-btn" id="btn-share-code" style="color: var(--cyan-glow); border-color: rgba(0, 229, 255, 0.2);" title="Export Sequencer Beat Code">Share Beat</button>
+                    <button class="seq-btn" id="btn-load-code" style="color: var(--cyan-glow); border-color: rgba(0, 229, 255, 0.2);" title="Import Sequencer Beat Code">Load Beat</button>
+                    <button class="seq-btn" id="btn-record-audio" style="color: var(--magenta-glow); border-color: rgba(255, 0, 127, 0.2);" title="Record Master Performance Audio">🎙️ Record</button>
+                </div>
+            </div>
+
+            <div class="grid-container">
+                <!-- Crash Row -->
+                <div class="seq-row" data-row-type="crash">
+                    <span class="row-label" style="color: var(--amber-glow);">Crash</span>
+                    <div class="steps-container"></div>
+                </div>
+                <!-- Tom High Row -->
+                <div class="seq-row" data-row-type="tomHigh">
+                    <span class="row-label" style="color: var(--green-glow);">Tom High</span>
+                    <div class="steps-container"></div>
+                </div>
+                <!-- Tom Low Row -->
+                <div class="seq-row" data-row-type="tomLow">
+                    <span class="row-label" style="color: #a855f7;">Tom Low</span>
+                    <div class="steps-container"></div>
+                </div>
+                <!-- Hi-Hat Row -->
+                <div class="seq-row" data-row-type="hat">
+                    <span class="row-label" style="color: var(--gold-accent);">Hi-Hat</span>
+                    <div class="steps-container"></div>
+                </div>
+                <!-- Snare Row -->
+                <div class="seq-row" data-row-type="snare">
+                    <span class="row-label" style="color: var(--cyan-glow);">Snare</span>
+                    <div class="steps-container"></div>
+                </div>
+                <!-- Kick Row -->
+                <div class="seq-row" data-row-type="kick">
+                    <span class="row-label" style="color: var(--magenta-glow);">Kick</span>
+                    <div class="steps-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Metrics Bar -->
+        <div class="bottom-bar">
+            <div class="status-metric">ENGINE: <span>WEB AUDIO SYNTH</span></div>
+            <div class="status-metric">ACTIVE PARTICLES: <span id="metric-particles">0</span></div>
+            <div class="status-metric">FPS: <span id="metric-fps">60</span></div>
+            <div class="status-metric">SYSTEM STATUS: <span style="color: var(--green-glow);">READY</span></div>
+        </div>
+    </div>
+
+    <!-- WebGL & Interactive Scripts -->
+    <script type="module">
+        import * as THREE from './three.module.min.js';
+
+        // --- 1. WEB AUDIO DRUM SYNTH ENGINE ---
+        let audioCtx = null;
+        let mainGainNode = null;
+        let delayNode = null;
+        let delayFeedbackNode = null;
+        let masterFilterNode = null;
+        let limiter = null;
+
+        const synthState = {
+            volume: 0.75,
+            cutoff: 0.8,
+            delayFeedback: 0.3,
+            bpm: 120,
+            autoOrbit: false,
+            trails: false
+        };
+
+        const fireworkState = {
+            style: 'classic',
+            intensity: 1.0
+        };
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            mainGainNode = audioCtx.createGain();
+            mainGainNode.gain.setValueAtTime(synthState.volume, audioCtx.currentTime);
+
+            // Master Filter
+            masterFilterNode = audioCtx.createBiquadFilter();
+            masterFilterNode.type = 'lowpass';
+            masterFilterNode.frequency.setValueAtTime(20000 * synthState.cutoff, audioCtx.currentTime);
+            masterFilterNode.Q.setValueAtTime(1.0, audioCtx.currentTime);
+
+            // Delay Feedback Loop
+            delayNode = audioCtx.createDelay(2.0);
+            delayNode.delayTime.setValueAtTime(0.25, audioCtx.currentTime); // 250ms delay
+            
+            delayFeedbackNode = audioCtx.createGain();
+            delayFeedbackNode.gain.setValueAtTime(synthState.delayFeedback, audioCtx.currentTime);
+
+            delayNode.connect(delayFeedbackNode);
+            delayFeedbackNode.connect(delayNode);
+
+            // Master Limiter to prevent clipping
+            limiter = audioCtx.createDynamicsCompressor();
+            limiter.threshold.setValueAtTime(-1.0, audioCtx.currentTime);
+            limiter.knee.setValueAtTime(0, audioCtx.currentTime);
+            limiter.ratio.setValueAtTime(20.0, audioCtx.currentTime);
+            limiter.attack.setValueAtTime(0.003, audioCtx.currentTime);
+            limiter.release.setValueAtTime(0.08, audioCtx.currentTime);
+
+            // Connections
+            mainGainNode.connect(masterFilterNode);
+            
+            // Connect dry route to limiter
+            masterFilterNode.connect(limiter);
+            
+            // Connect wet delay route to limiter
+            masterFilterNode.connect(delayNode);
+            delayNode.connect(limiter);
+
+            // Connect limiter to destination
+            limiter.connect(audioCtx.destination);
+        }
+
+        // Drum Synth Generators
+        function playKick(decayVal = 1.0, pitchVal = 1.0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(mainGainNode);
+
+            const now = audioCtx.currentTime;
+            
+            // Pitch sweep: 150Hz -> 40Hz in 120ms (scaled by pitchVal)
+            osc.frequency.setValueAtTime(150 * pitchVal, now);
+            osc.frequency.exponentialRampToValueAtTime(42 * pitchVal, now + 0.12 * decayVal);
+            
+            // Volume decay
+            gain.gain.setValueAtTime(1.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18 * decayVal);
+
+            osc.start(now);
+            osc.stop(now + 0.20 * decayVal);
+        }
+
+        function playSnare(decayVal = 1.0, pitchVal = 1.0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            // 1. Noise Generator (for snare crack)
+            const bufferSize = audioCtx.sampleRate * 0.18 * decayVal; // 180ms white noise
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.setValueAtTime(1500 * pitchVal, now);
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.8, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15 * decayVal);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(mainGainNode);
+
+            // 2. Resonant triangular oscillator (snare body drum head)
+            const osc = audioCtx.createOscillator();
+            const oscGain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(180 * pitchVal, now);
+            osc.frequency.exponentialRampToValueAtTime(100 * pitchVal, now + 0.08 * decayVal);
+
+            oscGain.gain.setValueAtTime(0.5, now);
+            oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.10 * decayVal);
+
+            osc.connect(oscGain);
+            oscGain.connect(mainGainNode);
+
+            noise.start(now);
+            osc.start(now);
+            
+            noise.stop(now + 0.18 * decayVal);
+            osc.stop(now + 0.18 * decayVal);
+        }
+
+        function playHiHat(decayVal = 1.0, pitchVal = 1.0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            // Noise burst for hi-hat tick
+            const bufferSize = audioCtx.sampleRate * 0.05 * decayVal; // very short 50ms tick
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(8000 * pitchVal, now);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.55, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04 * decayVal);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(mainGainNode);
+
+            noise.start(now);
+            noise.stop(now + 0.05 * decayVal);
+        }
+
+        function playTom(pitch, decayVal = 1.0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.connect(gain);
+            gain.connect(mainGainNode);
+
+            const now = audioCtx.currentTime;
+
+            // Resonant drum head swept pitch
+            osc.frequency.setValueAtTime(pitch, now);
+            osc.frequency.exponentialRampToValueAtTime(pitch * 0.5, now + 0.15 * decayVal);
+
+            gain.gain.setValueAtTime(0.9, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22 * decayVal);
+
+            osc.start(now);
+            osc.stop(now + 0.25 * decayVal);
+        }
+
+        function playCrash(decayVal = 1.0, pitchVal = 1.0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            // White noise metallic crash
+            const bufferSize = audioCtx.sampleRate * 1.5 * decayVal; // long 1.5s decay
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(4500 * pitchVal, now);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.95, now);
+            gain.gain.exponentialRampToValueAtTime(0.005, now + 1.2 * decayVal);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(mainGainNode);
+
+            noise.start(now);
+            noise.stop(now + 1.3 * decayVal);
+        }
+
+        function playCustomSample(buffer, pitchVal = 1.0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.playbackRate.value = pitchVal;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            
+            source.connect(gain);
+            gain.connect(mainGainNode);
+
+            source.start(0);
+        }
+
+
+        // --- 2. THREE.JS 3D SCENE SETUP ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x020617, 0.05);
+
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 6, 9);
+        camera.lookAt(0, 0.5, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
+
+        // Grid helper representing the virtual stage floor
+        const gridHelper = new THREE.GridHelper(16, 24, 0x1e293b, 0x0f172a);
+        gridHelper.position.y = -0.4;
+        scene.add(gridHelper);
+
+
+        // --- 3. DRUM PADS DEFINITIONS ---
+        const pads = [
+            { id: 'kick', name: 'Kick Pad', key: ' ', pitch: 0, colorHex: 0xff00ff, colorStr: '#ff00ff', rad: 0.65, height: 0.18, pos: new THREE.Vector3(0, 0, 1.2), keyLabel: 'Space' },
+            { id: 'snare', name: 'Snare Pad', key: 'j', pitch: 0, colorHex: 0x00f3ff, colorStr: '#00f3ff', rad: 0.5, height: 0.12, pos: new THREE.Vector3(-1.4, 0.2, 0.6), keyLabel: 'J' },
+            { id: 'hat', name: 'Hi-Hat Cymbal', key: 'k', pitch: 0, colorHex: 0xffe600, colorStr: '#ffe600', rad: 0.45, height: 0.04, pos: new THREE.Vector3(-2.1, 0.7, -0.4), keyLabel: 'K' },
+            { id: 'tomHigh', name: 'High Tom', key: 'f', pitch: 220, colorHex: 0x39ff14, colorStr: '#39ff14', rad: 0.42, height: 0.15, pos: new THREE.Vector3(-0.8, 0.5, -0.6), keyLabel: 'F' },
+            { id: 'tomLow', name: 'Low Tom', key: 'd', pitch: 140, colorHex: 0x8a2be2, colorStr: '#8a2be2', rad: 0.48, height: 0.15, pos: new THREE.Vector3(0.8, 0.4, -0.6), keyLabel: 'D' },
+            { id: 'crash', name: 'Crash Cymbal', key: 'l', pitch: 0, colorHex: 0xff5500, colorStr: '#ff5500', rad: 0.6, height: 0.03, pos: new THREE.Vector3(2.0, 0.9, 0.2), keyLabel: 'L' }
+        ];
+
+        const padMeshes = [];
+        const drumGroup = new THREE.Group();
+        scene.add(drumGroup);
+
+        // Helper to draw note texts on pad skins
+        function createPadTexture(label, subtext, colorStr) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            // Clear background with translucent ring border
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+            ctx.beginPath();
+            ctx.arc(128, 128, 120, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw a subtle sci-fi crosshair/radar grid inside the pad
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(128, 40); ctx.lineTo(128, 216);
+            ctx.moveTo(40, 128); ctx.lineTo(216, 128);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(128, 128, 80, 0, Math.PI * 2);
+            ctx.arc(128, 128, 50, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Outer neon glowing border
+            ctx.strokeStyle = colorStr;
+            ctx.lineWidth = 8;
+            ctx.shadowColor = colorStr;
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(128, 128, 116, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Text values
+            ctx.shadowBlur = 10;
+            ctx.font = 'bold 36px Orbitron';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, 128, 110);
+
+            ctx.font = 'bold 22px Orbitron';
+            ctx.fillStyle = colorStr;
+            ctx.fillText(subtext, 128, 165);
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        pads.forEach(pad => {
+            const padGroup = new THREE.Group();
+            padGroup.position.copy(pad.pos);
+
+            // 1. Pad Shell (Stand/Body)
+            const shellGeom = new THREE.CylinderGeometry(pad.rad, pad.rad * 0.95, pad.height, 32);
+            const shellMat = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                metalness: 0.95,
+                roughness: 0.1
+            });
+            const shell = new THREE.Mesh(shellGeom, shellMat);
+            shell.position.y = -pad.height / 2;
+            padGroup.add(shell);
+
+            // 2. Pad Skin (Top Interactive Face)
+            const skinGeom = new THREE.CylinderGeometry(pad.rad * 0.9, pad.rad * 0.9, 0.02, 32);
+            const skinTexture = createPadTexture(pad.keyLabel, pad.name.split(' ')[0], pad.colorStr);
+            const skinMat = new THREE.MeshStandardMaterial({
+                map: skinTexture,
+                metalness: 0.1,
+                roughness: 0.6,
+                emissive: new THREE.Color(pad.colorHex),
+                emissiveIntensity: 0.15
+            });
+            const skin = new THREE.Mesh(skinGeom, skinMat);
+            skin.position.y = 0.01;
+            padGroup.add(skin);
+
+            // 3. Support Stand rod going down to floor
+            const standGeom = new THREE.CylinderGeometry(0.04, 0.04, pad.pos.y + 0.4, 8);
+            const standMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 1.0, roughness: 0.05 });
+            const stand = new THREE.Mesh(standGeom, standMat);
+            stand.position.y = -(pad.pos.y + 0.4) / 2;
+            padGroup.add(stand);
+
+            // Save references for animation
+            padGroup.userData = {
+                id: pad.id,
+                skinMesh: skin,
+                colorHex: pad.colorHex,
+                originalY: pad.pos.y,
+                key: pad.key,
+                originalEmissive: 0.15,
+                pitch: pad.pitch || (pad.id === 'tomHigh' ? 220 : pad.id === 'tomLow' ? 140 : 100),
+                pitchVal: 1.0,
+                decayVal: 1.0,
+                customBuffer: null,
+                customFileName: ""
+            };
+
+            drumGroup.add(padGroup);
+            padMeshes.push(padGroup);
+        });
+
+
+        // --- 4. PARTICLE FIREWORKS ENGINE ---
+        const maxParticles = 3000;
+        const positions = new Float32Array(maxParticles * 3);
+        const colors = new Float32Array(maxParticles * 3);
+        const sizes = new Float32Array(maxParticles);
+
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        // Create round glowing particle texture using canvas
+        function createParticleTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+            grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            map: createParticleTexture(),
+            vertexColors: true,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particleSystem);
+
+        const particles = [];
+        for (let i = 0; i < maxParticles; i++) {
+            particles.push({
+                active: false,
+                pos: new THREE.Vector3(),
+                vel: new THREE.Vector3(),
+                color: new THREE.Color(),
+                size: 0,
+                life: 0,
+                maxLife: 0,
+                gravity: 0.005,
+                trail: false,
+                sparkle: false
+            });
+        }
+
+        function spawnParticle(pos, vel, color, size, maxLife, gravity = 0.005, sparkle = false) {
+            // Find first inactive particle
+            const p = particles.find(pt => !pt.active);
+            if (!p) return;
+
+            p.active = true;
+            p.pos.copy(pos);
+            p.vel.copy(vel);
+            p.color.copy(color);
+            p.size = size;
+            p.life = maxLife;
+            p.maxLife = maxLife;
+            p.gravity = gravity;
+            p.sparkle = sparkle;
+        }
+
+        // Particle explosion styles based on Drum types
+        function triggerFirework(pad) {
+            const startPos = new THREE.Vector3().copy(pad.pos);
+            startPos.y += 0.05; // slightly above pad
+            const color = new THREE.Color(pad.colorHex);
+
+            const style = fireworkState.style;
+            const intensity = fireworkState.intensity;
+
+            // Helper to modify particle parameters on the fly
+            function spawnCustomParticle(pos, baseVel, baseSize, baseLife, baseGravity, isSparkle) {
+                let vel = new THREE.Vector3().copy(baseVel);
+                let size = baseSize;
+                let life = baseLife;
+                let gravity = baseGravity;
+
+                if (style === 'willow') {
+                    // Gravity Willow (Weeping): Long falling trails
+                    gravity = baseGravity * 3.5 + 0.012; 
+                    life = baseLife * 1.5;
+                } else if (style === 'nebula') {
+                    // Ghost Nebula (Floating): Soft, slow cloud clusters
+                    vel.multiplyScalar(0.25);
+                    gravity = 0.0002;
+                    life = baseLife * 2.2;
+                    size = baseSize * 2.0;
+                } else if (style === 'supernova') {
+                    // Supernova Flash: Blinding explosive flash
+                    vel.multiplyScalar(1.6);
+                    size = baseSize * 2.2;
+                    life = baseLife * 0.65;
+                }
+
+                spawnParticle(pos, vel, color, size, life, gravity, isSparkle);
+            }
+
+            if (pad.id === 'kick') {
+                // Expanding flat shockwave ring on the floor (2D X-Z circle)
+                const count = Math.floor(180 * intensity);
+                for (let i = 0; i < count; i++) {
+                    const theta = (i / count) * Math.PI * 2;
+                    const speed = 2.5 + Math.random() * 0.8;
+                    const vel = new THREE.Vector3(
+                        Math.cos(theta) * speed,
+                        0.15 + Math.random() * 0.1, // very slight vertical velocity
+                        Math.sin(theta) * speed
+                    );
+                    spawnCustomParticle(startPos, vel, 0.45, 60 + Math.random() * 20, 0.001);
+                }
+            } 
+            else if (pad.id === 'snare') {
+                // Tight energetic sphere explosion
+                const count = Math.floor(140 * intensity);
+                for (let i = 0; i < count; i++) {
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos((Math.random() * 2) - 1);
+                    const speed = 2.0 + Math.random() * 2.2;
+                    
+                    const vel = new THREE.Vector3(
+                        Math.sin(phi) * Math.cos(theta) * speed,
+                        Math.sin(phi) * Math.sin(theta) * speed + 1.2, // bias upwards
+                        Math.cos(phi) * speed
+                    );
+                    spawnCustomParticle(startPos, vel, 0.35, 45 + Math.random() * 15, 0.008);
+                }
+            } 
+            else if (pad.id === 'hat') {
+                // High-velocity sparkles shooting straight up
+                const count = Math.floor(35 * intensity);
+                for (let i = 0; i < count; i++) {
+                    const vel = new THREE.Vector3(
+                        (Math.random() * 2 - 1) * 0.5,
+                        3.5 + Math.random() * 1.8, // high upwards velocity
+                        (Math.random() * 2 - 1) * 0.5
+                    );
+                    spawnCustomParticle(startPos, vel, 0.22, 30 + Math.random() * 12, 0.015);
+                }
+            } 
+            else if (pad.id === 'tomHigh' || pad.id === 'tomLow') {
+                // Launch rocket that shoots up and explodes at peak
+                const rocketColor = new THREE.Color(pad.colorHex);
+                const rocketVel = new THREE.Vector3(
+                    (Math.random() * 2 - 1) * 0.3,
+                    6.5 + Math.random() * 2.0, // shoots high
+                    (Math.random() * 2 - 1) * 0.3
+                );
+                
+                // Spawn a rocket particle (tracked by custom loop or simple life trigger)
+                spawnRocket(startPos, rocketVel, rocketColor);
+            } 
+            else if (pad.id === 'crash') {
+                // Massive golden star burst
+                const count = Math.floor(280 * intensity);
+                for (let i = 0; i < count; i++) {
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos((Math.random() * 2) - 1);
+                    const speed = 1.0 + Math.random() * 3.5;
+                    
+                    const vel = new THREE.Vector3(
+                        Math.sin(phi) * Math.cos(theta) * speed,
+                        Math.sin(phi) * Math.sin(theta) * speed + 2.0,
+                        Math.cos(phi) * speed
+                    );
+                    // Sparkles are true star cascades
+                    spawnCustomParticle(startPos, vel, 0.38, 70 + Math.random() * 25, 0.006, true);
+                }
+            }
+        }
+
+        // Custom Rocket particle trigger
+        function spawnRocket(startPos, vel, color) {
+            const rocketPos = new THREE.Vector3().copy(startPos);
+            const rocketVel = new THREE.Vector3().copy(vel);
+            
+            // Simulating rocket rise using a simple animation interval
+            let frames = 0;
+            const maxFrames = 30 + Math.floor(Math.random() * 10);
+            
+            const style = fireworkState.style;
+            const intensity = fireworkState.intensity;
+
+            function spawnCustomParticle(pos, baseVel, baseSize, baseLife, baseGravity, isSparkle) {
+                let vel = new THREE.Vector3().copy(baseVel);
+                let size = baseSize;
+                let life = baseLife;
+                let gravity = baseGravity;
+
+                if (style === 'willow') {
+                    gravity = baseGravity * 3.5 + 0.012; 
+                    life = baseLife * 1.5;
+                } else if (style === 'nebula') {
+                    vel.multiplyScalar(0.25);
+                    gravity = 0.0002;
+                    life = baseLife * 2.2;
+                    size = baseSize * 2.0;
+                } else if (style === 'supernova') {
+                    vel.multiplyScalar(1.6);
+                    size = baseSize * 2.2;
+                    life = baseLife * 0.65;
+                }
+
+                spawnParticle(pos, vel, color, size, life, gravity, isSparkle);
+            }
+
+            function updateRocket() {
+                // Spawn trail sparks
+                const trailVel = new THREE.Vector3(
+                    (Math.random() * 2 - 1) * 0.2,
+                    -1.0 - Math.random() * 0.5, // fly downwards from rocket
+                    (Math.random() * 2 - 1) * 0.2
+                );
+                spawnCustomParticle(rocketPos, trailVel, 0.25, 20 + Math.random() * 10, 0.003);
+
+                // Update position
+                rocketPos.add(rocketVel);
+                rocketVel.y -= 0.15; // heavy upward drag slowing rocket down
+
+                frames++;
+                if (frames < maxFrames && rocketVel.y > 0) {
+                    requestAnimationFrame(updateRocket);
+                } else {
+                    // Explode at peak!
+                    const count = Math.floor(100 * intensity);
+                    for (let i = 0; i < count; i++) {
+                        const theta = Math.random() * Math.PI * 2;
+                        const phi = Math.acos((Math.random() * 2) - 1);
+                        const speed = 0.5 + Math.random() * 2.0;
+                        const burstVel = new THREE.Vector3(
+                            Math.sin(phi) * Math.cos(theta) * speed,
+                            Math.sin(phi) * Math.sin(theta) * speed,
+                            Math.cos(phi) * speed
+                        );
+                        spawnCustomParticle(rocketPos, burstVel, 0.35, 50 + Math.random() * 20, 0.008);
+                    }
+                }
+            }
+            updateRocket();
+        }
+
+        function updateParticlesGeometry() {
+            const posAttr = particleGeometry.attributes.position;
+            const colAttr = particleGeometry.attributes.color;
+            const sizeAttr = particleGeometry.attributes.size;
+            
+            let activeCount = 0;
+
+            for (let i = 0; i < maxParticles; i++) {
+                const p = particles[i];
+                if (p.active) {
+                    // Update kinematics
+                    p.pos.add(p.vel);
+                    p.vel.y -= p.gravity; // Apply gravity
+
+                    p.life--;
+                    
+                    // Sparkle flicker effect
+                    let currentSize = p.size;
+                    if (p.sparkle && p.life < p.maxLife * 0.7) {
+                        currentSize = Math.random() > 0.4 ? p.size * 1.3 : 0.0;
+                    }
+
+                    // Write attribute values
+                    posAttr.setXYZ(i, p.pos.x, p.pos.y, p.pos.z);
+                    
+                    // Fade out color
+                    const fade = p.life / p.maxLife;
+                    colAttr.setXYZ(i, p.color.r * fade, p.color.g * fade, p.color.b * fade);
+                    
+                    // Fade size
+                    sizeAttr.setX(i, currentSize * Math.min(1.0, fade * 1.5));
+
+                    activeCount++;
+
+                    // Deactivate
+                    if (p.life <= 0) {
+                        p.active = false;
+                        sizeAttr.setX(i, 0); // Hide
+                    }
+                } else {
+                    sizeAttr.setX(i, 0); // Keep size 0 if inactive
+                }
+            }
+            
+            posAttr.needsUpdate = true;
+            colAttr.needsUpdate = true;
+            sizeAttr.needsUpdate = true;
+
+            document.getElementById('metric-particles').innerText = activeCount;
+        }
+
+
+        // --- 5. TRIGGER SEQUENCES & PAD HITS ---
+        function triggerPadHit(padId) {
+            const padMesh = padMeshes.find(p => p.userData.id === padId);
+            if (!padMesh) return;
+
+            // Trigger Audio (either custom sample or default synth)
+            if (padMesh.userData.customBuffer) {
+                playCustomSample(padMesh.userData.customBuffer, padMesh.userData.pitchVal);
+            } else {
+                if (padId === 'kick') playKick(padMesh.userData.decayVal, padMesh.userData.pitchVal);
+                else if (padId === 'snare') playSnare(padMesh.userData.decayVal, padMesh.userData.pitchVal);
+                else if (padId === 'hat') playHiHat(padMesh.userData.decayVal, padMesh.userData.pitchVal);
+                else if (padId === 'tomHigh') playTom(padMesh.userData.pitch * padMesh.userData.pitchVal, padMesh.userData.decayVal);
+                else if (padId === 'tomLow') playTom(padMesh.userData.pitch * padMesh.userData.pitchVal, padMesh.userData.decayVal);
+                else if (padId === 'crash') playCrash(padMesh.userData.decayVal, padMesh.userData.pitchVal);
+            }
+
+            // Trigger Firework Particle System
+            triggerFirework({
+                pos: padMesh.position,
+                id: padId,
+                colorHex: padMesh.userData.colorHex
+            });
+
+            // Tap Pad Downwards Animation
+            padMesh.position.y = padMesh.userData.originalY - 0.08;
+            padMesh.userData.skinMesh.material.emissiveIntensity = 2.0;
+
+            setTimeout(() => {
+                padMesh.position.y = padMesh.userData.originalY;
+                padMesh.userData.skinMesh.material.emissiveIntensity = padMesh.userData.originalEmissive;
+            }, 100);
+        }
+
+        // Raycasting for Mouse/Touch Pad clicks
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('pointerdown', (e) => {
+            // Check if clicking in canvas container
+            if (e.target.closest('.interactive-panel') || e.target.closest('.btn-nav') || e.target.closest('.btn-play-mode')) return;
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // Traverse and check intersections with skin meshes
+            const intersects = raycaster.intersectObjects(drumGroup.children, true);
+            if (intersects.length > 0) {
+                // Find parent pad group
+                let obj = intersects[0].object;
+                while (obj && obj.parent !== drumGroup) {
+                    obj = obj.parent;
+                }
+                if (obj && obj.userData.id) {
+                    triggerPadHit(obj.userData.id);
+                }
+            }
+        });
+
+
+        // --- 6. STEP SEQUENCER GRID PROGRAMMING ---
+        const rows = document.querySelectorAll('.seq-row');
+        const totalSteps = 16;
+        let activeSequencerInterval = null;
+        let isPlayingSequencer = false;
+        let currentStepIndex = 0;
+
+        // Map Row Type to Pad IDs
+        const rowPadMapping = {
+            crash: 'crash',
+            tomHigh: 'tomHigh',
+            tomLow: 'tomLow',
+            hat: 'hat',
+            snare: 'snare',
+            kick: 'kick'
+        };
+
+        rows.forEach(row => {
+            const stepsContainer = row.querySelector('.steps-container');
+            const rowType = row.getAttribute('data-row-type');
+            
+            for (let i = 0; i < totalSteps; i++) {
+                const node = document.createElement('div');
+                node.classList.add('step-node');
+                node.setAttribute('data-step', i);
+                
+                node.addEventListener('click', () => {
+                    node.classList.toggle(`active-${rowType}`);
+                });
+                
+                stepsContainer.appendChild(node);
+            }
+        });
+
+        function runSequencerStep() {
+            // Highlight current step nodes
+            document.querySelectorAll('.step-node').forEach(node => {
+                node.classList.remove('current');
+                if (parseInt(node.getAttribute('data-step')) === currentStepIndex) {
+                    node.classList.add('current');
+                }
+            });
+
+            // Trigger active drums on current step
+            rows.forEach(row => {
+                const rowType = row.getAttribute('data-row-type');
+                const activeNode = row.querySelector(`.step-node[data-step="${currentStepIndex}"].active-${rowType}`);
+                if (activeNode) {
+                    // Trigger the drum pad
+                    const targetPadId = rowPadMapping[rowType];
+                    triggerPadHit(targetPadId);
+                }
+            });
+
+            // Move playhead forward
+            currentStepIndex = (currentStepIndex + 1) % totalSteps;
+        }
+
+        const btnSeqPlay = document.getElementById('btn-seq-play');
+        btnSeqPlay.addEventListener('click', () => {
+            if (isPlayingSequencer) {
+                // Stop Sequencer
+                clearInterval(activeSequencerInterval);
+                activeSequencerInterval = null;
+                isPlayingSequencer = false;
+                btnSeqPlay.innerText = "Play Sequencer";
+                btnSeqPlay.classList.remove('active');
+                
+                // Clear active playheads
+                document.querySelectorAll('.step-node').forEach(node => node.classList.remove('current'));
+                currentStepIndex = 0;
+            } else {
+                // Start Sequencer
+                initAudio();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                
+                const stepDurationMs = (60000 / synthState.bpm) / 4; // sixteenth notes
+                activeSequencerInterval = setInterval(runSequencerStep, stepDurationMs);
+                isPlayingSequencer = true;
+                btnSeqPlay.innerText = "Stop Sequencer";
+                btnSeqPlay.classList.add('active');
+            }
+        });
+
+        // Clear Steps
+        document.getElementById('btn-seq-clear').addEventListener('click', () => {
+            rows.forEach(row => {
+                const rowType = row.getAttribute('data-row-type');
+                row.querySelectorAll(`.step-node`).forEach(node => {
+                    node.classList.remove(`active-${rowType}`);
+                });
+            });
+        });
+
+        // Load Demo Beat
+        document.getElementById('btn-seq-demo').addEventListener('click', () => {
+            // Clear current step grids
+            document.getElementById('btn-seq-clear').click();
+
+            // Simple 4-on-the-floor dance groove with toms and crash cymbals
+            const kickSteps = [0, 4, 8, 12];
+            const snareSteps = [4, 12];
+            const hatSteps = [0, 2, 4, 6, 8, 10, 12, 14];
+            const tomHighSteps = [7, 15];
+            const tomLowSteps = [11, 14];
+            const crashSteps = [0, 8];
+
+            kickSteps.forEach(s => {
+                document.querySelector('.seq-row[data-row-type="kick"] .step-node[data-step="' + s + '"]').classList.add('active-kick');
+            });
+            snareSteps.forEach(s => {
+                document.querySelector('.seq-row[data-row-type="snare"] .step-node[data-step="' + s + '"]').classList.add('active-snare');
+            });
+            hatSteps.forEach(s => {
+                document.querySelector('.seq-row[data-row-type="hat"] .step-node[data-step="' + s + '"]').classList.add('active-hat');
+            });
+            tomHighSteps.forEach(s => {
+                document.querySelector('.seq-row[data-row-type="tomHigh"] .step-node[data-step="' + s + '"]').classList.add('active-tomHigh');
+            });
+            tomLowSteps.forEach(s => {
+                document.querySelector('.seq-row[data-row-type="tomLow"] .step-node[data-step="' + s + '"]').classList.add('active-tomLow');
+            });
+            crashSteps.forEach(s => {
+                document.querySelector('.seq-row[data-row-type="crash"] .step-node[data-step="' + s + '"]').classList.add('active-crash');
+            });
+
+            showNotification("DEMO BEAT LOADED", "var(--gold-accent)");
+        });
+
+
+        // --- 7. KEYBOARD CONTROLS LISTENERS ---
+        const keyMap = {
+            ' ': 'kick',
+            'j': 'snare',
+            'k': 'hat',
+            'f': 'tomHigh',
+            'd': 'tomLow',
+            'l': 'crash'
+        };
+
+        window.addEventListener('keydown', (e) => {
+            // Ignore keypresses inside input fields
+            if (e.target.tagName === 'INPUT') return;
+
+            const padId = keyMap[e.key.toLowerCase()];
+            if (padId) {
+                // Prevent space bar scrolling
+                if (e.key === ' ') {
+                    e.preventDefault();
+                }
+                triggerPadHit(padId);
+            }
+        });
+
+
+        // --- 8. UI SLIDERS & SIDEBAR LOGIC ---
+        // Master Volume
+        const sliderVol = document.getElementById('slider-vol');
+        sliderVol.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('val-vol').innerText = val + '%';
+            synthState.volume = val / 100;
+            if (mainGainNode) {
+                mainGainNode.gain.setValueAtTime(synthState.volume, audioCtx.currentTime);
+            }
+        });
+
+        // Filter Cutoff
+        const sliderCutoff = document.getElementById('slider-cutoff');
+        sliderCutoff.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('val-cutoff').innerText = val + '%';
+            synthState.cutoff = val / 100;
+            if (masterFilterNode) {
+                // Exponential cutoff mapping for pleasant sweeps
+                const freq = 20000 * Math.pow(synthState.cutoff, 2);
+                masterFilterNode.frequency.setValueAtTime(Math.max(200, freq), audioCtx.currentTime);
+            }
+        });
+
+        // Delay Feedback
+        const sliderDelay = document.getElementById('slider-delay');
+        sliderDelay.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('val-delay').innerText = val + '%';
+            synthState.delayFeedback = val / 100;
+            if (delayFeedbackNode) {
+                delayFeedbackNode.gain.setValueAtTime(synthState.delayFeedback, audioCtx.currentTime);
+            }
+        });
+
+        // BPM Tempo
+        const sliderBpm = document.getElementById('slider-bpm');
+        sliderBpm.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('val-bpm').innerText = val + ' BPM';
+            synthState.bpm = val;
+            
+            // If playing, reset interval timer to new tempo
+            if (isPlayingSequencer) {
+                clearInterval(activeSequencerInterval);
+                const stepDurationMs = (60000 / synthState.bpm) / 4;
+                activeSequencerInterval = setInterval(runSequencerStep, stepDurationMs);
+            }
+        });
+
+        // Auto Orbit Camera Toggle
+        const btnAutoCamera = document.getElementById('btn-auto-camera');
+        btnAutoCamera.addEventListener('click', () => {
+            synthState.autoOrbit = !synthState.autoOrbit;
+            btnAutoCamera.classList.toggle('active', synthState.autoOrbit);
+        });
+
+        // Particle Trails Toggle (Toggles additive fade render)
+        const btnTrails = document.getElementById('btn-particle-trails');
+        btnTrails.addEventListener('click', () => {
+            synthState.trails = !synthState.trails;
+            btnTrails.classList.toggle('active', synthState.trails);
+            // Adjust WebGL blending behavior slightly
+            renderer.autoClear = !synthState.trails;
+        });
+
+        // Pro Upgrade Status
+        let isProUser = false;
+
+        function openProModal() {
+            document.getElementById('pro-modal').style.display = 'flex';
+        }
+        function closeProModal() {
+            document.getElementById('pro-modal').style.display = 'none';
+        }
+        document.getElementById('pro-close-btn').addEventListener('click', closeProModal);
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('pro-modal')) {
+                closeProModal();
+            }
+        });
+
+        function checkProAccess(featureName) {
+            if (isProUser) return true;
+            openProModal();
+            showNotification(`${featureName} is a PRO Feature!`, "var(--gold-accent)");
+            return false;
+        }
+
+        // Firework Explosion Style selection listener
+        let prevStyle = 'classic';
+        const dropdownFireworkStyle = document.getElementById('dropdown-firework-style');
+        dropdownFireworkStyle.addEventListener('change', (e) => {
+            const newStyle = e.target.value;
+            if (newStyle === 'nebula' || newStyle === 'supernova') {
+                if (!isProUser) {
+                    dropdownFireworkStyle.value = prevStyle; // revert
+                    checkProAccess("Advanced Fireworks");
+                    return;
+                }
+            }
+            fireworkState.style = newStyle;
+            prevStyle = newStyle;
+        });
+
+        // Firework Intensity Slider drag listener
+        const sliderFireworkIntensity = document.getElementById('slider-firework-intensity');
+        sliderFireworkIntensity.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('val-firework-intensity').innerText = val + '%';
+            fireworkState.intensity = val / 100;
+        });
+
+        // --- RADIO RESONANCE STREAM LOGIC ---
+        let radioSourceNode = null;
+        let isRadioPlaying = false;
+        const radioAudio = new Audio();
+        radioAudio.crossOrigin = "anonymous";
+        radioAudio.loop = true;
+        radioAudio.src = 'https://ice1.somafm.com/dronezone-128-mp3'; // Customizable Future Stream URL
+
+        function toggleRadio() {
+            initAudio();
+            if (!audioCtx) return;
+
+            const indicator = document.getElementById('radio-on-air-indicator');
+            const btn = document.getElementById('btn-radio-toggle');
+
+            if (!isRadioPlaying) {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                showNotification("CONNECTING TO RESONANCE RADIO...", "var(--cyan-glow)");
+                
+                if (!radioSourceNode) {
+                    radioSourceNode = audioCtx.createMediaElementSource(radioAudio);
+                    radioSourceNode.connect(mainGainNode);
+                }
+
+                radioAudio.play().then(() => {
+                    isRadioPlaying = true;
+                    btn.classList.add('active');
+                    btn.style.borderColor = "var(--cyan-glow)";
+                    btn.style.boxShadow = "0 0 10px rgba(0, 229, 255, 0.3)";
+                    indicator.style.background = "#ff007f"; // ON AIR glow
+                    indicator.style.boxShadow = "0 0 8px #ff007f";
+                    showNotification("RADIO LIVE: DRONE ZONE STREAM", "var(--cyan-glow)");
+                }).catch(err => {
+                    console.error("Radio stream failed:", err);
+                    showNotification("RADIO STREAM OFFLINE", "rgba(255, 0, 127, 0.8)");
+                });
+            } else {
+                radioAudio.pause();
+                isRadioPlaying = false;
+                btn.classList.remove('active');
+                btn.style.borderColor = "rgba(0, 229, 255, 0.3)";
+                btn.style.boxShadow = "none";
+                indicator.style.background = "#64748b"; // OFF gray
+                indicator.style.boxShadow = "none";
+                showNotification("RADIO STOPPED", "var(--cyan-glow)");
+            }
+        }
+
+        document.getElementById('btn-radio-toggle').addEventListener('click', toggleRadio);
+
+        // --- PAD CUSTOMIZER LOGIC ---
+        const dropdownSelectPad = document.getElementById('dropdown-select-pad');
+        const inputSampleFile = document.getElementById('input-sample-file');
+        const sampleNameDisplay = document.getElementById('sample-name-display');
+        const btnClearSample = document.getElementById('btn-clear-sample');
+        
+        const sliderPadPitch = document.getElementById('slider-pad-pitch');
+        const valPadPitch = document.getElementById('val-pad-pitch');
+        const sliderPadDecay = document.getElementById('slider-pad-decay');
+        const valPadDecay = document.getElementById('val-pad-decay');
+
+        const sliderPadX = document.getElementById('slider-pad-x');
+        const valPadX = document.getElementById('val-pad-x');
+        const sliderPadZ = document.getElementById('slider-pad-z');
+        const valPadZ = document.getElementById('val-pad-z');
+        
+        const dropdownFilterType = document.getElementById('dropdown-filter-type');
+        const sliderFilterQ = document.getElementById('slider-filter-q');
+        const valFilterQ = document.getElementById('val-filter-q');
+
+        // Helper to get currently selected pad object
+        function getSelectedPad() {
+            const padId = dropdownSelectPad.value;
+            const padMesh = padMeshes.find(p => p.userData.id === padId);
+            return padMesh ? padMesh.userData : null;
+        }
+
+        // Update Customizer UI elements to reflect selected pad settings
+        function updateCustomizerUI() {
+            const padData = getSelectedPad();
+            if (!padData) return;
+
+            // Update Pitch Slider
+            sliderPadPitch.value = Math.round(padData.pitchVal * 100);
+            valPadPitch.innerText = Math.round(padData.pitchVal * 100) + '%';
+
+            // Update Decay Slider
+            sliderPadDecay.value = Math.round(padData.decayVal * 100);
+            valPadDecay.innerText = Math.round(padData.decayVal * 100) + '%';
+
+            // Update X Position Slider
+            sliderPadX.value = Math.round(padMesh.position.x * 10);
+            valPadX.innerText = padMesh.position.x.toFixed(1);
+
+            // Update Z Position Slider
+            sliderPadZ.value = Math.round(padMesh.position.z * 10);
+            valPadZ.innerText = padMesh.position.z.toFixed(1);
+
+            // Update Sample Display
+            if (padData.customBuffer) {
+                sampleNameDisplay.innerText = padData.customFileName || "Custom Audio Buffer";
+                sampleNameDisplay.style.color = "var(--magenta-glow)";
+                btnClearSample.style.display = "block";
+            } else {
+                sampleNameDisplay.innerText = "Using Synthesizer Engine";
+                sampleNameDisplay.style.color = "var(--cyan-glow)";
+                btnClearSample.style.display = "none";
+            }
+        }
+
+        dropdownSelectPad.addEventListener('change', updateCustomizerUI);
+
+        // Pitch slider drag listener
+        sliderPadPitch.addEventListener('input', (e) => {
+            const padData = getSelectedPad();
+            if (padData) {
+                const val = parseInt(e.target.value);
+                padData.pitchVal = val / 100;
+                valPadPitch.innerText = val + '%';
+            }
+        });
+
+        // Decay slider drag listener
+        sliderPadDecay.addEventListener('input', (e) => {
+            const padData = getSelectedPad();
+            if (padData) {
+                const val = parseInt(e.target.value);
+                padData.decayVal = val / 100;
+                valPadDecay.innerText = val + '%';
+            }
+        });
+
+        // X Position slider drag listener
+        sliderPadX.addEventListener('input', (e) => {
+            const padId = dropdownSelectPad.value;
+            const padMesh = padMeshes.find(p => p.userData.id === padId);
+            if (padMesh) {
+                const val = parseFloat(e.target.value) / 10;
+                padMesh.position.x = val;
+                valPadX.innerText = val.toFixed(1);
+            }
+        });
+
+        // Z Position slider drag listener
+        sliderPadZ.addEventListener('input', (e) => {
+            const padId = dropdownSelectPad.value;
+            const padMesh = padMeshes.find(p => p.userData.id === padId);
+            if (padMesh) {
+                const val = parseFloat(e.target.value) / 10;
+                padMesh.position.z = val;
+                valPadZ.innerText = val.toFixed(1);
+            }
+        });
+
+        // Custom Sample Click interceptor (Checks PRO)
+        inputSampleFile.addEventListener('click', (e) => {
+            if (!isProUser) {
+                e.preventDefault();
+                checkProAccess("Custom Sample Upload");
+            }
+        });
+
+        // Custom Sample Uploader Listener
+        inputSampleFile.addEventListener('change', (e) => {
+            if (!isProUser) return;
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const padData = getSelectedPad();
+            if (!padData) return;
+
+            initAudio();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            showNotification("DECODING AUDIO SAMPLE...", "var(--gold-accent)");
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const arrayBuffer = evt.target.result;
+                audioCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+                    padData.customBuffer = decodedBuffer;
+                    padData.customFileName = file.name;
+                    updateCustomizerUI();
+                    showNotification(`SAMPLE LOADED: ${file.name.substring(0, 16)}...`, "var(--magenta-glow)");
+                }, (err) => {
+                    console.error("Error decoding audio data:", err);
+                    showNotification("ERROR DECODING SAMPLE FILE", "rgba(255, 0, 127, 0.8)");
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Clear Sample Listener
+        btnClearSample.addEventListener('click', () => {
+            const padData = getSelectedPad();
+            if (padData) {
+                padData.customBuffer = null;
+                padData.customFileName = "";
+                inputSampleFile.value = ""; // clear file input
+                updateCustomizerUI();
+                showNotification("RESTORED DEFAULT SYNTHESIZER", "var(--cyan-glow)");
+            }
+        });
+
+        // Master Filter Type selection listener
+        dropdownFilterType.addEventListener('change', (e) => {
+            initAudio();
+            if (masterFilterNode) {
+                masterFilterNode.type = e.target.value;
+            }
+        });
+
+        // Master Filter Q (resonance) slider drag listener
+        sliderFilterQ.addEventListener('input', (e) => {
+            initAudio();
+            const val = parseInt(e.target.value);
+            const qVal = val / 10;
+            valFilterQ.innerText = qVal.toFixed(1);
+            if (masterFilterNode) {
+                masterFilterNode.Q.setValueAtTime(qVal, audioCtx.currentTime);
+            }
+        });
+
+        // Set initial UI values on startup
+        setTimeout(() => {
+            updateCustomizerUI();
+        }, 500);
+
+        // PRO Purchase Sandbox Buttons
+        document.getElementById('btn-upgrade-pro').addEventListener('click', openProModal);
+        document.getElementById('pro-upgrade-action-btn').addEventListener('click', () => {
+            isProUser = true;
+            document.getElementById('btn-upgrade-pro').innerText = "★ PRO ACTIVE";
+            document.getElementById('btn-upgrade-pro').style.borderColor = "var(--green-glow)";
+            document.getElementById('btn-upgrade-pro').style.color = "var(--green-glow)";
+            
+            showNotification("PRO UPGRADE SUCCESSFUL!", "var(--green-glow)");
+            closeProModal();
+        });
+
+        // --- SEQUENCE SHARING LOGIC (DOM-BASED) ---
+        function exportBeatCode() {
+            if (!checkProAccess("Beat Sharing")) return;
+            try {
+                const matrix = {};
+                rows.forEach(row => {
+                    const rowType = row.getAttribute('data-row-type');
+                    matrix[rowType] = [];
+                    const nodes = row.querySelectorAll('.step-node');
+                    nodes.forEach(node => {
+                        matrix[rowType].push(node.classList.contains(`active-${rowType}`));
+                    });
+                });
+
+                const serialized = JSON.stringify(matrix);
+                const code = btoa(serialized);
+                navigator.clipboard.writeText(code).then(() => {
+                    showNotification("BEAT CODE COPIED TO CLIPBOARD!", "var(--green-glow)");
+                }).catch(() => {
+                    prompt("Copy your Pyro Beat Code:", code);
+                });
+            } catch (err) {
+                console.error("Failed to export beat code:", err);
+                showNotification("EXPORT FAILED", "rgba(255, 0, 127, 0.8)");
+            }
+        }
+
+        function importBeatCode() {
+            if (!checkProAccess("Beat Sharing")) return;
+            const code = prompt("Paste your Pyro Beat Code here:");
+            if (!code) return;
+
+            try {
+                const decoded = atob(code);
+                const importedMatrix = JSON.parse(decoded);
+                
+                rows.forEach(row => {
+                    const rowType = row.getAttribute('data-row-type');
+                    if (Array.isArray(importedMatrix[rowType]) && importedMatrix[rowType].length === 16) {
+                        const nodes = row.querySelectorAll('.step-node');
+                        nodes.forEach((node, i) => {
+                            const active = !!importedMatrix[rowType][i];
+                            node.classList.toggle(`active-${rowType}`, active);
+                        });
+                    }
+                });
+
+                showNotification("BEAT CODE IMPORTED SUCCESSFULLY!", "var(--green-glow)");
+            } catch (err) {
+                console.error("Failed to import beat code:", err);
+                showNotification("INVALID BEAT CODE!", "rgba(255, 0, 127, 0.8)");
+            }
+        }
+
+        document.getElementById('btn-share-code').addEventListener('click', exportBeatCode);
+        document.getElementById('btn-load-code').addEventListener('click', importBeatCode);
+
+        // --- PERFORMANCE RECORDING LOGIC ---
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+        let recordDestNode = null;
+
+        function toggleRecording() {
+            initAudio();
+            if (!audioCtx) return;
+
+            const recordBtn = document.getElementById('btn-record-audio');
+
+            if (!isRecording) {
+                if (!checkProAccess("Performance Recording")) return;
+
+                recordedChunks = [];
+                if (!recordDestNode) {
+                    recordDestNode = audioCtx.createMediaStreamDestination();
+                    limiter.connect(recordDestNode);
+                }
+
+                try {
+                    mediaRecorder = new MediaRecorder(recordDestNode.stream, { mimeType: 'audio/webm' });
+                } catch (e) {
+                    mediaRecorder = new MediaRecorder(recordDestNode.stream);
+                }
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `pyro_performance_${Date.now()}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+
+                    showNotification("PERFORMANCE AUDIO EXPORTED!", "var(--green-glow)");
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordBtn.innerText = "⏹️ Stop Rec";
+                recordBtn.style.color = "#ff007f";
+                recordBtn.style.borderColor = "var(--magenta-glow)";
+                recordBtn.classList.add('recording-pulse');
+                showNotification("RECORDING MASTER AUDIO...", "var(--magenta-glow)");
+            } else {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                isRecording = false;
+                recordBtn.innerText = "🎙️ Record";
+                recordBtn.style.color = "var(--magenta-glow)";
+                recordBtn.style.borderColor = "rgba(255, 0, 127, 0.2)";
+                recordBtn.classList.remove('recording-pulse');
+            }
+        }
+
+        document.getElementById('btn-record-audio').addEventListener('click', toggleRecording);
+
+        // Play Mode Toggle Button
+        const btnPlayMode = document.getElementById('btn-play-mode');
+        btnPlayMode.addEventListener('click', () => {
+            document.body.classList.toggle('play-mode-active');
+            const isActive = document.body.classList.contains('play-mode-active');
+            btnPlayMode.classList.toggle('active', isActive);
+            if (isActive) {
+                btnPlayMode.innerHTML = `<span class="icon">✕</span> Exit Solo Play`;
+            } else {
+                btnPlayMode.innerHTML = `<span class="icon">✨</span> Play Mode`;
+            }
+        });
+
+        // Floating Toast Notification
+        function showNotification(text, colorStr) {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.top = '100px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.background = 'rgba(9, 13, 26, 0.9)';
+            toast.style.border = '1px solid ' + colorStr;
+            toast.style.boxShadow = '0 0 15px ' + colorStr;
+            toast.style.color = '#fff';
+            toast.style.fontFamily = 'Orbitron';
+            toast.style.fontSize = '0.75rem';
+            toast.style.letterSpacing = '1.5px';
+            toast.style.padding = '8px 16px';
+            toast.style.borderRadius = '6px';
+            toast.style.zIndex = '99999';
+            toast.style.transition = 'opacity 0.4s';
+            
+            document.body.appendChild(toast);
+            toast.innerText = text;
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 1800);
+        }
+
+
+        // --- 9. RENDER LOOP ---
+        const clock = new THREE.Clock();
+        
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 60;
+
+        function animate(timestamp) {
+            requestAnimationFrame(animate);
+            
+            const delta = clock.getDelta();
+            
+            // FPS Counter
+            frameCount++;
+            if (timestamp > lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (timestamp - lastTime));
+                document.getElementById('metric-fps').innerText = fps;
+                lastTime = timestamp;
+                frameCount = 0;
+            }
+
+            // Camera Auto-Orbit Animation
+            if (synthState.autoOrbit) {
+                const time = clock.getElapsedTime() * 0.15;
+                camera.position.x = Math.sin(time) * 9;
+                camera.position.z = Math.cos(time) * 9;
+                camera.position.y = 5 + Math.sin(time * 0.5) * 1.5;
+                camera.lookAt(0, 0.4, 0);
+            }
+
+            // Slowly animate the drum group floating slightly
+            drumGroup.position.y = Math.sin(clock.getElapsedTime() * 0.8) * 0.05;
+
+            // Render loop for firework sparks update
+            updateParticlesGeometry();
+
+            // Render
+            renderer.render(scene, camera);
+        }
+
+        // Initialize Animation
+        requestAnimationFrame(animate);
+
+        // Handle window resizing
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>

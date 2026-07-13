@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | 3D Resonance</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="scripts/night_fish.css">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+        }
+
+        /* Scanline Overlay for retro themes */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .theme-amber::after, .theme-matrix::after {
+            opacity: 0.15;
+        }
+
+        /* Lunar Calendar Background Grid */
+        .lunar-grid {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 95%; height: 80%; z-index: -2;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 20px;
+            text-align: center; pointer-events: none;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+        }
+        .lunar-grid div {
+            border: 1.5px dashed rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            aspect-ratio: 1;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0.12;
+            color: var(--text);
+            padding: 5px;
+        }
+        .lunar-grid div.active-day {
+            border: 2px solid var(--accent);
+            border-style: solid;
+            background: rgba(255, 255, 255, 0.02);
+            opacity: 0.65;
+            color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 15px var(--accent-glow);
+            animation: pulse-day 3s infinite ease-in-out;
+            transform: scale(1.05);
+        }
+        .lunar-day-num {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-bottom: 2px;
+            letter-spacing: 1px;
+        }
+        .lunar-moon-phase {
+            font-size: 1.6rem;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+            transition: color 0.5s ease;
+        }
+        @keyframes pulse-day {
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 15px var(--accent-glow); }
+            50% { opacity: 0.85; box-shadow: 0 0 30px var(--accent-glow); }
+        }
+
+        /* Floating Top Header */
+        .header {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 14px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.5s ease;
+        }
+
+        /* System Status Pulsing LED */
+        .status-indicator-led {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse-led 2s infinite ease-in-out;
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        @keyframes pulse-led {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.25); opacity: 1; }
+        }
+
+        /* Floating Left Control Dock */
+        .control-dock {
+            position: fixed;
+            left: 20px;
+            top: 100px;
+            background: rgba(10, 10, 10, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.5s ease;
+        }
+        .dock-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.5rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            opacity: 0.7;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            transition: color 0.5s ease;
+        }
+        .dock-separator {
+            width: 80%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 4px 0;
+        }
+
+        .theme-switcher { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .theme-btn { 
+            width: 20px; height: 20px; border-radius: 50%; 
+            border: 1.5px solid rgba(255, 255, 255, 0.4); 
+            cursor: pointer; opacity: 0.6; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .theme-btn:hover { opacity: 1; transform: scale(1.25); }
+        .theme-btn.active { opacity: 1; border-color: #fff; transform: scale(1.15); box-shadow: 0 0 10px var(--accent); }
+        
+        .btn-classic { background: var(--gold); }
+        .btn-matrix { background: var(--matrix-green); }
+        .btn-amber { background: var(--amber-glow); }
+        .btn-cyber { background: var(--cyan); }
+
+        #sound-toggle { 
+            cursor: pointer; font-size: 0.9rem; opacity: 0.6; 
+            transition: all 0.3s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #sound-toggle:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        #grid-toggle {
+            cursor: pointer; 
+            font-size: 0.65rem; 
+            opacity: 0.6; 
+            font-family: 'Orbitron', sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; 
+            background: rgba(255,255,255,0.05); 
+            border: 1.5px solid rgba(255,255,255,0.1); 
+            transition: all 0.3s ease; 
+            font-weight: 700;
+        }
+        #grid-toggle:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.1);
+        }
+        #sorter-toggle {
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            opacity: 0.6; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; 
+            background: rgba(255,255,255,0.05); 
+            border: 1.5px solid rgba(255,255,255,0.1); 
+            transition: all 0.3s ease; 
+        }
+        #sorter-toggle:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Holographic Infinity Carousel (3D Ring) */
+        #holo-carousel-container {
+            position: fixed;
+            bottom: 33%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            height: 200px;
+            overflow: visible;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            pointer-events: none; /* Let clicks pass through empty space */
+        }
+        
+        #holo-carousel-track {
+            position: relative;
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            pointer-events: auto;
+            cursor: grab;
+            user-select: none;
+            will-change: transform;
+        }
+        #holo-carousel-track:active {
+            cursor: grabbing;
+        }
+
+        /* The cyan energy beam connecting the units (3D Ring) */
+        #holo-carousel-track::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1300px; /* Diameter: 2 * 650 */
+            height: 1300px;
+            border: 2px solid rgba(0, 229, 255, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4), inset 0 0 20px rgba(0, 229, 255, 0.4);
+            z-index: -1;
+            pointer-events: none;
+            transform: translate(-50%, -50%) rotateX(90deg);
+        }
+
+        .holo-unit {
+            position: absolute;
+            left: 0;
+            top: 0;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: rgba(0, 10, 20, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            transform-origin: center center;
+            z-index: 1;
+            /* No CSS transform transition! Animated by JS requestAnimationFrame */
+            transition: background 0.3s, box-shadow 0.3s, border-color 0.3s;
+        }
+
+        /* Dormant Pillar (Crystalline node) */
+        .holo-unit.dormant {
+            width: 45px;
+            height: 52px;
+            background: rgba(0, 20, 40, 0.3);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 150, 255, 0.2);
+        }
+        .holo-unit.dormant .core-light {
+            width: 12px;
+            height: 12px;
+            background: rgba(0, 229, 255, 0.5);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 1);
+        }
+
+        /* Active App Node */
+        .holo-unit.active-node {
+            width: 75px;
+            height: 86px;
+            background: rgba(5, 20, 30, 0.7);
+            border: 1.5px solid rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.25), inset 0 0 15px rgba(0, 229, 255, 0.15);
+        }
+        
+        .holo-unit.active-node:hover {
+            background: rgba(10, 30, 45, 0.9);
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow), inset 0 0 20px var(--accent-glow);
+        }
+
+        .holo-icon {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+            pointer-events: none;
+        }
+        
+        .holo-label {
+            font-size: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.9);
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        #vortex-container { position: relative; flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; height: 100vh; width: 100vw; }
+
+        .analog-hub {
+            position: absolute; width: 340px; height: 340px; 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 
+                        inset 0 0 20px rgba(255, 255, 255, 0.05),
+                        0 0 15px var(--accent-glow);
+            z-index: 10;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
+            pointer-events: auto;
+        }
+        
+        .apex-sector { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: conic-gradient(from 355.5deg, transparent 0deg, var(--accent) 0deg, var(--accent) 9deg, transparent 9deg); 
+            opacity: 0.12; border-radius: 50%; z-index: 1; 
+            filter: blur(1px);
+            transition: background 0.5s ease;
+        }
+        
+        .marker-pair { position: absolute; height: 100%; width: 100%; text-align: center; z-index: 2; }
+        .label-wrap { position: absolute; width: 100%; top: 12px; display: flex; flex-direction: column; align-items: center; }
+        .hour-top { font-size: 16px; font-weight: 700; color: var(--text); font-family: 'Orbitron', sans-serif; text-shadow: 0 0 4px var(--accent-glow); }
+        .hour-bottom { font-size: 10px; font-weight: 500; color: var(--accent); opacity: 0.8; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease; }
+        
+        /* Futuristic Tapered Clock Hands */
+        .hand { 
+            position: absolute; 
+            left: 50%; 
+            bottom: 50%; 
+            transform-origin: bottom center; 
+            border-radius: 10px; 
+            filter: drop-shadow(0 0 8px var(--accent-glow)); 
+            transition: background 0.5s ease; 
+        }
+        .hour-hand { 
+            width: 8px; 
+            height: 85px; 
+            background: linear-gradient(to top, var(--secondary), var(--primary)); 
+            z-index: 5; 
+            border: 1.5px solid rgba(255, 255, 255, 0.15); 
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+        }
+        .min-hand { 
+            width: 5px; 
+            height: 120px; 
+            background: linear-gradient(to top, var(--primary), var(--accent)); 
+            z-index: 4; 
+            clip-path: polygon(35% 0%, 65% 0%, 100% 100%, 0% 100%);
+        }
+        .sec-hand { 
+            width: 2px; 
+            height: 135px; 
+            background: var(--highlight); 
+            z-index: 6; 
+            box-shadow: 0 0 12px var(--highlight);
+        }
+        .hub-center { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            width: 20px; 
+            height: 20px; 
+            background: radial-gradient(circle, #fff 20%, var(--highlight) 60%, transparent 100%); 
+            border: 2px solid var(--accent); 
+            border-radius: 50%; 
+            transform: translate(-50%, -50%); 
+            z-index: 10; 
+            box-shadow: 0 0 15px var(--highlight); 
+        }
+
+        /* Repositioned Floating Vortex HUD */
+        .vortex-hud {
+            position: fixed;
+            bottom: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            max-width: 90%;
+            text-align: center; 
+            padding: 14px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; z-index: 100;
+            display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: border 0.5s ease;
+        }
+        
+        .digital-stream { 
+            font-size: 38px; 
+            color: var(--highlight); 
+            font-weight: 700; 
+            font-family: 'Share Tech Mono', monospace; 
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px var(--highlight);
+        }
+        .millionths { 
+            font-size: 16px; 
+            color: var(--alert); 
+            font-family: 'Share Tech Mono', monospace; 
+            opacity: 0.8; 
+            margin-left: 4px; 
+            text-shadow: 0 0 6px var(--alert);
+        }
+        .root-val { 
+            color: var(--accent); 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: color 0.5s ease;
+        }
+        .cycle-tracker { display: flex; gap: 6px; justify-content: center; }
+        .cycle-dot { 
+            width: 8px; height: 8px; border-radius: 50%; 
+            border: 1px solid var(--accent); opacity: 0.25; 
+            transition: all 0.5s ease;
+        }
+        .cycle-dot.active { 
+            background: var(--accent); opacity: 1; 
+            box-shadow: 0 0 10px var(--accent); 
+            transform: scale(1.3);
+        }
+
+        /* Interactive Tooltip style */
+        .tooltip {
+            position: absolute;
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid var(--accent);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -100%) scale(0.9);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+        }
+        .tooltip.visible {
+            opacity: 1;
+            transform: translate(-50%, -120%) scale(1);
+        }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px 5px 0;
+            border-style: solid;
+            border-color: var(--accent) transparent transparent;
+            display: block;
+            width: 0;
+        }
+
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+
+        /* Floating Station Network Panel with search container */
+        .network-panel {
+            position: fixed;
+            top: 100px;
+            right: -420px;
+            width: 380px;
+            height: calc(100vh - 220px);
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            z-index: 500;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .network-panel.open {
+            right: 20px;
+        }
+        .panel-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        
+        #station-search {
+            width: 100%; 
+            padding: 8px 12px; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            border-radius: 6px; 
+            color: var(--text); 
+            font-family: 'Share Tech Mono', monospace; 
+            font-size: 0.75rem; 
+            letter-spacing: 1px; 
+            outline: none; 
+            transition: all 0.3s ease;
+        }
+        #station-search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .close-btn:hover {
+            opacity: 1;
+            color: var(--alert);
+        }
+        .network-grid {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            padding-right: 4px;
+            margin-top: 10px;
+        }
+        .network-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+        .network-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .network-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+        .network-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .station-cell {
+            border: 1px solid rgba(255,255,255,0.04); 
+            border-radius: 6px; 
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.02); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            transition: all 0.3s ease; 
+            opacity: 0.7; 
+            cursor: pointer;
+            height: 54px;
+        }
+        .station-cell:hover { 
+            opacity: 1; 
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+        .station-cell.active-focus {
+            border-color: var(--accent) !important;
+            background: rgba(255, 255, 255, 0.08);
+            opacity: 1;
+        }
+        .station-cell-info { 
+            font-size: 0.55rem; 
+            color: var(--text); 
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase; 
+            display: flex; 
+            justify-content: space-between; 
+            opacity: 0.75;
+        }
+        .vortex-time { 
+            font-size: 0.95rem; 
+            font-weight: 700; 
+            text-align: right;
+            font-family: 'Share Tech Mono', monospace;
+            margin-top: 4px;
+        }
+
+        /* Workspace Viewport Container */
+        .workspace-viewport {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            right: 20px;
+            bottom: 90px;
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            z-index: 400;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px var(--accent-glow);
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .workspace-viewport.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .viewport-header {
+            background: rgba(15, 15, 15, 0.85);
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
+        }
+
+        .viewport-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .viewport-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .v-control {
+            cursor: pointer;
+            font-size: 0.85rem;
+            opacity: 0.65;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .v-control:hover {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        .v-control.close-btn {
+            font-size: 1.25rem;
+            color: var(--alert);
+        }
+
+        #viewport-iframe {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            background: transparent;
+        }
+        
+        /* Active nav link style for running workspace */
+        .nav-link.active-workspace {
+            color: #fff !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 12px var(--accent-glow) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Quest Game HUD Styles */
+        .quest-hud-panel {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            width: 250px;
+            background: rgba(13, 13, 20, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+        .quest-hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--accent-glow);
+        }
+        .quest-hud-body {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 8px;
+        }
+        .quest-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .quest-item.completed {
+            opacity: 0.5;
+            text-decoration: line-through;
+            color: var(--highlight);
+        }
+        .quest-checkbox {
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+        .quest-item.completed .quest-checkbox {
+            color: var(--highlight);
+        }
+
+        /* Quest Rewards Modal */
+        .quest-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .quest-modal-content {
+            background: linear-gradient(135deg, rgba(20,20,30,0.95), rgba(5,5,10,0.98));
+            border: 2px solid var(--highlight);
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 480px;
+            padding: 30px;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            animation: modalFadeIn 0.4s ease;
+        }
+        @keyframes modalFadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1.0); opacity: 1; }
+        }
+        .reward-badge {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="lunar-grid" id="bg-cal"></div>
+<div id="tooltip" class="tooltip"></div>
+
+<!-- Network grid overlay panel -->
+<div id="network-panel" class="network-panel">
+    <div class="panel-header">
+        <span>STATION RESONANCE MATRIX</span>
+        <span class="close-btn" onclick="toggleNetworkGrid()">×</span>
+    </div>
+    <input type="text" id="station-search" placeholder="FILTER STATIONS...">
+    <div id="network-grid" class="network-grid"></div>
+</div>
+
+<!-- Floating Top Header -->
+<div class="header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="status-indicator-led"></span>
+        <div style="display: flex; flex-direction: column;">
+            <span style="font-family: 'Orbitron', sans-serif; font-size: 0.6rem; letter-spacing: 1.5px; opacity: 0.8; font-weight: 700; line-height: 1.1;">SYS.ONLINE</span>
+            <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 1px; color: var(--accent); opacity: 0.9; line-height: 1.1;">OPERATOR: TIMOTHY DWEN</span>
+        </div>
+    </div>
+    <div style="text-align: center; margin: 0 10px;">
+        <div style="color: var(--accent); font-size: 0.95rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">DRAGON 9: 3D RESONANCE</div>
+        <div id="location-tag" style="font-size: 0.55rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">SYNCING 3D NETWORK...</div>
+    </div>
+    <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; opacity: 0.8; text-align: right; display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+        <div id="gh-sync-indicator" style="font-size: 0.5rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 6px; cursor: pointer; transition: all 0.3s ease; opacity: 0.75;" title="Click to manually sync with GitHub server clock" onclick="window.triggerGithubTimeSync()">GH-SYNC: CONNECTING</div>
+        <span id="header-standard-clock">00:00:00 UTC</span>
+    </div>
+</div>
+
+<!-- Floating Left Control Dock -->
+<div class="control-dock">
+    <div class="dock-label">THEMES</div>
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div class="theme-btn btn-fluid" title="Fluid" onclick="setTheme('fluid')" style="background: linear-gradient(45deg, #00e5ff, #ff0080); border: 1.5px solid #fff;"></div>
+    </div>
+    <div class="dock-separator"></div>
+    <div class="dock-label">AUDIO</div>
+    <div id="sound-toggle" onclick="toggleSound()">🔇</div>
+    <select id="portal-music-select" class="form-input" style="font-size: 0.5rem; padding: 2px 4px; width: 75px; margin-top: 6px; background: rgba(0,0,0,0.8); color: var(--accent); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 4px; font-family: 'Share Tech Mono', monospace; outline: none; cursor: pointer;" onchange="changePortalMusic(this.value)">
+        <option value="synth">SYNTH</option>
+        <option value="beat6">BEAT 6</option>
+        <option value="darklawd">LUNGZ</option>
+        <option value="rainbow">RAINBOW</option>
+        <option value="beat2">BEAT 2</option>
+        <option value="oconnor">CONAN</option>
+    </select>
+    <div class="dock-separator"></div>
+    <div class="dock-label">MATRIX</div>
+    <div id="grid-toggle" onclick="toggleNetworkGrid()">🌐</div>
+    <div class="dock-separator"></div>
+    <div class="dock-label">INGEST</div>
+    <div id="sorter-toggle" onclick="toggleSorterModal()" title="Auto-Sorter Drawer">📂</div>
+</div>
+
+<!-- Holographic Infinity Carousel -->
+<div id="holo-carousel-container">
+    <div id="holo-carousel-track">
+        <!-- Units injected dynamically by Tai-Chi script -->
+    </div>
+</div>
+
+<!-- Interactive Workspace Viewport Container -->
+<div id="workspace-viewport" class="workspace-viewport">
+    <div class="viewport-header">
+        <span class="viewport-title" id="viewport-title">WORKSPACE</span>
+        <div class="viewport-controls">
+            <span class="v-control refresh-btn" onclick="refreshViewport()" title="Refresh Workspace">🔄</span>
+            <span class="v-control popout-btn" onclick="popoutViewport()" title="Open in New Tab">↗️</span>
+            <span class="v-control close-btn" onclick="closeViewport(event)" title="Close Workspace">×</span>
+        </div>
+    </div>
+    <iframe id="viewport-iframe" src="" onload="syncThemeToIframe()" frameborder="0"></iframe>
+</div>
+
+<div id="vortex-container">
+    <!-- Three.js Canvas will be injected here -->
+    <div class="analog-hub" id="dragon-hub">
+        <div class="apex-sector"></div>
+        <div class="hand hour-hand" id="hHand"></div>
+        <div class="hand min-hand" id="mHand"></div>
+        <div class="hand sec-hand" id="sHand"></div>
+        <div class="hub-center"></div>
+    </div>
+</div>
+
+<div class="vortex-hud">
+    <div>
+        <div class="root-val" id="root-display">ROOT: --</div>
+        <div class="cycle-tracker" id="cycle-tracker"></div>
+    </div>
+    <div>
+        <span class="digital-stream" id="digital-sync">00:00:00</span>
+        <span class="millionths" id="milli-sync">.000000</span>
+    </div>
+    <div id="status-mode" style="font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">SYSTEM ONLINE</div>
+</div>
+
+<!-- Onboarding Quest HUD -->
+<div id="quest-hud" class="quest-hud-panel">
+    <div class="quest-hud-header" onclick="toggleQuestHud()">
+        <span>🏆 ALIGN PORTAL CORE</span>
+        <span id="quest-hud-progress">0/3</span>
+    </div>
+    <div class="quest-hud-body" id="quest-hud-body">
+        <div class="quest-item" id="quest-audio-item">
+            <span class="quest-checkbox" id="chk-quest-audio">⬡</span>
+            <span>Tune Audio Resonance</span>
+        </div>
+        <div class="quest-item" id="quest-media-item">
+            <span class="quest-checkbox" id="chk-quest-media">⬡</span>
+            <span>Ingest Media Segment</span>
+        </div>
+        <div class="quest-item" id="quest-projector-item">
+            <span class="quest-checkbox" id="chk-quest-projector">⬡</span>
+            <span>Calibrate Projector</span>
+        </div>
+    </div>
+</div>
+
+<!-- Onboarding Welcome Modal -->
+<div id="quest-welcome-modal" class="quest-modal">
+    <div class="quest-modal-content" style="border-color: var(--accent); box-shadow: 0 0 35px var(--accent-glow);">
+        <div class="reward-badge">🌐</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent); margin-bottom: 12px; font-weight: 900;">PORTAL CORE MATRIX</h2>
+        <p style="font-size: 0.8rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 20px;">
+            Core alignment lost. Calibrate the Dragon 9 multiversal network sectors to unlock the <strong>Level 1 Operator Suite</strong> and spread the love!
+        </p>
+        <button class="action-btn" onclick="closeQuestWelcome()" style="margin-top: 0; background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer;">🚀 BEGIN CALIBRATION</button>
+    </div>
+</div>
+
+<!-- Onboarding Reward Modal -->
+<div id="quest-reward-modal" class="quest-modal">
+    <div class="quest-modal-content">
+        <div class="reward-badge">💎</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--highlight); margin-bottom: 12px; font-weight: 900;">SUITE UNLOCKED!</h2>
+        <p style="font-size: 0.8rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 15px;">
+            Congratulations Operator! The Portal Core is aligned. Here is your Level 1 Calibration Reward:
+        </p>
+        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 12px; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; margin-bottom: 20px; line-height: 1.5; color: var(--text);">
+            🔑 CODE: <strong style="color: var(--highlight);">D9_CORE_ALIGN_TIM_LOVE</strong><br>
+            💿 COREY'S BEATS DOWNLOAD UNLOCKED<br>
+            <a href="assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.mp3" download style="color: var(--accent); text-decoration: underline; display: inline-block; margin-top: 6px;">Download Beat 6 💎</a>
+        </div>
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+            <button class="action-btn" onclick="spreadTheLove()" style="margin-top: 0; background: rgba(212, 175, 55, 0.15); border-color: var(--highlight); color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer;">💖 SPREAD THE LOVE (SHARE)</button>
+            <button class="action-btn" onclick="closeQuestReward()" style="margin-top: 0; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: var(--text-muted); cursor: pointer;">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Portal Auto-Sorter Modal -->
+<div id="sorter-modal" class="quest-modal">
+    <div class="quest-modal-content" style="max-width: 500px; text-align: left; border-color: var(--accent); box-shadow: 0 0 35px var(--accent-glow);">
+        <div class="reward-badge" style="text-align: center;">📂</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent); margin-bottom: 12px; font-weight: 900; text-align: center;">PORTAL AUTO-SORTER</h2>
+        <p style="font-size: 0.8rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 15px;">
+            Paste a folder path (like your USB drive mount or local directory) containing crew assets. The portal will scan, identify filenames matching crew keywords (Corey, Freddy, Conan, Tim, Misaki, Night Fish), and copy them into their respective media folders.
+        </p>
+        <div style="margin-bottom: 15px;">
+            <label style="font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--accent); display: block; margin-bottom: 5px;">SOURCE DIRECTORY PATH</label>
+            <input type="text" id="sorter-path-input" placeholder="e.g. /home/boss/Downloads or /media/usb" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 6px; padding: 10px; color: var(--text); font-family: 'Share Tech Mono', monospace; outline: none; font-size: 0.8rem;">
+        </div>
+        
+        <div id="sorter-output-box" style="display: none; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 12px; height: 150px; overflow-y: auto; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; margin-bottom: 15px; line-height: 1.4;">
+        </div>
+        
+        <div style="display: flex; gap: 8px;">
+            <button id="sorter-run-btn" class="action-btn" onclick="runPortalSorter()" style="flex: 2; margin-top: 0; background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer;">⚡ RUN AUTO-SORTER</button>
+            <button class="action-btn" onclick="toggleSorterModal()" style="flex: 1; margin-top: 0; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: var(--text-muted); cursor: pointer;">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- Holographic Infinity Flow Carousel (3D Ring) ---
+(function() {
+    const track = document.getElementById('holo-carousel-track');
+    if (!track) return;
+
+    const apps = [
+        { name: 'DIAL', icon: '⏱️', url: 'dial/' },
+        { name: 'GRID', icon: '🌐', url: 'grid/' },
+        { name: 'ALBUM', icon: '💿', url: 'album-builder/index.html' },
+        { name: 'CRATE', icon: '🎵', url: 'stemcrate.html' },
+        { name: 'BRIDGE', icon: '🌉', url: 'universalbridge/' },
+        { name: 'EXCHANGE', icon: '🎼', url: 'harmonyexchange/' },
+        { name: 'GALLERY', icon: '🎨', url: 'exhibition/' },
+        { name: 'SHIELD', icon: '🛡️', url: 'kiterider/' },
+        { name: 'LOTUS', icon: '🌸', url: 'landing-page/index.html' },
+        { name: 'PYRO', icon: '🎆', url: 'pyro-drummer/index.html' },
+        { name: 'FABRIC', icon: '🕸️', url: 'nodefabric/' },
+        { name: 'VDO4N6', icon: '📹', url: 'vdo4n6/' },
+        { name: 'EDITOR', icon: '🎬', url: 'dragon8editor/' },
+        { name: 'RIDER', icon: '🕹️', url: 'infinity-racer/' },
+        { name: 'ARTIST', icon: '🌊', url: 'artist-gallery/' },
+        { name: 'GARDEN', icon: '🌱', url: 'garden/' },
+        { name: 'TUNER', icon: '🎸', url: 'tuner/' },
+        { name: 'HEALER', icon: '🧘', url: 'healer/' },
+        { name: 'APPS', icon: '💻', url: 'apps.html' }
+    ];
+
+    const totalUnits = 54;
+    const spacing = Math.floor(totalUnits / apps.length);
+    let appIndex = 0;
+    const radius = 650;
+    const unitElements = [];
+    
+    // Create the 54 fundamental units
+    for (let i = 0; i < totalUnits; i++) {
+        const unit = document.createElement('a');
+        unit.className = 'holo-unit';
+        
+        if (i % spacing === 0 && appIndex < apps.length) {
+            const app = apps[appIndex];
+            unit.classList.add('active-node');
+            unit.href = app.url;
+            unit.target = '_blank';
+            unit.innerHTML = `<div class="holo-icon">${app.icon}</div><div class="holo-label">${app.name}</div>`;
+            appIndex++;
+        } else {
+            unit.classList.add('dormant');
+            unit.innerHTML = `<div class="core-light"></div>`;
+        }
+        
+        // Calculate base angle
+        const angle = (i / totalUnits) * 360;
+        unit.dataset.angle = angle;
+        
+        track.appendChild(unit);
+        unitElements.push(unit);
+    }
+    
+    let isDragging = false;
+    let startX = 0;
+    let currentRotation = 0;
+    let targetRotation = 0;
+    let velocity = 0;
+    let hasDragged = false;
+    
+    const onDown = (clientX) => {
+        isDragging = true;
+        hasDragged = false;
+        startX = clientX;
+        velocity = 0;
+        track.style.cursor = 'grabbing';
+    };
+    
+    const onMove = (clientX) => {
+        if (!isDragging) return;
+        hasDragged = true;
+        const deltaX = clientX - startX;
+        startX = clientX;
+        targetRotation += deltaX * 0.25;
+        velocity = deltaX * 0.25;
+    };
+    
+    const onUp = () => {
+        isDragging = false;
+        track.style.cursor = 'grab';
+    };
+
+    track.addEventListener('mousedown', e => onDown(e.clientX));
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('mousemove', e => onMove(e.clientX));
+    
+    track.addEventListener('touchstart', e => onDown(e.touches[0].clientX), {passive:true});
+    window.addEventListener('touchend', onUp);
+    window.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive:true});
+
+    // Prevent clicks if dragged
+    track.addEventListener('click', e => {
+        if (hasDragged) {
+            e.preventDefault();
+        }
+    });
+    track.addEventListener('dragstart', e => e.preventDefault());
+
+    function updateLoop() {
+        if (!isDragging) {
+            targetRotation += velocity;
+            velocity *= 0.94; // Ethereal friction
+            
+            // Auto-rotation (ambient)
+            if (Math.abs(velocity) < 0.02) {
+                targetRotation += 0.08; 
+            }
+        }
+        
+        currentRotation += (targetRotation - currentRotation) * 0.12; // Smooth interpolation
+        
+        track.style.transform = `rotateY(${currentRotation}deg)`;
+        
+        // Transform units
+        for(let i = 0; i < unitElements.length; i++) {
+            const item = unitElements[i];
+            const angle = parseFloat(item.dataset.angle);
+            
+            // Calculate absolute angle in world space to determine depth/opacity
+            let worldAngle = (angle + currentRotation) % 360;
+            if (worldAngle < 0) worldAngle += 360;
+            
+            // worldAngle 0 is right, 90 is back, 180 is left, 270 is front
+            // To get front facing = 1, back = -1
+            // A unit is at front when its worldAngle is 270 degrees.
+            const zDist = -Math.cos(worldAngle * Math.PI / 180); // Using standard rotation where 270 is front isn't quite right for cos. 
+            // Wait, rotateY(0) means item at angle 0 is at (R, 0, 0). 
+            // Better to calculate exact position:
+            const rad = worldAngle * Math.PI / 180;
+            // X = Math.sin(rad) * R
+            // Z = Math.cos(rad) * R
+            // So if Z > 0, it's in front. Depth is Z/R, from -1 to 1.
+            const depth = Math.cos(rad);
+            
+            const scale = 0.6 + (0.4 * ((depth + 1) / 2)); // 0.6 to 1.0
+            const opacity = 0.2 + (0.8 * ((depth + 1) / 2));
+            
+            item.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px) scale(${scale})`;
+            item.style.opacity = opacity;
+            
+            if (depth > 0) {
+                item.style.pointerEvents = 'auto';
+                item.style.zIndex = Math.floor(depth * 100);
+            } else {
+                item.style.pointerEvents = 'none';
+                item.style.zIndex = 1;
+            }
+        }
+        
+        requestAnimationFrame(updateLoop);
+    }
+    updateLoop();
+})();
+</script>
+<script type="module" src="scripts/app.js"></script>
+<script type="module" src="scripts/night_fish_assistant.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('ServiceWorker registration successful with scope: ', reg.scope))
+        .catch(err => console.error('ServiceWorker registration failed: ', err));
+    });
+  }
+</script>
+</body>
+</html>

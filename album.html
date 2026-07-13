@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Vault | Digital Album</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="scripts/night_fish.css">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --highlight: #00e5ff;
+            --highlight-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #5d4e75;
+            --panel-bg: rgba(10, 10, 15, 0.6);
+            --border-color: rgba(212, 175, 55, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Subtle retro ambient scanning grids */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.01), rgba(0, 255, 255, 0.005), rgba(255, 0, 128, 0.01));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* --- LOCK SCREEN VIEW --- */
+        .lock-container {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #0a0a10 0%, #020204 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: transform 1s cubic-bezier(0.85, 0, 0.15, 1), opacity 0.8s ease;
+        }
+
+        .lock-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            width: 380px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 30px var(--accent-glow);
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .lock-card::after {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(135deg, var(--accent), transparent, var(--highlight));
+            border-radius: 24px;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        .lock-logo {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .lock-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .lock-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .pass-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .pass-input {
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .pass-input:focus {
+            border-color: var(--highlight);
+            box-shadow: 0 0 12px var(--highlight-glow);
+        }
+
+        .unlock-btn {
+            width: 100%;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1.5px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .unlock-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: scale(1.02);
+        }
+
+        .error-msg {
+            color: #ff3366;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-msg.visible {
+            opacity: 1;
+        }
+
+        /* --- MAIN INFINITY FLOW PORTAL VIEW --- */
+        .portal-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(5,5,5,0.9), transparent);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            z-index: 20;
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Horizontal Infinity Flow Track Container */
+        .infinity-flow-menu {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            padding: 0 140px;
+            gap: 50px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .infinity-flow-menu::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .track-card {
+            flex: 0 0 420px;
+            height: 60vh;
+            background: rgba(15, 15, 20, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border-color);
+            border-radius: 20px;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, border-color 0.3s;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            transform-origin: center center -80px;
+        }
+
+        .track-card:hover {
+            border-color: var(--highlight);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 15px var(--highlight-glow);
+        }
+
+        .media-pane {
+            width: 100%;
+            height: 60%;
+            background: #000;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .media-pane iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .card-details {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .track-index {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--highlight);
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .track-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .track-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* --- THE GATEWAY CALL TO ACTION FOOTER --- */
+        .footer-gateway {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(to top, rgba(5,5,5,0.9), transparent);
+            border-top: 1px solid rgba(255,255,255,0.03);
+            z-index: 20;
+        }
+
+        .gateway-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background: rgba(0, 229, 255, 0.08);
+            border: 1.5px solid var(--highlight);
+            border-radius: 30px;
+            padding: 12px 32px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+
+        .gateway-btn:hover {
+            background: var(--highlight);
+            color: #000;
+            box-shadow: 0 0 25px var(--highlight-glow);
+            transform: translateY(-2px);
+        }
+
+        .gateway-btn span {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+
+        .gateway-btn:hover span {
+            transform: translateX(4px);
+        }
+
+        /* --- WHITE-LABEL ADMIN PANEL --- */
+        .admin-panel {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 400px; max-width: 90%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 20px var(--accent-glow);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .admin-panel.open {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .admin-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+            font-weight: 900;
+        }
+        .admin-row {
+            margin-bottom: 12px;
+        }
+        .admin-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .admin-input {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 0.8rem;
+            outline: none;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .admin-input:focus {
+            border-color: var(--highlight);
+        }
+        .admin-save-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+        .admin-save-btn:hover {
+            background: #fff;
+        }
+        .admin-gear {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+        .admin-gear:hover {
+            opacity: 1;
+        }
+
+        /* Immersive Video Theater Screen */
+        #theater-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(2, 4, 8, 0.96);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #theater-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+        .theater-container {
+            position: relative;
+            width: 90%;
+            max-width: 960px;
+            aspect-ratio: 16/9;
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            box-shadow: 0 0 50px var(--accent-glow), 0 20px 80px rgba(0,0,0,0.9);
+            overflow: hidden;
+            background: #000;
+        }
+        .theater-close-btn {
+            position: absolute;
+            top: 20px; right: 25px;
+            font-size: 2.2rem;
+            color: #fff;
+            opacity: 0.6;
+            cursor: pointer;
+            z-index: 10010;
+            transition: all 0.2s ease;
+        }
+        .theater-close-btn:hover {
+            color: var(--alert);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Direct Checkout Modal overlay */
+        #checkout-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(2, 4, 8, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #checkout-modal.open {
+            display: flex;
+            opacity: 1;
+        }
+        .checkout-card {
+            background: var(--panel-bg);
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 420px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px var(--accent-glow);
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--text-main);
+        }
+
+        /* Stream Funnel Selector */
+        .funnel-selector-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px auto 10px auto;
+            z-index: 15;
+            position: relative;
+        }
+        .funnel-select {
+            background: rgba(10,10,15,0.85);
+            border: 1.5px solid var(--accent);
+            border-radius: 8px;
+            color: #fff;
+            padding: 8px 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.3s;
+        }
+        .funnel-select:focus {
+            border-color: var(--highlight);
+            box-shadow: 0 0 12px var(--highlight-glow);
+        }
+
+        /* Listener Reward Ledger */
+        .reward-ledger-container {
+            background: rgba(10,10,15,0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto 15px auto;
+            z-index: 15;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+        }
+        .ledger-stats {
+            display: flex;
+            gap: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: #fff;
+        }
+        .ledger-stat-val {
+            color: var(--highlight);
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-shadow: 0 0 6px var(--highlight-glow);
+        }
+        .ledger-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .ledger-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ledger-btn:hover {
+            border-color: var(--accent);
+            background: rgba(212,175,55,0.1);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Admin Gear Toggle Button -->
+    <div class="admin-gear" onclick="toggleAdminPanel()" title="White-Label Admin Suite">⚙️</div>
+
+    <!-- White-Label Admin Control Panel -->
+    <div class="admin-panel" id="admin-modal" style="width: 450px;">
+        <div class="admin-title" style="margin-bottom: 5px;">PORTAL BUILDER & ONBOARDING SUITE</div>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+            <button id="tab-btn-config" onclick="switchAdminTab('config')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700; background: var(--accent); color: #000; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 1px;">1. BRAND CONFIG</button>
+            <button id="tab-btn-onboard" onclick="switchAdminTab('onboard')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700; background: rgba(255,255,255,0.05); color: #888; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 1px;">2. ARTIST ONBOARD</button>
+        </div>
+        
+        <!-- Tab 1: Configuration -->
+        <div id="admin-tab-config">
+            <div class="admin-row">
+                <label class="admin-label">Store/Client Brand Name</label>
+                <input type="text" id="admin-brand-name" class="admin-input" placeholder="e.g. COREY'S EXCLUSIVE STORE">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Dragon 9 Profile/Channel Link</label>
+                <input type="text" id="admin-profile-url" class="admin-input" placeholder="e.g. https://dragon9.net/channel/corey">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Decryption Password (Sealed Vault Key)</label>
+                <input type="text" id="admin-vault-key" class="admin-input" placeholder="e.g. D9_LOVE">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Retail License Price Display</label>
+                <input type="text" id="admin-price" class="admin-input" placeholder="e.g. $19.99 USD">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Accent Flow Color</label>
+                <select id="admin-color-select" class="admin-input" style="color: #fff; background: #000;">
+                    <option value="#d4af37">Gold (#d4af37)</option>
+                    <option value="#00e5ff">Cyber Cyan (#00e5ff)</option>
+                    <option value="#ff0080">Hot Magenta (#ff0080)</option>
+                    <option value="#00ff41">Matrix Green (#00ff41)</option>
+                </select>
+            </div>
+            
+            <!-- Node Fabric Architecture Tip -->
+            <div style="border: 1px solid var(--accent); background: rgba(212,175,55,0.05); padding: 10px; border-radius: 8px; margin-top: 15px; font-family:'Share Tech Mono'; font-size:0.6rem; color:var(--text-main); line-height: 1.3;">
+                <span style="font-weight: 700; color: var(--accent);">🌐 INDEPENDENT NODE APPARATUS</span><br>
+                For complete sovereignty, musicians can deploy their own backend server node (similar to <code>vdo_backend.py</code>) to host high-quality video/audio master files directly. This makes your exported digital vaults fully decentralized and immune to corporate streaming platform shutdowns!
+            </div>
+        </div>
+
+        <!-- Tab 2: Onboarding & Album Minting -->
+        <div id="admin-tab-onboard" style="display: none; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+            <!-- Artist Earnings Wallet -->
+            <div style="background: rgba(212, 175, 55, 0.08); border: 1.5px solid var(--accent); border-radius: 8px; padding: 10px; margin-bottom: 15px; text-align: center; font-family: 'Share Tech Mono', monospace;">
+                <div style="font-size: 0.6rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 1px;">Artist Earnings Ledger</div>
+                <div style="font-size: 1.3rem; color: #fff; font-weight: bold; margin: 4px 0;"><span id="artist-ledger-notes">0</span> H-Notes</div>
+                <div style="font-size: 0.52rem; color: var(--text-muted); margin-bottom: 8px;">Simulated Cash-out Value: $<span id="artist-ledger-usd">0.00</span> USD</div>
+                <button class="chat-btn" onclick="cashoutArtistEarnings()" style="padding: 4px 10px; font-size: 0.52rem; border-color: var(--accent); background: rgba(0,0,0,0.5); cursor:pointer;">CONVERT & CASH OUT</button>
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Artist Profile Name</label>
+                <input type="text" id="artist-name" class="admin-input" placeholder="e.g. Corey">
+            </div>
+            <div class="admin-row">
+                <label class="admin-label">Short Profile Bio</label>
+                <input type="text" id="artist-bio" class="admin-input" placeholder="e.g. Rhythm designer & beats producer">
+            </div>
+
+            <!-- Scanned local assets library -->
+            <div id="scanned-assets-section" style="display: none; border-top: 1px dashed rgba(255,255,255,0.08); margin: 15px 0; padding-top: 10px;">
+                <label class="admin-label" style="font-weight: 700; color: var(--highlight);">📁 Scanned Crew Studio Assets</label>
+                <div style="font-size: 0.6rem; color: var(--text-muted); margin-bottom: 8px;">Detected files in assets/crew/ directory. Click to quick-add to album.</div>
+                <div id="scanned-assets-list" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; max-height: 120px; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;">
+                </div>
+            </div>
+            
+            <div style="border-top: 1px dashed rgba(255,255,255,0.08); margin: 15px 0; padding-top: 10px;">
+                <label class="admin-label" style="font-weight: 700; color: #fff;">Current Video Playlist</label>
+                <div id="admin-videos-list" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; max-height: 120px; overflow-y: auto; padding: 8px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Form to add a track -->
+            <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
+                <span class="admin-label" style="font-weight: 700; color: #fff; margin-bottom: 8px;">➕ Add Track to Playlist</span>
+                
+                <div class="admin-row">
+                    <input type="text" id="new-video-title" class="admin-input" placeholder="Track Title (e.g. Future Forward 1)">
+                </div>
+                <div class="admin-row">
+                    <input type="text" id="new-video-url" class="admin-input" placeholder="Audio path (.mp3/.wav) or Video URL">
+                </div>
+                <div class="admin-row">
+                    <input type="text" id="new-video-desc" class="admin-input" placeholder="Track Description / Notes">
+                </div>
+
+                <!-- Track sale configuration -->
+                <div style="border: 1px solid rgba(212, 175, 55, 0.15); background: rgba(212, 175, 55, 0.02); padding: 8px; border-radius: 6px; margin-bottom: 12px;">
+                    <span class="admin-label" style="font-weight: 700; color: var(--accent); margin-bottom: 6px;">💰 Track Sale Configuration</span>
+                    <div class="admin-row" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <input type="number" id="new-video-price" class="admin-input" style="font-size:0.7rem; flex: 2;" placeholder="Price (H-Notes, e.g. 5)">
+                        <label style="font-family:'Share Tech Mono'; font-size:0.6rem; color:#fff; flex: 3; display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" id="new-video-submit-radio"> Submit to Radio
+                        </label>
+                    </div>
+                    <div class="admin-row" style="margin-bottom: 0;">
+                        <input type="text" id="new-video-payment" class="admin-input" style="font-size:0.7rem;" placeholder="Direct PayPal/Venmo/Crypto Address">
+                    </div>
+                </div>
+
+                <!-- Friend Referral / Invitation fields -->
+                <div style="border: 1px solid rgba(0, 229, 255, 0.15); background: rgba(0, 229, 255, 0.02); padding: 8px; border-radius: 6px; margin-bottom: 12px;">
+                    <span class="admin-label" style="font-weight: 700; color: var(--highlight); margin-bottom: 6px;">🤝 Dragon 9 Friend Co-op Invite</span>
+                    <div class="admin-row" style="margin-bottom: 8px;">
+                        <input type="text" id="new-video-friend-name" class="admin-input" style="font-size:0.7rem;" placeholder="Friend's Artist Name (e.g. Conan)">
+                    </div>
+                    <div class="admin-row" style="margin-bottom: 0;">
+                        <input type="text" id="new-video-friend-contact" class="admin-input" style="font-size:0.7rem;" placeholder="Friend's Handle or Email (e.g. @conan)">
+                    </div>
+                </div>
+
+                <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 0; margin-bottom: 10px;" onclick="addNewVideoToState()">+ ADD TRACK TO LIST</button>
+            </div>
+        </div>
+
+        <button class="admin-save-btn" onclick="saveAdminSettings()">MINT & SAVE CONFIGURATION</button>
+        <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 5px;" onclick="exportStandaloneHTML()">📥 DOWNLOAD STANDALONE HTML</button>
+        <button class="admin-save-btn" style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;" onclick="toggleAdminPanel()">CANCEL</button>
+    </div>
+
+    <!-- SECURE SEALED VAULT PASS SCREEN -->
+    <div class="lock-container" id="lock-screen">
+        <div class="lock-card">
+            <div class="lock-logo">🔒</div>
+            <h2 class="lock-title" id="lock-card-title">Sealed Vault</h2>
+            <p class="lock-subtitle" id="lock-card-subtitle">Exclusive Digital Album</p>
+            <div class="pass-input-wrapper">
+                <input type="password" id="vault-pass" class="pass-input" placeholder="DECRYPTION KEY" onkeydown="handleKey(event)">
+            </div>
+            <button class="unlock-btn" onclick="attemptDecrypt()">DECRYPT GATEWAY</button>
+            <div class="error-msg" id="error-alert">ACCESS DENIED • KEY NOT VALID</div>
+            <div id="price-tag-display" style="font-size: 0.65rem; color: var(--accent); margin-top: 15px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; font-weight: 700;">
+                LICENSE VALUE: $19.99 USD
+            </div>
+            <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 10px; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;">
+                DEFAULT DECRYPTION KEY: <span id="hint-key-label" style="color: var(--accent);">D9_LOVE</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN IMMERSIVE PORTAL GATEWAY -->
+    <div class="portal-container" id="portal-view">
+        <header class="header" style="align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="assets/menu/fluid_motion_logo_yellow_black.png" alt="Fluid Motion Logo" style="height: 38px; filter: drop-shadow(0 0 8px var(--accent-glow));">
+                <div class="logo-text" id="portal-logo">FLUID MOTION TV</div>
+            </div>
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--accent); display:flex; align-items:center; gap:5px;">
+                <span id="session-brand">SECURE DECRYPTED SESSION</span>
+                <span id="artist-profile-header-link"></span>
+            </div>
+        </header>
+
+        <!-- FUNNEL STREAM SELECTOR -->
+        <div class="funnel-selector-container">
+            <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-main);">SELECT FUNNEL FILTER:</span>
+            <select id="stream-funnel" class="funnel-select" onchange="switchStreamFunnel()">
+                <option value="album">💿 CURATED SECTOR ALBUM</option>
+                <option value="hot26">🔥 ROLLING TOP 26 LOOP (26-HOUR MIX)</option>
+                <option value="radio">📻 DRAGON 9 LIVE RADIO STATION</option>
+            </select>
+        </div>
+
+        <!-- INFINITY FLOW TRACK CONTROLLER -->
+        <main class="infinity-flow-menu" id="flow-menu">
+            <!-- Initial Tracks will be loaded dynamically -->
+        </main>
+
+        <!-- LISTENER REWARD LEDGER -->
+        <div class="reward-ledger-container">
+            <div class="ledger-stats">
+                <div>
+                    🏆 REWARD BALANCE: <span class="ledger-stat-val" id="user-hnotes-balance">50</span> <span style="font-size:0.6rem; color:#aaa;">H-Notes</span>
+                </div>
+                <div>
+                    ⏱️ LISTENING HOUR CREDIT: <span class="ledger-stat-val" id="user-listening-hours">0.0</span> <span style="font-size:0.6rem; color:#aaa;">hrs</span>
+                </div>
+                <div>
+                    ⚡ MULTIPLIER: <span class="ledger-stat-val" id="user-boost-multiplier">1.0x</span>
+                </div>
+            </div>
+            <div class="ledger-actions">
+                <button class="ledger-btn" onclick="triggerShareLink()">🔗 SHARE VAULT</button>
+                <button class="ledger-btn" onclick="openCommentModal()">💬 COMMENT BOOST</button>
+                <button class="ledger-btn" style="border-color: var(--accent); color: var(--accent);" onclick="openBuyNotesModal()">🔋 BUY H-NOTES</button>
+            </div>
+        </div>
+
+        <!-- THE GATEWAY CTA FUNNEL -->
+        <footer class="footer-gateway" style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <a href="index.html" class="gateway-btn">
+                SEE WHAT WE'RE UP TO <span>➡️</span>
+            </a>
+            <a href="radio/index.html" class="gateway-btn" style="border-color: var(--accent); background: rgba(212, 175, 55, 0.08);">
+                LISTEN TO LIVE RADIO <span>📻</span>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        // --- ADMIN SETTINGS LOCAL STORAGE CONTROLLER ---
+        const defaultTracks = [
+            { title: "TE IKA O TE PŌ // HOLOGRAPHIC", url: "night-fish-holo", desc: "Live-rendered holographic AI crew member segment. Interactive audio sync and vocal output actuator." },
+            { title: "FUTURE FRWARD beat 2", url: "assets/crew/corey/audio/FUTURE FRWARD beat 2.mp3", desc: "Sovereign frequency rhythm design with phase-locked resonance." },
+            { title: "FUTURE FRWARD beat 3", url: "assets/crew/corey/audio/FUTURE FRWARD beat 3.mp3", desc: "High-resonance rhythmic segment for multiversal temporal alignment." },
+            { title: "FUTURE FRWARD beat 6 💎", url: "assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.mp3", desc: "Exclusive aligned portal core reward track.", friendName: "Conan", friendContact: "@conan" },
+            { title: "DARK LAWD BEAT 🦈", url: "assets/crew/corey/audio/DARK LAWD 🦈.mp3", desc: "Deep sub-bass laser groove for underwater resonance." },
+            { title: "RAINBOW IN THE DARK", url: "assets/crew/corey/audio/2-Rainbow in the DARK  .mp3", desc: "Classic retro ambient synth alignment mix." }
+        ];
+
+        let currentSettings = {
+            brandName: "Fluid Motion TV",
+            vaultKey: "D9_LOVE",
+            price: "$19.99 USD",
+            accentColor: "#d4af37",
+            artistName: "Corey",
+            artistBio: "Rhythm designer & beats producer",
+            tracks: []
+        };
+        let tempSettings = null; // Hold draft settings while editing
+
+        function loadAdminSettings() {
+            const saved = localStorage.getItem('d9_vault_settings_v3');
+            if (saved) {
+                currentSettings = JSON.parse(saved);
+                if (currentSettings) {
+                    if (currentSettings.profileUrl === undefined) {
+                        currentSettings.profileUrl = "";
+                    }
+                    if (!currentSettings.vaultKey) {
+                        currentSettings.vaultKey = "D9_LOVE";
+                    }
+                }
+            }
+            const hasHolo = currentSettings.tracks && currentSettings.tracks.some(t => t.url === 'night-fish-holo');
+            if (!currentSettings.tracks || currentSettings.tracks.length === 0 || !hasHolo) {
+                currentSettings.tracks = JSON.parse(JSON.stringify(defaultTracks));
+                localStorage.setItem('d9_vault_settings_v3', JSON.stringify(currentSettings));
+            }
+            applyConfigSettings();
+            renderAlbumTracks();
+        }
+
+        function renderAlbumTracks() {
+            const menu = document.getElementById('flow-menu');
+            if (!menu) return;
+            menu.innerHTML = ""; // Clear existing
+
+            const purchasedTracks = JSON.parse(localStorage.getItem('d9_purchased_tracks') || '[]');
+
+            currentSettings.tracks.forEach((track, index) => {
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                
+                let mediaHTML = "";
+                const isHoloFish = track.url === "night-fish-holo";
+                const isPurchased = purchasedTracks.includes(track.url) || isHoloFish || !track.price;
+                const price = track.price || 5;
+
+                const isDirectVideo = track.url && (track.url.endsWith(".mp4") || track.url.endsWith(".webm") || track.url.endsWith(".ogg") || track.url.includes("/assets/reels/") || track.url.includes("phone_backup/"));
+                const isAudio = track.url && (track.url.endsWith(".mp3") || track.url.endsWith(".wav") || track.url.endsWith(".ogg") || track.url.includes("audio") || track.url.includes("music"));
+                
+                if (isHoloFish) {
+                    mediaHTML = `
+                        <div class="holo-card-render" style="width: 100%; height: 100%; background: radial-gradient(circle, #0c1424 0%, #020408 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px 20px 0 0; position: relative; z-index: 10; padding: 10px; overflow: hidden;">
+                            <div class="holo-grid-lines" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.15; pointer-events:none;"></div>
+                            <div class="night-fish-character large" id="holo-card-fish" style="width: 180px; height: 180px;">
+                                <div class="fish-layer fish-tail-large"></div>
+                                <div class="fish-layer fish-tail-small"></div>
+                                <div class="fish-layer fish-fin-left"></div>
+                                <div class="fish-layer fish-fin-right"></div>
+                                <div class="fish-layer fish-head"></div>
+                            </div>
+                            <button id="btn-holo-play-voice" class="chat-btn" style="z-index: 20; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent); background: rgba(0, 229, 255, 0.1); color:#fff; cursor:pointer; font-family:'Orbitron',sans-serif; font-size:0.55rem; margin-top: 5px;">ACTIVATE VOCAL COGNITION</button>
+                        </div>`;
+                } else if (isDirectVideo) {
+                    mediaHTML = `
+                        <div style="width:100%; height:100%; position:relative;">
+                            <video src="${track.url}" controls loop playsinline style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px 20px 0 0; background: #000;"></video>
+                            <button onclick="openTheaterMode('${track.url}', false)" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); border:1px solid var(--accent); color:#fff; padding:4px 8px; border-radius:4px; font-size:0.55rem; font-family:'Orbitron'; cursor:pointer; z-index:25; box-shadow:0 0 8px var(--accent-glow);">📺 THEATER</button>
+                        </div>`;
+                } else if (isAudio) {
+                    mediaHTML = `
+                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #161020 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; position: relative; z-index: 10;">
+                            <div class="disc-spinner-${index}" style="font-size: 4rem; filter: drop-shadow(0 0 12px var(--accent-glow)); transition: transform 0.1s linear; transform-origin: center; display: inline-block;">💿</div>
+                            <audio id="audio-player-${index}" src="${track.url}" controls style="width: 90%; margin-top: 25px; filter: invert(1) hue-rotate(180deg); opacity: 0.85; outline: none; z-index: 20;"></audio>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; margin-top: 10px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">SOURCE: CORE RESONANCE SPLIT</div>
+                        </div>`;
+                } else if (track.url && (track.url.includes("youtube.com") || track.url.includes("youtu.be") || track.url.includes("facebook.com") || track.url.startsWith("http"))) {
+                    let embedUrl = track.url;
+                    if (embedUrl.includes("youtube.com/watch?v=")) {
+                        const videoId = new URL(embedUrl).searchParams.get("v");
+                        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    } else if (embedUrl.includes("youtu.be/")) {
+                        const videoId = embedUrl.split("youtu.be/")[1].split("?")[0];
+                        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    }
+                    mediaHTML = `
+                        <div style="width:100%; height:100%; position:relative;">
+                            <iframe src="${embedUrl}" allowfullscreen style="border: none; width: 100%; height: 100%;"></iframe>
+                            <button onclick="openTheaterMode('${embedUrl}', true)" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); border:1px solid var(--accent); color:#fff; padding:4px 8px; border-radius:4px; font-size:0.55rem; font-family:'Orbitron'; cursor:pointer; z-index:25; box-shadow:0 0 8px var(--accent-glow);">📺 THEATER</button>
+                        </div>`;
+                } else {
+                    mediaHTML = `
+                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #161020 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; z-index: 10;">
+                            <span style="font-size: 3rem; filter: drop-shadow(0 0 10px var(--accent-glow));">💿</span>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; margin-top: 15px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">${track.title.toUpperCase()}</div>
+                            <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 5px; font-family: 'Share Tech Mono', monospace;">SOURCE: SECURE LOCAL VDO VAULT</div>
+                        </div>`;
+                }
+
+                let friendBadgeHTML = "";
+                if (track.friendName) {
+                    const refLink = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(track.friendName)}`;
+                    friendBadgeHTML = `
+                        <div style="margin-top: 8px; padding: 6px 10px; border-radius: 6px; background: rgba(0, 229, 255, 0.06); border: 1px solid rgba(0, 229, 255, 0.15); display: flex; align-items: center; justify-content: space-between; font-size: 0.6rem; font-family: 'Share Tech Mono', monospace; z-index: 30;">
+                            <span style="color: var(--highlight);">🤝 FRIEND INVITATION: ${track.friendName.toUpperCase()}</span>
+                            <button onclick="navigator.clipboard.writeText('${refLink}'); alert('Referral link copied to clipboard!'); event.stopPropagation();" style="background: none; border: none; color: var(--accent); cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit; font-size: inherit; font-weight: bold; z-index: 40; position: relative;">GENERATE INVITE</button>
+                        </div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="media-pane">${mediaHTML}</div>
+                    <div class="card-details" style="display: flex; flex-direction: column; justify-content: space-between; height: 40%;">
+                        <div>
+                            <div class="track-index" style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>SECTOR ${String(index + 1).padStart(2, '0')}</span>
+                                ${isPurchased ? '<span style="color:var(--accent); font-size:0.55rem; font-weight:bold;">🔓 UNLOCKED</span>' : `<span style="color:var(--highlight); font-size:0.55rem; font-weight:bold;">🔒 ${price} H-NOTES</span>`}
+                            </div>
+                            <h3 class="track-title">${track.title}</h3>
+                        </div>
+                        <p class="track-desc" style="flex-grow: 1; margin-bottom: 5px;">${track.desc}</p>
+                        ${friendBadgeHTML}
+                        <div style="margin-top:5px; display:flex; gap:6px;">
+                            ${isPurchased ? 
+                              (track.url !== "night-fish-holo" ? `<a href="${track.url}" download="${track.title}" class="chat-btn" style="flex:1; border-color:var(--accent); background:rgba(212,175,55,0.15); text-decoration:none; text-align:center; padding:4px 8px; font-size:0.55rem; font-family:'Orbitron';">📥 DOWNLOAD</a>` : '') 
+                              : 
+                              `<button onclick="openCheckout(${index})" class="chat-btn" style="flex:1; border-color:var(--highlight); background:rgba(0,229,255,0.15); font-size:0.55rem; font-family:'Orbitron'; cursor:pointer;">💰 BUY SONG</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                menu.appendChild(card);
+
+                // Add spinning event listener
+                setTimeout(() => {
+                    const aud = document.getElementById(`audio-player-${index}`);
+                    const disc = card.querySelector(`.disc-spinner-${index}`);
+                    if (aud && disc) {
+                        let rot = 0;
+                        let animationId = null;
+                        function spin() {
+                            if (!aud.paused) {
+                                rot = (rot + 2) % 360;
+                                disc.style.transform = `rotate(${rot}deg)`;
+                                animationId = requestAnimationFrame(spin);
+                            }
+                        }
+                        aud.addEventListener('play', () => {
+                            document.querySelectorAll('audio').forEach(otherAud => {
+                                if (otherAud !== aud) otherAud.pause();
+                            });
+                            spin();
+                        });
+                        aud.addEventListener('pause', () => {
+                            if (animationId) cancelAnimationFrame(animationId);
+                        });
+                    }
+                }, 50);
+
+                // Add event binding for Holographic interactive fish button
+                setTimeout(() => {
+                    if (track.url === "night-fish-holo") {
+                        const holoPlayBtn = card.querySelector('#btn-holo-play-voice');
+                        const fishEl = card.querySelector('#holo-card-fish');
+                        if (holoPlayBtn && fishEl) {
+                            let isPlaying = false;
+                            let playInterval = null;
+                            holoPlayBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                if (isPlaying) {
+                                    isPlaying = false;
+                                    fishEl.classList.remove('talking');
+                                    holoPlayBtn.innerText = "ACTIVATE VOCAL COGNITION";
+                                    holoPlayBtn.style.borderColor = "var(--accent)";
+                                    holoPlayBtn.style.color = "#fff";
+                                    if (playInterval) clearInterval(playInterval);
+                                } else {
+                                    isPlaying = true;
+                                    fishEl.classList.add('talking');
+                                    holoPlayBtn.innerText = "VOICE TRANSMISSION ACTIVE";
+                                    holoPlayBtn.style.borderColor = "var(--highlight)";
+                                    holoPlayBtn.style.color = "var(--highlight)";
+                                    
+                                    const phrases = [
+                                        "Sovereign signal active... Scanning multiversal grid sectors...",
+                                        "Realigning Wellington phase loop master clock registers...",
+                                        "Resonance core synchronized... Beautiful vibes detected on the Tasman line...",
+                                        "Ingesting local media segments... Auto-sorter is fully calibrated..."
+                                    ];
+                                    
+                                    let speakIdx = 0;
+                                    const runSpeech = () => {
+                                        if (typeof speak === 'function') {
+                                            speak(phrases[speakIdx]);
+                                            speakIdx = (speakIdx + 1) % phrases.length;
+                                        }
+                                    };
+                                    
+                                    runSpeech();
+                                    playInterval = setInterval(runSpeech, 7000);
+                                }
+                            });
+                        }
+                    }
+                }, 60);
+            });
+        }
+
+        function applyConfigSettings() {
+            document.getElementById('portal-logo').innerText = currentSettings.brandName.toUpperCase();
+            document.getElementById('session-brand').innerText = `LICENSED FOR: ${currentSettings.brandName.toUpperCase()}`;
+            document.getElementById('lock-card-title').innerText = currentSettings.brandName;
+            document.getElementById('price-tag-display').innerText = `LICENSE VALUE: ${currentSettings.price}`;
+            document.getElementById('hint-key-label').innerText = currentSettings.vaultKey;
+
+            // Apply profile link to header if specified
+            const profileLinkWrap = document.getElementById('artist-profile-header-link');
+            if (profileLinkWrap) {
+                if (currentSettings.profileUrl) {
+                    profileLinkWrap.innerHTML = ` | <a href="${currentSettings.profileUrl}" target="_blank" style="color:var(--highlight); text-decoration:none; font-weight:bold;">🔗 ARTIST PROFILE</a>`;
+                } else {
+                    profileLinkWrap.innerHTML = '';
+                }
+            }
+
+            // Apply colors
+            document.documentElement.style.setProperty('--accent', currentSettings.accentColor);
+            let r = 212, g = 175, b = 55;
+            if (currentSettings.accentColor.startsWith('#')) {
+                const hex = currentSettings.accentColor.substring(1);
+                if (hex.length === 6) {
+                    r = parseInt(hex.substring(0, 2), 16);
+                    g = parseInt(hex.substring(2, 4), 16);
+                    b = parseInt(hex.substring(4, 6), 16);
+                }
+            }
+            document.documentElement.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.25)`);
+        }
+
+        function switchAdminTab(tabName) {
+            const configTab = document.getElementById('admin-tab-config');
+            const onboardTab = document.getElementById('admin-tab-onboard');
+            const configBtn = document.getElementById('tab-btn-config');
+            const onboardBtn = document.getElementById('tab-btn-onboard');
+
+            if (tabName === 'config') {
+                configTab.style.display = 'block';
+                onboardTab.style.display = 'none';
+                configBtn.style.background = 'var(--accent)';
+                configBtn.style.color = '#000';
+                onboardBtn.style.background = 'rgba(255,255,255,0.05)';
+                onboardBtn.style.color = '#888';
+            } else {
+                configTab.style.display = 'none';
+                onboardTab.style.display = 'block';
+                onboardBtn.style.background = 'var(--accent)';
+                onboardBtn.style.color = '#000';
+                configBtn.style.background = 'rgba(255,255,255,0.05)';
+                configBtn.style.color = '#888';
+                renderAdminVideosList();
+            }
+        }
+
+        function renderAdminVideosList() {
+            const listContainer = document.getElementById('admin-videos-list');
+            listContainer.innerHTML = '';
+            
+            const tracks = tempSettings ? tempSettings.tracks : currentSettings.tracks;
+            
+            if (!tracks || tracks.length === 0) {
+                listContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 10px;">No video tracks added yet.</div>';
+                return;
+            }
+
+            tracks.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.style.padding = '6px 8px';
+                item.style.background = 'rgba(255, 255, 255, 0.02)';
+                item.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+                item.style.borderRadius = '4px';
+
+                const urlLabel = track.url.length > 25 ? track.url.substring(0, 22) + '...' : track.url;
+                const friendLabel = track.friendName ? ` <span style="color: var(--highlight); font-size: 0.6rem;">[🤝 Invite: ${track.friendName}]</span>` : '';
+
+                item.innerHTML = `
+                    <div style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;">
+                        <span style="color: var(--accent); font-weight: bold;">[${index + 1}]</span> 
+                        <span style="color: #fff;">${track.title}</span> 
+                        <span style="color: var(--text-muted); font-size: 0.65rem;">(${urlLabel})${friendLabel}</span>
+                    </div>
+                    <button onclick="removeVideo(${index})" style="background: rgba(255, 0, 128, 0.15); border: 1px solid var(--highlight); color: var(--highlight); padding: 2px 6px; font-size: 0.6rem; cursor: pointer; border-radius: 3px; font-family: 'Orbitron', sans-serif;">DELETE</button>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function removeVideo(index) {
+            if (confirm("Are you sure you want to remove this video track?")) {
+                if (tempSettings && tempSettings.tracks) {
+                    tempSettings.tracks.splice(index, 1);
+                } else {
+                    currentSettings.tracks.splice(index, 1);
+                }
+                renderAdminVideosList();
+            }
+        }
+
+        function addNewVideoToState() {
+            const titleInput = document.getElementById('new-video-title');
+            const urlInput = document.getElementById('new-video-url');
+            const descInput = document.getElementById('new-video-desc');
+            const friendNameInput = document.getElementById('new-video-friend-name');
+            const friendContactInput = document.getElementById('new-video-friend-contact');
+            const priceInput = document.getElementById('new-video-price');
+            const submitRadioCheck = document.getElementById('new-video-submit-radio');
+            const paymentInput = document.getElementById('new-video-payment');
+
+            const title = titleInput.value.trim();
+            const url = urlInput.value.trim();
+            const desc = descInput.value.trim() || "Curated digital video asset.";
+            const friendName = friendNameInput ? friendNameInput.value.trim() : "";
+            const friendContact = friendContactInput ? friendContactInput.value.trim() : "";
+            const price = priceInput ? parseInt(priceInput.value) || 5 : 5;
+            const submitRadio = submitRadioCheck ? submitRadioCheck.checked : false;
+            const payment = paymentInput ? paymentInput.value.trim() : (tempSettings ? tempSettings.vaultKey : "D9_LOVE");
+
+            if (!title || !url) {
+                alert("Please enter both a track title and path/URL!");
+                return;
+            }
+
+            // Prompt if friend name is empty to encourage viral invite
+            if (!friendName) {
+                const addFriend = confirm("🤝 Share the Stage!\n\nFor every track you upload, would you like to attribute a song from a friend or invite a fellow artist to be looped on the Dragon 9 Radio network?\n\nClick 'OK' to fill in their details first, or 'Cancel' to add this track alone.");
+                if (addFriend) {
+                    if (friendNameInput) friendNameInput.focus();
+                    return;
+                }
+            }
+
+            const newTrack = {
+                title: title,
+                url: url,
+                desc: desc,
+                friendName: friendName,
+                friendContact: friendContact,
+                price: price,
+                submitRadio: submitRadio,
+                payment: payment
+            };
+
+            const target = tempSettings || currentSettings;
+            if (!target.tracks) {
+                target.tracks = [];
+            }
+            target.tracks.push(newTrack);
+
+            // Submit to live radio if checked and artist name is present
+            if (submitRadio) {
+                submitTrackToRadio(newTrack, target.artistName || "Unknown Artist");
+            }
+
+            // Reset inputs
+            titleInput.value = '';
+            urlInput.value = '';
+            descInput.value = '';
+            if (friendNameInput) friendNameInput.value = '';
+            if (friendContactInput) friendContactInput.value = '';
+            if (priceInput) priceInput.value = '';
+            if (submitRadioCheck) submitRadioCheck.checked = false;
+            if (paymentInput) paymentInput.value = '';
+
+            renderAdminVideosList();
+
+            if (friendName) {
+                const refLink = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(friendName)}`;
+                navigator.clipboard.writeText(refLink).then(() => {
+                    const sendEmail = confirm(`Added "${title}" with referral for ${friendName}!\n\nThe invitation link has been copied to your clipboard.\n\nWould you like to open your email client to send them the invite link?`);
+                    if (sendEmail) {
+                        window.location.href = `mailto:${friendContact || ''}?subject=${encodeURIComponent('Invitation to build your own Sovereign Music Vault')}&body=${encodeURIComponent(`Hi ${friendName},\n\nI just recommended your track in my sovereign music album builder!\n\nHere is your custom invite link to check out the toolkit and build your own digital music vault:\n\n${refLink}\n\nCheers!`)}`;
+                    }
+                }).catch(() => {
+                    alert(`Added "${title}" with referral for ${friendName}!\n\nHere is the invitation link:\n${refLink}`);
+                });
+            } else {
+                alert(`Added "${title}" to playlist. Save changes via "MINT & SAVE" or "DOWNLOAD STANDALONE".`);
+            }
+        }
+
+        async function fetchCrewAssets(crewName) {
+            const section = document.getElementById('scanned-assets-section');
+            const list = document.getElementById('scanned-assets-list');
+            if (!section || !list) return;
+
+            if (!crewName) {
+                section.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/list-crew-assets?crew=${encodeURIComponent(crewName.toLowerCase().trim())}`);
+                if (!response.ok) throw new Error("API failed");
+                const data = await response.json();
+                
+                const audioFiles = data.audio || [];
+                const videoFiles = data.video || [];
+                const allFiles = [...audioFiles, ...videoFiles];
+                
+                if (allFiles.length === 0) {
+                    section.style.display = 'none';
+                    return;
+                }
+                
+                section.style.display = 'block';
+                list.innerHTML = '';
+                
+                allFiles.forEach(file => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.justifyContent = 'space-between';
+                    row.style.alignItems = 'center';
+                    row.style.padding = '4px 6px';
+                    row.style.background = 'rgba(255,255,255,0.02)';
+                    row.style.border = '1px solid rgba(255,255,255,0.05)';
+                    row.style.borderRadius = '4px';
+                    
+                    const isVid = file.path.includes('/video/');
+                    const typeLabel = isVid ? '🎬' : '🎵';
+                    
+                    row.innerHTML = `
+                        <div style="flex-grow:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-right:8px; font-size:0.7rem; color:#eee;">
+                            ${typeLabel} ${file.name}
+                        </div>
+                        <button onclick="quickAddLocalTrack('${file.name.replace(/'/g, "\\'")}', '${file.path}')" style="background:rgba(0,229,255,0.15); border:1px solid var(--accent); color:#fff; padding:2px 6px; font-size:0.55rem; cursor:pointer; border-radius:3px; font-family:'Orbitron',sans-serif;">+ ADD</button>
+                    `;
+                    list.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Failed to fetch crew assets:", err);
+                section.style.display = 'none';
+            }
+        }
+
+        function quickAddLocalTrack(fileName, filePath) {
+            const title = fileName.replace(/\.[^/.]+$/, "");
+            const desc = "Local studio master recording.";
+            
+            const newTrack = {
+                title: title,
+                url: filePath,
+                desc: desc
+            };
+
+            const target = tempSettings || currentSettings;
+            if (!target.tracks) target.tracks = [];
+            
+            if (target.tracks.some(t => t.url === filePath)) {
+                alert("Track is already in the playlist!");
+                return;
+            }
+            
+            target.tracks.push(newTrack);
+            renderAdminVideosList();
+        }
+
+        // Bind input listener for Artist Name to trigger asset scans
+        setTimeout(() => {
+            const artistInput = document.getElementById('artist-name');
+            if (artistInput) {
+                artistInput.addEventListener('input', () => {
+                    const name = artistInput.value.trim().toLowerCase();
+                    fetchCrewAssets(name);
+                });
+            }
+        }, 100);
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-modal');
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) {
+                // Populate Tab 1 Config
+                tempSettings = JSON.parse(JSON.stringify(currentSettings));
+                
+                document.getElementById('admin-brand-name').value = tempSettings.brandName;
+                document.getElementById('admin-profile-url').value = tempSettings.profileUrl || "";
+                document.getElementById('admin-vault-key').value = tempSettings.vaultKey;
+                document.getElementById('admin-price').value = tempSettings.price;
+                document.getElementById('admin-color-select').value = tempSettings.accentColor;
+
+                // Populate Tab 2 Onboard
+                document.getElementById('artist-name').value = tempSettings.artistName || "";
+                document.getElementById('artist-bio').value = tempSettings.artistBio || "";
+
+                switchAdminTab('config');
+
+                // Trigger asset scan for the initial artist
+                if (tempSettings.artistName) {
+                    fetchCrewAssets(tempSettings.artistName.toLowerCase().trim());
+                    loadArtistEarnings();
+                }
+            } else {
+                tempSettings = null;
+            }
+        }
+
+        function saveAdminSettings() {
+            if (!tempSettings) return;
+
+            // Read Tab 1 Config
+            tempSettings.brandName = document.getElementById('admin-brand-name').value.trim() || "Fluid Motion TV";
+            tempSettings.profileUrl = document.getElementById('admin-profile-url').value.trim() || "";
+            tempSettings.vaultKey = document.getElementById('admin-vault-key').value.trim() || "D9_LOVE";
+            tempSettings.price = document.getElementById('admin-price').value.trim() || "$19.99 USD";
+            tempSettings.accentColor = document.getElementById('admin-color-select').value;
+
+            // Read Tab 2 Onboard
+            tempSettings.artistName = document.getElementById('artist-name').value.trim() || "Corey";
+            tempSettings.artistBio = document.getElementById('artist-bio').value.trim() || "Producer";
+
+            currentSettings = tempSettings;
+            localStorage.setItem('d9_vault_settings_v3', JSON.stringify(currentSettings));
+            
+            applyConfigSettings();
+            renderAlbumTracks();
+            toggleAdminPanel();
+
+            alert(`[MINT SUCCESS] Encrypted Vault Minted!\n\nArtist Profile registered: ${currentSettings.artistName.toUpperCase()}\nAssets registered to the Fluid Motion of the Future Network for future Pathfinder synthesis.`);
+        }
+
+        async function getBase64FromUrl(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+                const blob = await response.blob();
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (err) {
+                console.error("Base64 conversion failed for:", url, err);
+                return "";
+            }
+        }
+
+        async function exportStandaloneHTML() {
+            try {
+                const progressModal = document.createElement('div');
+                progressModal.style.position = 'fixed';
+                progressModal.style.top = '0'; progressModal.style.left = '0';
+                progressModal.style.width = '100vw'; progressModal.style.height = '100vh';
+                progressModal.style.background = 'rgba(2, 4, 8, 0.95)';
+                progressModal.style.zIndex = '99999';
+                progressModal.style.display = 'flex';
+                progressModal.style.flexDirection = 'column';
+                progressModal.style.justifyContent = 'center';
+                progressModal.style.alignItems = 'center';
+                progressModal.style.color = '#fff';
+                progressModal.style.fontFamily = "'Orbitron', sans-serif";
+                progressModal.innerHTML = `
+                    <div style="font-size: 1.2rem; margin-bottom: 20px; letter-spacing: 2px; text-shadow:0 0 10px var(--accent-glow);">COMPILING DIGITAL VAULT NODE...</div>
+                    <div style="width: 240px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; position: relative;">
+                        <div id="export-progress-bar" style="width: 5%; height: 100%; background: var(--accent); transition: width 0.3s ease;"></div>
+                    </div>
+                    <div id="export-status" style="font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; margin-top: 15px; color: var(--highlight);">Initializing assembler...</div>
+                `;
+                document.body.appendChild(progressModal);
+
+                const setProgress = (pct, status) => {
+                    document.getElementById('export-progress-bar').style.width = `${pct}%`;
+                    document.getElementById('export-status').innerText = status;
+                };
+
+                // Read inputs
+                const tempBrandName = document.getElementById('admin-brand-name').value.trim() || "Fluid Motion TV";
+                const tempProfileUrl = document.getElementById('admin-profile-url').value.trim() || "";
+                const tempVaultKey = document.getElementById('admin-vault-key').value.trim() || "D9_LOVE";
+                const tempPrice = document.getElementById('admin-price').value.trim() || "$19.99 USD";
+                const tempAccentColor = document.getElementById('admin-color-select').value;
+                const tempArtistName = document.getElementById('artist-name').value.trim() || "Corey";
+                const tempArtistBio = document.getElementById('artist-bio').value.trim() || "Producer";
+
+                const exportSettings = tempSettings ? JSON.parse(JSON.stringify(tempSettings)) : JSON.parse(JSON.stringify(currentSettings));
+                exportSettings.brandName = tempBrandName;
+                exportSettings.profileUrl = tempProfileUrl;
+                exportSettings.vaultKey = tempVaultKey;
+                exportSettings.price = tempPrice;
+                exportSettings.accentColor = tempAccentColor;
+                exportSettings.artistName = tempArtistName;
+                exportSettings.artistBio = tempArtistBio;
+
+                setProgress(20, "Fetching digital vault source HTML...");
+                const response = await fetch(window.location.href.split('?')[0]);
+                if (!response.ok) throw new Error("Failed to fetch source HTML.");
+                let htmlText = await response.text();
+
+                // Replace settings object
+                setProgress(40, "Embedding encrypted profile configuration...");
+                const settingsPattern = /let currentSettings = \{[\s\S]*?brandName:[\s\S]*?vaultKey:[\s\S]*?price:[\s\S]*?accentColor:[\s\S]*?artistName:[\s\S]*?artistBio:[\s\S]*?tracks:[\s\S]*?\};/;
+                const newSettingsBlock = `let currentSettings = ${JSON.stringify(exportSettings, null, 12)};`;
+                
+                if (settingsPattern.test(htmlText)) {
+                    htmlText = htmlText.replace(settingsPattern, newSettingsBlock);
+                } else {
+                    const simplePattern = /let currentSettings = \{[\s\S]*?\};/g;
+                    htmlText = htmlText.replace(simplePattern, (match) => {
+                        if (match.includes('brandName')) {
+                            return newSettingsBlock;
+                        }
+                        return match;
+                    });
+                }
+
+                setProgress(55, "Inlining holographic stylesheet...");
+                const cssRes = await fetch('scripts/night_fish.css');
+                let cssText = await cssRes.text();
+
+                setProgress(70, "Inlining AI assistant cognitive logic...");
+                const jsRes = await fetch('scripts/night_fish_assistant.js');
+                let jsText = await jsRes.text();
+
+                setProgress(80, "Converting studio branding assets to Base64...");
+                const logoB64 = await getBase64FromUrl('assets/menu/fluid_motion_logo_yellow_black.png');
+                const headB64 = await getBase64FromUrl('assets/crew/night_fish/images/head.png');
+                const finLeftB64 = await getBase64FromUrl('assets/crew/night_fish/images/fin_left.png');
+                const finRightB64 = await getBase64FromUrl('assets/crew/night_fish/images/fin_right.png');
+                const tailLargeB64 = await getBase64FromUrl('assets/crew/night_fish/images/tail_large.png');
+                const tailSmallB64 = await getBase64FromUrl('assets/crew/night_fish/images/tail_small.png');
+
+                setProgress(90, "Inlining base64 assets into code blocks...");
+                // Swap relative URLs in inlined CSS
+                cssText = cssText.replace(/url\(['"]?\.\.\/assets\/crew\/night_fish\/images\/head\.png['"]?\)/g, `url("${headB64}")`);
+                cssText = cssText.replace(/url\(['"]?\.\.\/assets\/crew\/night_fish\/images\/fin_left\.png['"]?\)/g, `url("${finLeftB64}")`);
+                cssText = cssText.replace(/url\(['"]?\.\.\/assets\/crew\/night_fish\/images\/fin_right\.png['"]?\)/g, `url("${finRightB64}")`);
+                cssText = cssText.replace(/url\(['"]?\.\.\/assets\/crew\/night_fish\/images\/tail_large\.png['"]?\)/g, `url("${tailLargeB64}")`);
+                cssText = cssText.replace(/url\(['"]?\.\.\/assets\/crew\/night_fish\/images\/tail_small\.png['"]?\)/g, `url("${tailSmallB64}")`);
+
+                // Swap images in HTML
+                htmlText = htmlText.replace(/src="assets\/menu\/fluid_motion_logo_yellow_black\.png"/g, `src="${logoB64}"`);
+
+                // Swap images in JS
+                jsText = jsText.replace(/assets\/crew\/night_fish\/images\/night_fish_Night%20fish%20for%20afx%20holo\.png/g, headB64);
+
+                // Inject CSS
+                const cssLinkTag = '<link rel="stylesheet" href="scripts/night_fish.css">';
+                htmlText = htmlText.replace(cssLinkTag, `<style>${cssText}</style>`);
+
+                // Inject JS
+                const jsScriptTag = '<script type="module" src="scripts/night_fish_assistant.js"><' + '/script>';
+                htmlText = htmlText.replace(jsScriptTag, `<script type="module">${jsText}<` + '/script>');
+
+                setProgress(100, "Compiling package completed!");
+                setTimeout(() => {
+                    document.body.removeChild(progressModal);
+                    const blob = new Blob([htmlText], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${exportSettings.brandName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_vault.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    alert("Standalone digital music vault compiled successfully! Clean, self-contained single-file app created.");
+                }, 800);
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to compile standalone digital vault: " + err.message);
+            }
+        }
+
+        async function submitTrackToRadio(track, artistName) {
+            try {
+                const response = await fetch('/api/submit-to-radio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: track.title,
+                        url: track.url,
+                        desc: track.desc,
+                        artist: artistName,
+                        price: track.price,
+                        payment: track.payment,
+                        timestamp: Date.now()
+                    })
+                });
+                if (response.ok) {
+                    console.log("Track submitted to Dragon 9 radio.");
+                }
+            } catch (err) {
+                console.error("Local submit to radio failed (running standalone):", err);
+            }
+        }
+
+        function openTheaterMode(url, isYouTube) {
+            const overlay = document.getElementById('theater-overlay');
+            const container = document.getElementById('theater-video-wrap');
+            if (!overlay || !container) return;
+
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.classList.add('open'), 10);
+
+            if (isYouTube) {
+                const autoplayUrl = url.includes('?') ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+                container.innerHTML = `<iframe src="${autoplayUrl}" allow="autoplay; fullscreen" allowfullscreen style="border: none; width: 100%; height: 100%;"></iframe>`;
+            } else {
+                container.innerHTML = `<video src="${url}" controls autoplay loop playsinline style="width: 100%; height: 100%; object-fit: contain;"></video>`;
+            }
+        }
+
+        function closeTheaterMode() {
+            const overlay = document.getElementById('theater-overlay');
+            const container = document.getElementById('theater-video-wrap');
+            if (!overlay) return;
+
+            overlay.classList.remove('open');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                if (container) container.innerHTML = '';
+            }, 400);
+        }
+
+        let activeCheckoutTrackIndex = null;
+
+        function openCheckout(trackIndex) {
+            const track = currentSettings.tracks[trackIndex];
+            if (!track) return;
+            activeCheckoutTrackIndex = trackIndex;
+
+            document.getElementById('checkout-track-title').innerText = track.title;
+            document.getElementById('checkout-track-price').innerText = `${track.price || 5} H-Notes`;
+            document.getElementById('checkout-track-payment').innerText = track.payment || currentSettings.vaultKey || "D9_LOVE";
+
+            const modal = document.getElementById('checkout-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10);
+        }
+
+        function closeCheckout() {
+            const modal = document.getElementById('checkout-modal');
+            if (!modal) return;
+            modal.classList.remove('open');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                activeCheckoutTrackIndex = null;
+            }, 300);
+        }
+
+        async function confirmPurchase() {
+            if (activeCheckoutTrackIndex === null) return;
+            const track = currentSettings.tracks[activeCheckoutTrackIndex];
+            const price = track.price || 5;
+
+            // Get listener balance
+            let balance = parseInt(localStorage.getItem('d9_user_hnotes') || '50');
+            if (balance < price) {
+                alert(`Insufficient H-Notes balance!\n\nYour Balance: ${balance} H-Notes\nTrack Price: ${price} H-Notes\n\nPlease click "BUY H-NOTES" to top up!`);
+                closeCheckout();
+                return;
+            }
+
+            // Deduct balance
+            balance -= price;
+            localStorage.setItem('d9_user_hnotes', balance.toString());
+            document.getElementById('user-hnotes-balance').innerText = balance;
+
+            // Save purchased track URL
+            const purchased = JSON.parse(localStorage.getItem('d9_purchased_tracks') || '[]');
+            if (!purchased.includes(track.url)) {
+                purchased.push(track.url);
+                localStorage.setItem('d9_purchased_tracks', JSON.stringify(purchased));
+            }
+
+            // Notify server about purchase to route H-Notes to artist
+            try {
+                await fetch('/api/record-purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        artist: currentSettings.artistName || "Unknown Artist",
+                        amount: price
+                    })
+                });
+            } catch (err) {
+                console.log("Local purchase recorded (offline mode).");
+                const localLedger = JSON.parse(localStorage.getItem('d9_artist_local_ledger') || '{}');
+                const artistKey = (currentSettings.artistName || "Unknown Artist").toLowerCase().trim();
+                localLedger[artistKey] = (localLedger[artistKey] || 0) + price;
+                localStorage.setItem('d9_artist_local_ledger', JSON.stringify(localLedger));
+            }
+
+            // Boost stats
+            let hours = parseFloat(localStorage.getItem('d9_listening_hours') || '0.0');
+            hours += 10.0;
+            localStorage.setItem('d9_listening_hours', hours.toFixed(1));
+            document.getElementById('user-listening-hours').innerText = hours.toFixed(1);
+
+            alert(`🎉 Track Successfully Unlocked!\n\nDirect support price of ${price} H-Notes transferred to the artist's address.\nDownload button unlocked on the track card!`);
+            closeCheckout();
+            renderAlbumTracks();
+        }
+
+        async function loadArtistEarnings() {
+            const artistName = (document.getElementById('artist-name').value || currentSettings.artistName || "Corey").toLowerCase().trim();
+            let earnings = 0;
+            let withdrawals = 0;
+
+            try {
+                const response = await fetch(`/api/get-artist-earnings?crew=${encodeURIComponent(artistName)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    earnings = data.earnings || 0;
+                    withdrawals = data.withdrawals || 0;
+                }
+            } catch (err) {
+                const localLedger = JSON.parse(localStorage.getItem('d9_artist_local_ledger') || '{}');
+                earnings = localLedger[artistName] || 0;
+                const localWithdrawals = JSON.parse(localStorage.getItem('d9_artist_local_withdrawals') || '{}');
+                withdrawals = localWithdrawals[artistName] || 0;
+            }
+
+            const balance = earnings - withdrawals;
+            const usdValue = (balance * 0.10).toFixed(2);
+
+            const notesEl = document.getElementById('artist-ledger-notes');
+            const usdEl = document.getElementById('artist-ledger-usd');
+            if (notesEl) notesEl.innerText = balance;
+            if (usdEl) usdEl.innerText = usdValue;
+        }
+
+        async function cashoutArtistEarnings() {
+            const artistName = (document.getElementById('artist-name').value || currentSettings.artistName || "Corey").toLowerCase().trim();
+            const notesEl = document.getElementById('artist-ledger-notes');
+            if (!notesEl) return;
+            const balance = parseInt(notesEl.innerText);
+
+            if (balance <= 0) {
+                alert("No earnings available for cash out.");
+                return;
+            }
+
+            const paymentDest = document.getElementById('new-video-payment').value.trim() || currentSettings.vaultKey || "D9_LOVE";
+            const confirmCash = confirm(`💸 Cash Out Earnings?\n\nYou are converting ${balance} H-Notes to $${(balance * 0.10).toFixed(2)} USD.\nFunds will be wired to your direct payment address:\n\n"${paymentDest}"\n\nClick OK to confirm.`);
+            if (!confirmCash) return;
+
+            try {
+                const response = await fetch('/api/artist-cashout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        artist: artistName,
+                        amount: balance
+                    })
+                });
+                if (!response.ok) throw new Error("Backend cashout failed");
+            } catch (err) {
+                const localWithdrawals = JSON.parse(localStorage.getItem('d9_artist_local_withdrawals') || '{}');
+                localWithdrawals[artistName] = (localWithdrawals[artistName] || 0) + balance;
+                localStorage.setItem('d9_artist_local_withdrawals', JSON.stringify(localWithdrawals));
+            }
+
+            alert("🎉 Cash-out request submitted successfully!\n\nYour H-Notes are now being processed by the Dragon 9 off-grid ledger network. Payment will arrive at your address shortly.");
+            loadArtistEarnings();
+        }
+
+        function triggerShareLink() {
+            const refLink = `${window.location.origin}${window.location.pathname}?ref=share_${Date.now()}`;
+            navigator.clipboard.writeText(refLink);
+
+            let hours = parseFloat(localStorage.getItem('d9_listening_hours') || '0.0');
+            hours += 1.5;
+            localStorage.setItem('d9_listening_hours', hours.toFixed(1));
+            document.getElementById('user-listening-hours').innerText = hours.toFixed(1);
+
+            let mult = parseFloat(localStorage.getItem('d9_boost_multiplier') || '1.0');
+            mult = Math.min(3.0, mult + 0.2);
+            localStorage.setItem('d9_boost_multiplier', mult.toFixed(1));
+            document.getElementById('user-boost-multiplier').innerText = `${mult.toFixed(1)}x`;
+
+            alert("🔗 Referral Link Copied!\n\nPromotion bonus of +1.5 Listening Hours and +0.2x Boost Multiplier credited to your ledger.");
+        }
+
+        function openCommentModal() {
+            const comment = prompt("💬 Submit Track Feedback / Review:\n\nType your comment below to support this artist and boost your hours!");
+            if (!comment || !comment.trim()) return;
+
+            let hours = parseFloat(localStorage.getItem('d9_listening_hours') || '0.0');
+            hours += 2.0;
+            localStorage.setItem('d9_listening_hours', hours.toFixed(1));
+            document.getElementById('user-listening-hours').innerText = hours.toFixed(1);
+
+            alert("💬 Comment Submitted!\n\nSocial engagement bonus of +2.0 Listening Hours credited to your ledger.");
+        }
+
+        function openBuyNotesModal() {
+            const amount = prompt("🔋 Top Up H-Notes Wallet:\n\nChoose a pack to buy:\n1. 50 H-Notes ($5.00 USD)\n2. 120 H-Notes ($10.00 USD)\n3. 300 H-Notes ($20.00 USD)\n\nEnter the pack number (1, 2, or 3):");
+            if (!amount) return;
+
+            let addNotes = 0;
+            let cost = 0;
+            if (amount === '1') { addNotes = 50; cost = 5.00; }
+            else if (amount === '2') { addNotes = 120; cost = 10.00; }
+            else if (amount === '3') { addNotes = 300; cost = 20.00; }
+            else {
+                alert("Invalid selection.");
+                return;
+            }
+
+            const payConfirm = confirm(`Secure Gateway Checkout:\n\nCharge $${cost.toFixed(2)} USD to your card/wallet for ${addNotes} H-Notes?\n\nPress OK to authorize payment.`);
+            if (!payConfirm) return;
+
+            let balance = parseInt(localStorage.getItem('d9_user_hnotes') || '50');
+            balance += addNotes;
+            localStorage.setItem('d9_user_hnotes', balance.toString());
+            document.getElementById('user-hnotes-balance').innerText = balance;
+
+            alert(`🔋 Wallet Top-up Successful!\n\nCredited ${addNotes} H-Notes. New Wallet Balance: ${balance} H-Notes.`);
+        }
+
+        let originalTracksBackup = null;
+
+        function switchStreamFunnel() {
+            const funnel = document.getElementById('stream-funnel').value;
+            
+            if (!originalTracksBackup) {
+                originalTracksBackup = [...currentSettings.tracks];
+            }
+
+            if (funnel === 'album') {
+                currentSettings.tracks = [...originalTracksBackup];
+            } else if (funnel === 'hot26') {
+                const shuffled = [...originalTracksBackup].sort(() => 0.5 - Math.random());
+                currentSettings.tracks = [];
+                for (let i = 0; i < 26; i++) {
+                    const trackTemplate = shuffled[i % shuffled.length];
+                    if (trackTemplate.url !== "night-fish-holo") {
+                        currentSettings.tracks.push({
+                            title: `[TOP ${i+1}] ${trackTemplate.title}`,
+                            url: trackTemplate.url,
+                            desc: `Trending Hot 26 Stream Segment #${i+1}. Loops continuously.`,
+                            price: 0
+                        });
+                    }
+                }
+                window.location.href = "radio/index.html";
+                return;
+            }
+
+            renderAlbumTracks();
+        }
+
+        // Real-time listening hour credit tracker
+        setInterval(() => {
+            let isPlaying = false;
+            const audios = document.querySelectorAll('audio');
+            audios.forEach(aud => {
+                if (!aud.paused && !aud.ended) isPlaying = true;
+            });
+            const videos = document.querySelectorAll('video');
+            videos.forEach(vid => {
+                if (!vid.paused && !vid.ended) isPlaying = true;
+            });
+
+            if (isPlaying) {
+                let hours = parseFloat(localStorage.getItem('d9_listening_hours') || '0.0');
+                const mult = parseFloat(localStorage.getItem('d9_boost_multiplier') || '1.0');
+                
+                hours += (0.005 * mult);
+                localStorage.setItem('d9_listening_hours', hours.toFixed(1));
+                
+                const hoursEl = document.getElementById('user-listening-hours');
+                if (hoursEl) hoursEl.innerText = hours.toFixed(1);
+            }
+        }, 10000);
+
+        // Sync ledger stats on load
+        setTimeout(() => {
+            const hnotesBal = localStorage.getItem('d9_user_hnotes') || '50';
+            localStorage.setItem('d9_user_hnotes', hnotesBal);
+            const userBalEl = document.getElementById('user-hnotes-balance');
+            if (userBalEl) userBalEl.innerText = hnotesBal;
+
+            const listHours = localStorage.getItem('d9_listening_hours') || '0.0';
+            localStorage.setItem('d9_listening_hours', listHours);
+            const userHoursEl = document.getElementById('user-listening-hours');
+            if (userHoursEl) userHoursEl.innerText = listHours;
+
+            const boostMult = localStorage.getItem('d9_boost_multiplier') || '1.0';
+            localStorage.setItem('d9_boost_multiplier', boostMult);
+            const userBoostEl = document.getElementById('user-boost-multiplier');
+            if (userBoostEl) userBoostEl.innerText = `${boostMult}x`;
+
+            const artistNameInput = document.getElementById('artist-name');
+            if (artistNameInput) {
+                artistNameInput.addEventListener('input', loadArtistEarnings);
+                artistNameInput.addEventListener('change', loadArtistEarnings);
+            }
+        }, 200);
+
+        // Initialize Settings
+        loadAdminSettings();
+
+        // --- INTERACTIVE FLUID CANVAS ---
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.zIndex = '1';
+        canvas.style.pointerEvents = 'none';
+        document.body.prepend(canvas);
+
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        for (let i = 0; i < 40; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                radius: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.5 + 0.1
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw gradient background flow
+            const grad = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, width*0.8);
+            grad.addColorStop(0, '#0a0a14');
+            grad.addColorStop(1, '#020205');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d4af37';
+            ctx.strokeStyle = accentColor;
+            ctx.fillStyle = accentColor;
+
+            particles.forEach((p, idx) => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
+                ctx.fill();
+
+                for (let j = idx + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 180) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${(1 - dist/180) * 0.08})`;
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        function handleKey(e) {
+            if (e.key === 'Enter') {
+                attemptDecrypt();
+            }
+        }
+
+        function attemptDecrypt() {
+            const val = document.getElementById('vault-pass').value.trim();
+            const err = document.getElementById('error-alert');
+            const lock = document.getElementById('lock-screen');
+            const portal = document.getElementById('portal-view');
+
+            const key = currentSettings.vaultKey || "D9_LOVE";
+
+            if (val === key || val.toLowerCase() === key.toLowerCase()) {
+                err.classList.remove('visible');
+                lock.style.opacity = '0';
+                lock.style.transform = 'translateY(-100vh)';
+                
+                setTimeout(() => {
+                    lock.style.display = 'none';
+                    portal.style.display = 'flex';
+                    initInfinityScroll();
+                }, 800);
+            } else {
+                err.classList.add('visible');
+                setTimeout(() => { err.classList.remove('visible'); }, 3000);
+            }
+        }
+
+        // --- 3D PERSPECTIVE COVERFLOW EFFECTS ---
+        function update3DCardEffects() {
+            const menu = document.getElementById('flow-menu');
+            if (!menu) return;
+            const cards = menu.querySelectorAll('.track-card');
+            const menuCenter = menu.scrollLeft + menu.offsetWidth / 2;
+
+            cards.forEach(card => {
+                const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+                const distance = cardCenter - menuCenter;
+                const absDistance = Math.abs(distance);
+                
+                const maxDistance = 450; 
+                const factor = Math.min(1, absDistance / maxDistance);
+                
+                const scale = 1 - factor * 0.15; 
+                const rotateY = -distance * 0.04; 
+                const translateZ = -factor * 120; 
+                const opacity = 1 - factor * 0.45; 
+
+                card.style.transform = `scale(${scale}) rotateY(${Math.max(-25, Math.min(25, rotateY))}deg) translateZ(${translateZ}px)`;
+                card.style.opacity = opacity;
+                card.style.zIndex = Math.round(100 - factor * 10);
+            });
+        }
+
+        // --- INFINITY LOOPING SCROLL ---
+        function initInfinityScroll() {
+            const menu = document.getElementById('flow-menu');
+            const cards = Array.from(menu.children);
+            if (cards.length === 0) return;
+            
+            cards.forEach(card => {
+                const cloneBefore = card.cloneNode(true);
+                const cloneAfter = card.cloneNode(true);
+                menu.insertBefore(cloneBefore, menu.firstChild);
+                menu.appendChild(cloneAfter);
+            });
+
+            const cardWidth = cards[0].offsetWidth + 50; 
+            const totalOriginalWidth = cards.length * cardWidth;
+            menu.scrollLeft = totalOriginalWidth;
+
+            menu.addEventListener('scroll', () => {
+                if (menu.scrollLeft <= 50) {
+                    menu.scrollLeft += totalOriginalWidth;
+                } else if (menu.scrollLeft >= totalOriginalWidth * 2 - 100) {
+                    menu.scrollLeft -= totalOriginalWidth;
+                }
+                update3DCardEffects();
+            });
+
+            menu.addEventListener('wheel', (e) => {
+                if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    menu.scrollLeft += e.deltaY;
+                }
+            });
+
+            // Initial calculation
+            setTimeout(update3DCardEffects, 250);
+        }
+    </script>
+    <!-- Immersive Video Theater Screen -->
+    <div id="theater-overlay" onclick="closeTheaterMode()">
+        <div class="theater-close-btn" onclick="closeTheaterMode()">&times;</div>
+        <div class="theater-container" onclick="event.stopPropagation()">
+            <div id="theater-video-wrap" style="width:100%; height:100%;"></div>
+        </div>
+    </div>
+
+    <!-- Direct Checkout & Support Modal -->
+    <div id="checkout-modal" onclick="closeCheckout()">
+        <div class="checkout-card" onclick="event.stopPropagation()">
+            <div style="font-size: 1.3rem; margin-bottom: 12px; color: var(--accent); font-family:'Orbitron'; font-weight:bold;">Direct Support Checkout</div>
+            <div style="font-size: 0.8rem; margin-bottom: 20px; line-height: 1.4; color: #fff;">
+                You are purchasing direct download access for:<br>
+                <strong id="checkout-track-title" style="color: var(--highlight);">Track Title</strong>
+            </div>
+            <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: left; font-size: 0.75rem;">
+                <div>Direct Price: <strong id="checkout-track-price" style="color: var(--accent);">5 H-Notes</strong></div>
+                <div style="margin-top: 6px;">Artist Address:</div>
+                <div id="checkout-track-payment" style="color: #888; font-size: 0.65rem; word-break: break-all; font-family: monospace;">direct_address</div>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+                <button class="admin-save-btn" onclick="confirmPurchase()" style="margin: 0; background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; cursor:pointer;">CONFIRM & DECRYPT</button>
+                <button class="admin-save-btn" onclick="closeCheckout()" style="margin: 0; background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); cursor:pointer;">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="scripts/night_fish_assistant.js"></script>
+</body>
+</html>

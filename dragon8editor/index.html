@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Media Resonance Editor</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; min-height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay for retro sci-fi themes */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.12;
+            transition: opacity 0.5s ease;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .nav-btn {
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.65rem;
+            opacity: 0.75;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        .nav-btn.active-tab {
+            opacity: 1;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .header {
+            padding: 16px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; margin-bottom: 24px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            transition: border 0.5s ease;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .editor-container {
+            display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; flex-grow: 1;
+            max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .editor-container { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 24px; 
+            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            margin-bottom: 4px;
+            font-weight: 700;
+            transition: color 0.5s ease;
+        }
+
+        .preview-area { 
+            display: flex; justify-content: center; align-items: center; 
+            background: #000; border-radius: 8px; overflow: hidden; 
+            position: relative; aspect-ratio: 16/9;
+            border: 1.5px dashed rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            transition: border-color 0.3s;
+        }
+        .preview-area.has-asset {
+            border-style: solid;
+            border-color: var(--accent-glow);
+        }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        .controls-group { display: flex; flex-direction: column; gap: 8px; }
+        label { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem; color: var(--accent); 
+            letter-spacing: 1.5px; font-weight: 600;
+            transition: color 0.5s ease;
+        }
+        
+        /* Custom styled file input */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            height: 42px;
+            cursor: pointer;
+        }
+        .file-upload-btn {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px dashed var(--primary);
+            color: var(--text); display: flex; align-items: center; justify-content: center;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;
+            border-radius: 6px; pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .file-upload-wrapper:hover .file-upload-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+        .file-upload-wrapper input[type="file"] {
+            width: 100%; height: 100%; opacity: 0; cursor: pointer;
+        }
+
+        input[type="text"], input[type="number"], select {
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text); padding: 10px 14px; border-radius: 6px; 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem; outline: none;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        select option {
+            background: var(--secondary);
+            color: var(--text);
+        }
+
+        button {
+            background: var(--primary); color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.15); 
+            padding: 14px; border-radius: 6px; cursor: pointer; 
+            font-family: 'Orbitron', sans-serif; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        button:hover:not(:disabled) { 
+            background: var(--accent); color: var(--secondary); 
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        button:disabled { 
+            opacity: 0.4; cursor: not-allowed; 
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        #downloadLink {
+            display: none; text-align: center; color: var(--highlight); 
+            text-decoration: none; font-size: 0.8rem; font-weight: 700;
+            font-family: 'Orbitron', sans-serif; letter-spacing: 1.5px;
+            padding: 10px; border-radius: 6px;
+            border: 1px solid var(--highlight);
+            background: rgba(0, 229, 255, 0.05);
+            transition: all 0.3s;
+            margin-top: 5px;
+            text-shadow: 0 0 5px var(--highlight);
+        }
+        #downloadLink:hover {
+            background: var(--highlight);
+            color: var(--bg);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+
+        .log-panel {
+            grid-column: span 2; background: rgba(5, 5, 5, 0.85); 
+            color: var(--accent); font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem; padding: 12px 18px; border-radius: 8px; height: 120px;
+            overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+            transition: color 0.5s ease;
+        }
+        @media (max-width: 900px) {
+            .log-panel, .timeline-panel { grid-column: span 1; }
+        }
+
+        /* Custom scrollbar for logs */
+        .log-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .log-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+        .log-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        #progress-bar {
+            width: 0%; height: 5px; background: var(--highlight); 
+            position: absolute; bottom: 0; left: 0; transition: width 0.3s;
+            box-shadow: 0 0 8px var(--highlight);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div class="theme-btn btn-fluid" title="Fluid" onclick="setTheme('fluid')" style="background: linear-gradient(45deg, #00e5ff, #ff0080); border: 1.5px solid #fff;"></div>
+    </div>
+    
+    <div class="nav-links">
+        <a href="../" class="nav-btn">🌌 CLOCK</a>
+        <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+        <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+        <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+        <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+        <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+        <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+        <a href="./" class="nav-btn active-tab">🎬 EDITOR</a>
+    </div>
+
+    <div>
+        <div style="color: var(--accent); font-size: 0.95rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease; text-align: right;">DRAGON 9: EDITOR</div>
+        <div style="font-size: 0.55rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; text-align: right;">MEDIA RESONANCE & SEQUENCE</div>
+        <div style="font-size: 0.5rem; color: var(--highlight); opacity: 0.9; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; text-align: right; margin-top: 2px;">OPERATOR: CREATOR</div>
+    </div>
+</div>
+
+<div class="editor-container">
+    <div class="panel">
+        <div class="panel-title">Asset Processor</div>
+        
+        <div class="controls-group">
+            <label>Source Asset (Video)</label>
+            <div class="file-upload-wrapper">
+                <div class="file-upload-btn" id="uploadLabel">SELECT VIDEO FILE...</div>
+                <input type="file" id="uploader" accept="video/*" />
+            </div>
+        </div>
+        
+        <div class="controls-group">
+            <label>Resonance Trim (Seconds)</label>
+            <div style="display: flex; gap: 12px;">
+                <input type="number" id="startTime" value="0" step="0.1" style="flex: 1;" placeholder="START" />
+                <input type="number" id="endTime" value="5" step="0.1" style="flex: 1;" placeholder="END" />
+            </div>
+        </div>
+
+        <div class="controls-group">
+            <label>Resonance Scale</label>
+            <select id="scale">
+                <option value="none">ORIGINAL (1280x720 CONSISTENT)</option>
+                <option value="1280:720">720P (HD)</option>
+                <option value="640:360">360P (MOBILE)</option>
+                <option value="square">SQUARE (1:1)</option>
+                <option value="3840:2160">4K (ULTRA HD)</option>
+                <option value="7680:4320">8K (ULTRA HD)</option>
+            </select>
+        </div>
+
+        <div class="controls-group">
+            <label>Resonance Filter</label>
+            <select id="filter">
+                <option value="none">PURE</option>
+                <option value="matrix">MATRIX VORTEX</option>
+                <option value="amber">AMBER RESONANCE</option>
+                <option value="blur">FLUID MOTION (BLUR)</option>
+                <option value="mono">MONO-SYNC</option>
+            </select>
+        </div>
+
+        <button id="processButton" disabled style="margin-top: 10px;">Initializing System...</button>
+        <button id="addClipButton" style="margin-top: 5px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15);" disabled>ADD CLIP TO TIMELINE</button>
+        <a id="downloadLink">DOWNLOAD PROCESSED ASSET</a>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Monitor Grid</div>
+        <div class="preview-area" id="previewContainer">
+            <video id="player" controls></video>
+            <div id="progress-bar"></div>
+        </div>
+        <div id="status-text" style="font-size: 0.7rem; text-align: center; color: var(--highlight); font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">READY FOR INPUT</div>
+    </div>
+
+    <!-- Timeline Panel spanning full width -->
+    <div class="panel timeline-panel" style="grid-column: span 2;">
+        <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px;">
+            <span>Resonance Sequencer & Timeline</span>
+            <span style="font-size: 0.6rem; color: var(--highlight);" id="clip-count-badge">CLIPS: 0</span>
+        </div>
+        <div id="timelineContainer" style="display: flex; gap: 16px; overflow-x: auto; padding: 12px 4px; min-height: 180px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1.5px dashed rgba(255,255,255,0.05); align-items: center; justify-content: flex-start; scrollbar-width: thin;">
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; text-align: center; width: 100%; opacity: 0.5;" id="timelinePlaceholder">
+                Timeline Empty. Load a video file above and click "ADD CLIP TO TIMELINE" to begin sequencing.
+            </div>
+        </div>
+    </div>
+
+    <div class="log-panel" id="logger" style="grid-column: span 2;">
+        <div>[SYSTEM] Awaiting media uplink...</div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script src="script.js"></script>
+<script>
+    function setTheme(theme) {
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('dragon-theme', theme);
+        
+        // Highlight active theme button
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            if (btn.classList.contains(`btn-${theme}`)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Update color references in other parts if necessary
+        const colors = {
+            classic: 'rgba(212, 175, 55, 0.25)',
+            matrix: 'rgba(0, 255, 65, 0.3)',
+            amber: 'rgba(255, 170, 0, 0.3)',
+            cyber: 'rgba(0, 229, 255, 0.3)',
+            fluid: 'rgba(0, 229, 255, 0.3)'
+        };
+        const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+        const logger = document.getElementById('logger');
+        if (logger) {
+            logger.style.borderColor = activeColor + '33'; // Add hex opacity
+        }
+    }
+    const savedTheme = localStorage.getItem('dragon-theme') || 'classic';
+    setTheme(savedTheme);
+</script>
+</body>
+</html>

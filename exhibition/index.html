@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Fluid Exhibition & Shop</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; min-height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.12;
+            transition: opacity 0.5s ease;
+        }
+
+        .header {
+            padding: 16px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; margin-bottom: 24px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            transition: border 0.5s ease;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.65rem;
+            opacity: 0.75;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .theme-switcher { display: flex; gap: 8px; align-items: center; }
+        .theme-btn { 
+            width: 18px; height: 18px; border-radius: 50%; 
+            border: 1.5px solid rgba(255, 255, 255, 0.4); 
+            cursor: pointer; opacity: 0.6; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .theme-btn:hover { opacity: 1; transform: scale(1.25); }
+        .theme-btn.active { opacity: 1; border-color: #fff; transform: scale(1.15); box-shadow: 0 0 10px var(--accent); }
+        
+        .btn-classic { background: var(--gold); }
+        .btn-matrix { background: var(--matrix-green); }
+        .btn-amber { background: var(--amber-glow); }
+        .btn-cyber { background: var(--cyan); }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1.3fr;
+            gap: 24px;
+            flex-grow: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 24px; 
+            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Channels navigation bar */
+        .channel-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .channel-bar::-webkit-scrollbar {
+            height: 3px;
+        }
+        .channel-bar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+        .channel-tab {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .channel-tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-glow);
+        }
+        .channel-tab.active {
+            background: var(--accent);
+            color: var(--secondary);
+            border-color: var(--accent);
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .btn-add-channel {
+            background: transparent;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            opacity: 0.6;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 0.65rem;
+            font-family: 'Share Tech Mono', monospace;
+            box-shadow: none;
+            width: auto;
+            transition: all 0.3s;
+        }
+        .btn-add-channel:hover {
+            opacity: 1;
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* View mode switcher */
+        .feed-header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .view-switcher {
+            display: flex;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .view-btn {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            opacity: 0.6;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: auto;
+            box-shadow: none;
+        }
+        .view-btn:hover {
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .view-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Theater Mode */
+        .theater-player-box {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        .theater-player {
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            aspect-ratio: 16/9;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        .theater-player iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .theater-info {
+            padding: 10px 5px;
+        }
+        .theater-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            color: var(--text);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .theater-meta {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--highlight);
+        }
+
+        /* Exhibition Media Feed */
+        .reels-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            max-height: 600px;
+            padding-right: 6px;
+            transition: all 0.5s ease;
+        }
+        .reels-feed::-webkit-scrollbar {
+            width: 4px;
+        }
+        .reels-feed::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .reels-feed::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+
+        /* Masonry Grid Mode */
+        .reels-feed.layout-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 600px) {
+            .reels-feed.layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Filmstrip Carousel Mode */
+        .reels-feed.layout-filmstrip {
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            padding-bottom: 12px;
+            gap: 20px;
+            max-height: 480px;
+            scrollbar-width: thin;
+        }
+        .reels-feed.layout-filmstrip::-webkit-scrollbar {
+            height: 4px;
+        }
+        .reels-feed.layout-filmstrip .video-card {
+            display: inline-flex;
+            width: 320px;
+            flex-shrink: 0;
+            white-space: normal;
+        }
+
+        .video-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: pointer;
+        }
+        .video-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        .video-card.active-play {
+            border-color: var(--highlight);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+            background: rgba(0, 229, 255, 0.02);
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: none;
+        }
+        .video-overlay-play {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        .video-card:hover .video-overlay-play {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .play-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .video-card:hover .play-icon {
+            transform: scale(1.1);
+            background: var(--accent);
+            color: var(--secondary);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .video-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .video-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--highlight);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .video-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .video-desc {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            height: 32px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Exhibition Shop Grid */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            overflow-y: auto;
+            max-height: 520px;
+        }
+        @media (max-width: 600px) {
+            .shop-grid { grid-template-columns: 1fr; }
+        }
+
+        .shop-card {
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.015);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        .shop-card:hover {
+            border-color: var(--accent-glow);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .shop-card-img-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #000;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .shop-card-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .shop-card:hover .shop-card-img {
+            transform: scale(1.06);
+        }
+
+        .shop-card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .shop-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        .shop-card-price {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--highlight);
+            font-weight: 700;
+        }
+        .shop-card-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            font-size: 0.65rem;
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            width: auto;
+            box-shadow: none;
+            transition: all 0.3s;
+        }
+        .shop-card-btn:hover {
+            background: var(--accent);
+            color: var(--secondary);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .shop-card-btn.acquired {
+            border-color: var(--highlight);
+            color: var(--highlight);
+            background: rgba(0, 229, 255, 0.1);
+            cursor: pointer;
+        }
+        .shop-card-btn.acquired:hover {
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            color: var(--highlight);
+            background: rgba(0, 229, 255, 0.15);
+        }
+
+        /* Form Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        input[type="text"], select {
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text); padding: 10px 12px; border-radius: 6px; 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem; outline: none;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        button {
+            background: var(--primary); color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.15); 
+            padding: 10px; border-radius: 6px; cursor: pointer; 
+            font-family: 'Orbitron', sans-serif; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.75rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+        button:hover:not(:disabled) { 
+            background: var(--accent); color: var(--secondary); 
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* HUD & Logs */
+        .exhibition-hud {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            align-items: center;
+            text-align: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 24px;
+        }
+        @media (max-width: 700px) {
+            .exhibition-hud { grid-template-columns: 1fr; gap: 15px; }
+        }
+
+        .clock-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.6rem;
+            color: var(--highlight);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px var(--highlight);
+        }
+        .clock-milli {
+            font-size: 0.8rem;
+            color: var(--alert);
+            opacity: 0.8;
+            text-shadow: 0 0 6px var(--alert);
+        }
+        .hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .log-panel {
+            grid-column: span 1; background: rgba(5, 5, 5, 0.85); 
+            color: var(--accent); font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem; padding: 12px 18px; border-radius: 8px; height: 100px;
+            overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .log-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .log-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        /* Modal Structure styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: rgba(15, 10, 25, 0.92);
+            border: 2.5px solid var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            position: relative;
+            transform: scale(0.92);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: var(--text);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+        }
+        .modal-close:hover { opacity: 1; color: var(--alert); }
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+        }
+
+        /* Receipt visual styling */
+        .receipt-card {
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.4);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+        }
+        .receipt-divider {
+            border-top: 1px dashed rgba(255,255,255,0.15);
+            margin: 5px 0;
+        }
+
+        /* HD Asset Preview screen */
+        .hd-preview-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #000;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hd-preview-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="theme-fluid">
+
+<div class="header">
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div class="theme-btn btn-fluid active" title="Fluid" onclick="setTheme('fluid')" style="background: linear-gradient(45deg, #00e5ff, #ff0080); border: 1.5px solid #fff;"></div>
+    </div>
+    
+    <div style="text-align: center; flex-grow: 1;">
+        <div style="color: var(--accent); font-size: 1.3rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">DRAGON 9 | FLUID EXHIBITION</div>
+        <div style="font-size: 0.6rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; margin-top: 4px;">APP6: MEDIA CHANNELS & RESONANCE GALLERY</div>
+    </div>
+
+    <div class="nav-links">
+        <a href="../" class="nav-btn">🌌 CLOCK</a>
+        <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+        <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+        <a href="../dragon8editor/" class="nav-btn">⚙️ EDITOR</a>
+        <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+        <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+        <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Left panel: Exhibition Reels Feed -->
+    <div class="panel">
+        <div class="panel-title">
+            <span>Fluid Exhibition Feed</span>
+            <div class="view-switcher">
+                <button class="view-btn active" id="btnViewTheater" onclick="setViewMode('theater')">THEATER</button>
+                <button class="view-btn" id="btnViewGrid" onclick="setViewMode('grid')">GRID</button>
+                <button class="view-btn" id="btnViewFilmstrip" onclick="setViewMode('filmstrip')">FILMSTRIP</button>
+                <button class="view-btn" id="btnView3d" onclick="setViewMode('3dflow')">3D FLOW</button>
+            </div>
+        </div>
+
+        <!-- Channel Filter Bar -->
+        <div class="channel-bar" id="channelTabs">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Theater Video Display Area (Hidden in pure grid/filmstrip mode) -->
+        <div class="theater-player-box" id="theaterPlayerBox">
+            <div class="theater-player">
+                <iframe id="theaterIframe" src="" allowfullscreen></iframe>
+            </div>
+            <div class="theater-info">
+                <div class="theater-title" id="theaterTitle">Select a video to play</div>
+                <div class="theater-meta" id="theaterMeta">Awaiting resonance stream uplink...</div>
+            </div>
+        </div>
+
+        <!-- Video list grid container -->
+        <div class="reels-feed" id="reelsContainer">
+            <!-- Populated dynamically -->
+        </div>
+
+        <!-- 3D Canvas Container -->
+        <div id="canvas3dContainer" style="display: none; width: 100%; height: 450px; background: rgba(0,0,0,0.45); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.6);">
+            <canvas id="flowCanvas" style="width: 100%; height: 100%; display: block; cursor: grab;"></canvas>
+            <div id="canvas3dOverlay" style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--accent); text-shadow: 0 0 8px var(--accent-glow); background: rgba(5, 5, 5, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 18px; border-radius: 20px; backdrop-filter: blur(8px); width: 85%;">
+                <div id="flowActiveTitle" style="font-weight: bold; margin-bottom: 2px; text-transform: uppercase;">DRAG/SWIPE THE INFINITY TRAIN</div>
+                <div id="flowActiveMeta" style="font-size: 0.6rem; opacity: 0.8; font-family: 'Share Tech Mono', monospace; color: var(--highlight);">Use mouse/touch to drag left-right along the 3D figure-8 lemniscate track</div>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: bold; color: var(--accent); letter-spacing: 1px;">UPLINK NEW EXHIBITION MEDIA</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 2; min-width: 200px;">
+                    <input type="text" id="uplinkUrl" placeholder="Enter Youtube URL, Shorts, FB Reel or Facebook Video Link" />
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                    <select id="uplinkType">
+                        <option value="youtube">YOUTUBE</option>
+                        <option value="facebook">FACEBOOK / REEL</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 2; min-width: 200px;">
+                    <input type="text" id="uplinkTitle" placeholder="Video Title / Description" />
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                    <select id="uplinkChannel">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+            <button onclick="window.uplinkMedia()">UPLINK TO EXHIBITION</button>
+        </div>
+    </div>
+
+    <!-- Right panel: Resonance Shop -->
+    <div class="panel">
+        <div class="panel-title">
+            <span>Resonance Shop</span>
+            <span style="font-size: 0.7rem; font-family: 'Share Tech Mono', monospace; color: var(--highlight);" id="shopVaultBalance">BAL: -- HN</span>
+        </div>
+        <div class="shop-grid" id="shopContainer">
+            <!-- Loaded dynamically -->
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: bold; color: var(--accent); letter-spacing: 1px;">ACQUIRED EXHIBITION COLLECTION</div>
+            <div id="acquiredCollectionContainer" style="display: flex; gap: 8px; flex-wrap: wrap; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--highlight);">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="exhibition-hud">
+    <div>
+        <div class="hud-title">DRAGON 9 TIME</div>
+        <div>
+            <span class="clock-display" id="clockD9">00:00:00</span>
+            <span class="clock-milli" id="clockMilli">.000000</span>
+        </div>
+    </div>
+    <div>
+        <div class="hud-title" style="letter-spacing: 2px; color: var(--accent); font-weight: 700; margin-bottom: 2px;">SYNC QUALITY</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; letter-spacing: 3px; font-weight: 900; color: var(--accent);" id="systemStatus">GALLERY LINK ONLINE</div>
+    </div>
+    <div>
+        <div class="hud-title">Root Signature</div>
+        <div id="rootDisplay" style="font-family: 'Share Tech Mono', monospace; font-size: 1.35rem; color: var(--highlight); font-weight: 700; text-shadow: 0 0 5px var(--highlight);">ROOT: --</div>
+    </div>
+</div>
+
+<div class="log-panel" id="logger">
+    <div>[SYSTEM] Fluid Exhibition module launched. Syncing with Vault Ledger...</div>
+</div>
+
+<!-- Add Channel Modal -->
+<div class="modal-overlay" id="addChannelModal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeChannelModal()">×</span>
+        <div class="modal-title">CREATE NEW RESONANCE CHANNEL</div>
+        <div class="form-group">
+            <label for="newChannelName">Channel Name</label>
+            <input type="text" id="newChannelName" placeholder="e.g. My Reels, Cybernetic Projections..." />
+        </div>
+        <div class="form-group">
+            <label for="newChannelDesc">Description</label>
+            <input type="text" id="newChannelDesc" placeholder="Describe the frequency of streams" />
+        </div>
+        <button onclick="window.createChannel()">INITIALIZE CHANNEL</button>
+    </div>
+</div>
+
+<!-- Purchase Confirmation Receipt Modal -->
+<div class="modal-overlay" id="receiptModal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeReceiptModal()">×</span>
+        <div class="modal-title" style="color: var(--highlight);">HARMONY VAULT TRANSACTION RECEIPT</div>
+        <div class="receipt-card">
+            <div class="receipt-line">
+                <span>TX IDENTIFIER:</span>
+                <span id="receiptTxId" style="color: var(--accent);">HN-XXXXXX</span>
+            </div>
+            <div class="receipt-line">
+                <span>TIMESTAMP:</span>
+                <span id="receiptTimestamp">YYYY-MM-DD HH:MM:SS</span>
+            </div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-line">
+                <span>ACQUIRED ASSET:</span>
+                <span id="receiptItemTitle" style="font-weight: bold;">--</span>
+            </div>
+            <div class="receipt-line">
+                <span>RESONANCE UNIT ID:</span>
+                <span id="receiptItemId">--</span>
+            </div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-line">
+                <span>DEBIT AMOUNT:</span>
+                <span id="receiptPrice" style="color: var(--alert); font-weight: bold;">-0 HN</span>
+            </div>
+            <div class="receipt-line">
+                <span>REMAINING BALANCE:</span>
+                <span id="receiptBalance" style="color: var(--highlight);">0 HN</span>
+            </div>
+        </div>
+        <div style="font-size: 0.65rem; text-align: center; opacity: 0.7; font-family: 'Share Tech Mono', monospace;">
+            SECURED LOCALLY BY DRAGON 9 P2P SYNC PROTOCOL
+        </div>
+        <button onclick="closeReceiptModal()" style="background: var(--accent); color: var(--secondary);">DISMISS RECEIPT</button>
+    </div>
+</div>
+
+<!-- Acquired Digital Print HD Viewer Modal -->
+<div class="modal-overlay" id="hdViewerModal">
+    <div class="modal-content" style="max-width: 650px;">
+        <span class="modal-close" onclick="closeHdViewerModal()">×</span>
+        <div class="modal-title" id="hdViewerTitle">DIGITAL PRINT ARCHIVE</div>
+        <div class="hd-preview-box">
+            <img class="hd-preview-img" id="hdViewerImg" src="" alt="HD Print Preview" />
+        </div>
+        <div style="font-size: 0.75rem; opacity: 0.8; line-height: 1.4; text-align: center;" id="hdViewerDesc">
+            --
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--highlight); border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
+            <span id="hdViewerAssetId">ASSET ID: --</span>
+            <span id="hdViewerAcquireDate">ACQUIRED: --</span>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+<script>
+    function setTheme(theme) {
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('dragon-theme', theme);
+        
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            if (btn.classList.contains(`btn-${theme}`)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+        const logger = document.getElementById('logger');
+        if (logger) logger.style.borderColor = activeColor + '33';
+    }
+    const savedTheme = localStorage.getItem('dragon-theme') || 'fluid';
+    setTheme(savedTheme);
+</script>
+</body>
+</html>

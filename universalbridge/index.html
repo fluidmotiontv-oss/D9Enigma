@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Universal Bridge</title>
+    <!-- Google Fonts Integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="preload" href="../assets/bridge/backgroundnz.png" as="image">
+    <style>
+        :root {
+            --gold: #d4af37; --cream: #f4e4bc; --purple-deep: #161020; --purple-mid: #5d4e75;
+            --dark: #050505; --cyan: #00e5ff; --magenta: #ff0080; --matrix-green: #00ff41;
+            --amber-glow: #ffaa00;
+            
+            --accent: var(--gold);
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --bg: var(--dark);
+            --text: var(--cream);
+            --primary: var(--purple-mid);
+            --secondary: var(--purple-deep);
+            --highlight: var(--cyan);
+            --alert: var(--magenta);
+        }
+
+        .theme-matrix { 
+            --accent: var(--matrix-green); --accent-glow: rgba(0, 255, 65, 0.3); 
+            --bg: #000000; --text: #00ff41; --primary: #004400; --secondary: #002200; 
+            --highlight: #00ff41; --alert: #ffffff; 
+        }
+        .theme-amber { 
+            --accent: var(--amber-glow); --accent-glow: rgba(255, 170, 0, 0.3); 
+            --bg: #100a00; --text: #ffcc00; --primary: #884400; --secondary: #442200; 
+            --highlight: #ffee00; --alert: #ff4400; 
+        }
+        .theme-cyber { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #050010; --text: #ff00ff; --primary: #0055ff; --secondary: #001144; 
+            --highlight: var(--magenta); --alert: #00ffff; 
+        }
+        .theme-fluid { 
+            --accent: var(--cyan); --accent-glow: rgba(0, 229, 255, 0.3); 
+            --bg: #00050d; --text: #ffffff; --primary: #00e5ff; --secondary: #001f3f; 
+            --highlight: #ff0080; --alert: #00ff41; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; min-height: 100vh; display: flex; flex-direction: column;
+            transition: background 0.8s ease, color 0.5s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay for retro sci-fi themes */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.12;
+            transition: opacity 0.5s ease;
+        }
+
+        .header {
+            padding: 16px 28px; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; margin-bottom: 24px; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            transition: border 0.5s ease;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.65rem;
+            opacity: 0.75;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .theme-switcher { display: flex; gap: 8px; align-items: center; }
+        .theme-btn { 
+            width: 18px; height: 18px; border-radius: 50%; 
+            border: 1.5px solid rgba(255, 255, 255, 0.4); 
+            cursor: pointer; opacity: 0.6; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .theme-btn:hover { opacity: 1; transform: scale(1.25); }
+        .theme-btn.active { opacity: 1; border-color: #fff; transform: scale(1.15); box-shadow: 0 0 10px var(--accent); }
+        
+        .btn-classic { background: var(--gold); }
+        .btn-matrix { background: var(--matrix-green); }
+        .btn-amber { background: var(--amber-glow); }
+        .btn-cyber { background: var(--cyan); }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 24px;
+            flex-grow: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: rgba(10, 10, 10, 0.45); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; padding: 24px; 
+            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: color 0.5s ease;
+        }
+
+        /* NZ Map Container styling */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            background: #000;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .map-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('../assets/bridge/backgroundnz.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.55;
+            transition: all 0.5s ease;
+        }
+
+        .map-pin {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--highlight);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--highlight);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .map-pin:hover, .map-pin.active {
+            transform: translate(-50%, -50%) scale(1.4);
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+        .map-pin-pulse {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 1.5px solid var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pin-pulse-anim 2s infinite ease-out;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 9;
+        }
+
+        @keyframes pin-pulse-anim {
+            0% { width: 10px; height: 10px; opacity: 1; }
+            100% { width: 45px; height: 45px; opacity: 0; }
+        }
+
+        /* Timeline Viewer styling */
+        .timeline-viewer {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            min-height: 320px;
+        }
+        @media (max-width: 600px) {
+            .timeline-viewer { grid-template-columns: 1fr; }
+        }
+
+        .timeline-media {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            aspect-ratio: 4/3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .timeline-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.2s ease-in-out;
+            opacity: 1;
+        }
+        .timeline-img.loading {
+            opacity: 0.15;
+        }
+
+        .timeline-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .epoch-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            color: var(--accent);
+            font-weight: 900;
+            line-height: 1.3;
+            text-transform: uppercase;
+        }
+
+        .epoch-age {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--highlight);
+            letter-spacing: 1px;
+        }
+
+        .epoch-description {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            opacity: 0.8;
+            color: var(--text);
+        }
+
+        .resonance-meter {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .resonance-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .resonance-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Bottom Time and Slider Grid */
+        .bridge-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 8px 16px !important; /* more compact padding */
+        }
+
+        /* Horizontal Epoch Slider */
+        .epoch-slider-container {
+            position: relative;
+            width: 100%;
+            padding: 2px 0;
+        }
+
+        .slider-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            position: relative;
+            margin: 8px 0 12px 0;
+        }
+
+        .slider-fill {
+            height: 100%;
+            background: var(--accent);
+            position: absolute;
+            top: 0; left: 0;
+            width: 0%;
+            border-radius: 2px;
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--accent);
+            transition: transform 0.2s;
+            z-index: 15;
+        }
+        .slider-handle:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        /* Epoch Ticks */
+        .slider-ticks {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        .slider-tick {
+            width: 2px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            position: absolute;
+            top: -1px;
+            transform: translateX(-50%);
+        }
+        .slider-tick.active {
+            background: var(--accent);
+            box-shadow: 0 0 5px var(--accent);
+        }
+        .tick-label {
+            position: absolute;
+            top: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--text);
+            opacity: 0; /* hidden by default to save space and reduce clutter */
+            white-space: nowrap;
+            transform: rotate(-30deg) translate(-8px, 2px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+        .slider-tick.active .tick-label,
+        .slider-track:hover .slider-tick .tick-label {
+            opacity: 0.45; /* visible on hover */
+        }
+        .slider-tick.active .tick-label {
+            opacity: 1 !important; /* fully visible when active */
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Status HUD style */
+        .bridge-hud {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 8px;
+            margin-top: 0px;
+        }
+
+        .clock-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.35rem;
+            color: var(--highlight);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px var(--highlight);
+        }
+        .clock-milli {
+            font-size: 0.75rem;
+            color: var(--alert);
+            opacity: 0.8;
+            text-shadow: 0 0 6px var(--alert);
+        }
+
+        .bridge-status-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        #sweepBtn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            outline: none;
+        }
+        #sweepBtn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .log-panel {
+            background: rgba(5, 5, 5, 0.85); 
+            color: var(--accent); font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem; padding: 8px 12px; border-radius: 6px; height: 60px;
+            overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+            margin-top: 4px;
+        }
+        .log-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        .log-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .log-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="theme-switcher">
+        <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
+        <div class="theme-btn btn-matrix" title="Matrix" onclick="setTheme('matrix')"></div>
+        <div class="theme-btn btn-amber" title="Amber" onclick="setTheme('amber')"></div>
+        <div class="theme-btn btn-cyber" title="Cyber" onclick="setTheme('cyber')"></div>
+        <div class="theme-btn btn-fluid" title="Fluid" onclick="setTheme('fluid')" style="background: linear-gradient(45deg, #00e5ff, #ff0080); border: 1.5px solid #fff;"></div>
+    </div>
+    <div style="text-align: center; flex-grow: 1;">
+        <div style="color: var(--accent); font-size: 1.3rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">DRAGON 9 | UNIVERSAL BRIDGE</div>
+        <div style="font-size: 0.6rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; margin-top: 4px;">APP7: TIME-SPACE EVOLUTION MATRIX</div>
+    </div>
+    <div class="nav-links">
+        <a href="../" class="nav-btn">🌌 CLOCK</a>
+        <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+        <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+        <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+        <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+        <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+        <a href="../radio/" class="nav-btn">📻 RADIO</a>
+    </div>
+</div>
+
+<!-- Tab Switcher Navigation -->
+<div class="workspace-tabs" style="display: flex; gap: 15px; max-width: 1400px; margin: 0 auto 24px auto; width: 100%; justify-content: center; z-index: 50; position: relative;">
+    <button class="tab-btn active-tab" id="tab-resonance" onclick="window.switchWorkspace('resonance')" style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid var(--accent); color: var(--accent); font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; height: 38px; padding: 0 24px; border-radius: 19px; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 10px var(--accent-glow); outline: none;">🌌 SPATIAL RESONANCE MAP</button>
+    <button class="tab-btn" id="tab-sovereign-id" onclick="window.switchWorkspace('sovereign-id')" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); color: var(--text); opacity: 0.75; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; height: 38px; padding: 0 24px; border-radius: 19px; cursor: pointer; transition: all 0.3s; outline: none;">🆔 SOVEREIGN DIGITAL ID</button>
+</div>
+
+<div id="resonance-workspace" class="dashboard">
+    <div class="panel">
+        <div class="panel-title">Spatial Hotspots</div>
+        <div class="map-container" id="mapContainer">
+            <div class="map-bg" id="mapBg"></div>
+            <div class="map-pin-pulse" id="mapPulse" style="top: 0px; left: 0px; display: none;"></div>
+            
+            <!-- NZ Spatial Hotspots -->
+            <div class="map-pin" id="pin-0" style="top: 15%; left: 80%;" title="Great Barrier Island" onclick="selectMapHotspot(0)"></div>
+            <div class="map-pin" id="pin-1" style="top: 25%; left: 66%;" title="Auckland Resonance" onclick="selectMapHotspot(1)"></div>
+            <div class="map-pin" id="pin-2" style="top: 52%; left: 51%;" title="Wellington Gateway" onclick="selectMapHotspot(2)"></div>
+            <div class="map-pin" id="pin-3" style="top: 72%; left: 33%;" title="Christchurch Offset" onclick="selectMapHotspot(3)"></div>
+            <div class="map-pin" id="pin-4" style="top: 86%; left: 16%;" title="Fiordland Resonance" onclick="selectMapHotspot(4)"></div>
+        </div>
+        <div id="hotspot-status" style="font-size: 0.7rem; font-family: 'Share Tech Mono', monospace; text-align: center; color: var(--highlight);">AWAITING RESONANCE SELECTION</div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Epoch Timeline monitor</div>
+        <div class="timeline-viewer">
+            <div class="timeline-media">
+                <img id="epochImage" class="timeline-img" src="" alt="Epoch Media" />
+            </div>
+            <div class="timeline-info">
+                <div class="epoch-title" id="epochTitle">Initializing...</div>
+                <div class="epoch-age" id="epochAge">--</div>
+                <div class="epoch-description" id="epochDesc">Resonating timeline matrix nodes...</div>
+                
+                <div class="resonance-meter">
+                    <label>Resonance Coefficient</label>
+                    <div class="resonance-bar-bg">
+                        <div class="resonance-bar-fill" id="resonanceFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SOVEREIGN ID WORKSPACE -->
+<div id="sovereign-id-workspace" style="display: none; flex-direction: column; gap: 24px; max-width: 1400px; margin: 0 auto; width: 100%; margin-bottom: 24px;">
+    <div style="display: grid; grid-template-columns: 1.25fr 1.75fr; gap: 24px; width: 100%;">
+        <!-- Left Side: Identity Setup & Cryptographic Signer -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Setup ID Card -->
+            <div class="panel">
+                <div class="panel-title">Sovereign ID Setup</div>
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px;">Passport Name / Alias</label>
+                        <input type="text" id="id-alias" placeholder="ENTER ALIAS..." style="width: 100%; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.3); color: var(--text); border-radius: 6px; padding: 10px; outline: none; border-color: var(--accent);">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px;">Base Resonance Node</label>
+                            <select id="id-node" style="width: 100%; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.9); color: var(--text); border-radius: 6px; padding: 10px; outline: none;">
+                                <option value="Auckland Resonance Center">AUCKLAND (UTC+12)</option>
+                                <option value="Wellington Gateway">WELLINGTON (UTC+12)</option>
+                                <option value="Christchurch Offset Node">CHRISTCHURCH (UTC+12)</option>
+                                <option value="Fiordland Deep Resonance">FIORDLAND (UTC+12)</option>
+                                <option value="Great Barrier Island Gateway">GREAT BARRIER (UTC+12.75)</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px;">Resonance Freq</label>
+                            <select id="id-frequency" style="width: 100%; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.9); color: var(--text); border-radius: 6px; padding: 10px; outline: none;">
+                                <option value="432Hz">432 Hz (SOLFEGGIO)</option>
+                                <option value="528Hz">528 Hz (SOLFEGGIO)</option>
+                                <option value="639Hz">639 Hz (SOLFEGGIO)</option>
+                                <option value="741Hz">741 Hz (SOLFEGGIO)</option>
+                                <option value="852Hz">852 Hz (SOLFEGGIO)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button id="generate-id-btn" onclick="window.generateSovereignID()" style="width: 100%; background: rgba(0, 229, 255, 0.08); border: 1.5px solid var(--highlight); color: var(--highlight); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; padding: 12px; border-radius: 6px; cursor: pointer; transition: all 0.3s; margin-top: 5px; outline: none;">⚡ GENERATE SOVEREIGN KEYS & DID</button>
+                </div>
+            </div>
+            
+            <!-- Claims Signer Card -->
+            <div class="panel" id="claims-signer-panel" style="opacity: 0.4; pointer-events: none; transition: opacity 0.3s;">
+                <div class="panel-title">Verify & Sign Claim</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1.5px;">Claim Payload</label>
+                        <input type="text" id="claim-text" placeholder="e.g. Owner of Auckland Node 01..." style="width: 100%; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.3); color: var(--text); border-radius: 6px; padding: 10px; outline: none;">
+                    </div>
+                    <button onclick="window.signClaimPayload()" style="width: 100%; background: rgba(255, 170, 0, 0.08); border: 1.5px solid var(--amber-glow); color: var(--amber-glow); font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; padding: 10px; border-radius: 6px; cursor: pointer; transition: all 0.3s; outline: none;">✍️ SIGN VERIFIABLE CLAIM</button>
+                    
+                    <div id="signature-block" style="display: none; background: rgba(0,0,0,0.4); border: 1px dashed rgba(255,255,255,0.15); border-radius: 6px; padding: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; word-break: break-all; color: var(--text);">
+                        <!-- Signature output -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: The Digital Passport Card & Ledger Registry -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Sovereign Passport Display Panel -->
+            <div class="panel" style="flex-grow: 1; justify-content: center; align-items: center; min-height: 380px; position: relative; overflow: hidden;">
+                <div class="panel-title" style="position: absolute; top: 24px; left: 24px; border: none;">Passport Preview</div>
+                
+                <!-- The Holographic Glass Passport Card -->
+                <div id="passport-card" style="width: 100%; max-width: 480px; height: 260px; background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.5); backdrop-filter: blur(25px); overflow: hidden; transition: border-color 0.5s;">
+                    <!-- Holographic overlay shifting on cursor -->
+                    <div id="holo-foil" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%); pointer-events: none; z-index: 5; transition: background 0.1s;"></div>
+                    
+                    <!-- Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; z-index: 10;">
+                        <div>
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; color: var(--accent); text-transform: uppercase;" id="passport-header-title">DRAGON 9 SOVEREIGN ID</div>
+                            <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; opacity: 0.6; letter-spacing: 1px; margin-top: 2px;">DECENTRALIZED PASSPORT CARD</div>
+                        </div>
+                        <div style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--accent);" id="passport-logo">🕸️</div>
+                    </div>
+                    
+                    <!-- Body info -->
+                    <div style="display: grid; grid-template-columns: 1fr 90px; gap: 15px; align-items: center; margin: 15px 0; z-index: 10;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div>
+                                <span style="font-size: 0.55rem; opacity: 0.5; text-transform: uppercase; display: block; letter-spacing: 1.5px;">Passport Holder / Alias</span>
+                                <span style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; color: #fff;" id="passport-name">GUEST OPERATOR</span>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.55rem; opacity: 0.5; text-transform: uppercase; display: block; letter-spacing: 1.5px;">Decentralized Identifier (DID)</span>
+                                <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--highlight); word-break: break-all;" id="passport-did">did:d9:offline_mode_simulation_only</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Simulated Passport Profile Photo (Dynamic Abstract Graphic or QR placeholder) -->
+                        <div style="width: 90px; height: 90px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0,0,0,0.5); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative;" id="passport-avatar-box">
+                            <svg width="60" height="60" id="passport-avatar-svg" style="opacity: 0.85;">
+                                <circle cx="30" cy="20" r="12" fill="var(--accent)"/>
+                                <path d="M10,50 Q30,30 50,50" fill="none" stroke="var(--accent)" stroke-width="3"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer details -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; z-index: 10;">
+                        <div style="display: flex; gap: 20px;">
+                            <div>
+                                <span style="font-size: 0.5rem; opacity: 0.5; text-transform: uppercase; display: block;">Resonance</span>
+                                <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;" id="passport-meta-res">528 Hz</span>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.5rem; opacity: 0.5; text-transform: uppercase; display: block;">Base Node</span>
+                                <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;" id="passport-meta-node">AUCKLAND</span>
+                            </div>
+                        </div>
+                        
+                        <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--highlight);" id="passport-meta-status">STATUS: STANDALONE</div>
+                    </div>
+                </div>
+                
+                <button id="register-id-btn" onclick="window.registerSovereignIDOnLedger()" style="display: none; background: var(--accent); border: none; color: #000; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; padding: 12px 24px; border-radius: 20px; cursor: pointer; transition: all 0.3s; margin-top: 20px; box-shadow: 0 0 15px var(--accent-glow); z-index: 10; outline: none;">🕸️ REGISTER PASSPORT ON LEDGER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sovereign Block Ledger Directory Pane -->
+    <div class="panel">
+        <div class="panel-title">Sovereign Mesh Identity Ledger</div>
+        <div style="overflow-x: auto; width: 100%;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;">
+                <thead>
+                    <tr style="border-bottom: 1.5px solid rgba(255, 255, 255, 0.15); color: var(--accent);">
+                        <th style="padding: 10px;">ALIAS</th>
+                        <th style="padding: 10px;">DID ADDRESS</th>
+                        <th style="padding: 10px;">BASE RESONANCE NODE</th>
+                        <th style="padding: 10px;">FREQUENCY</th>
+                        <th style="padding: 10px; text-align: right;">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-directory-body">
+                    <tr>
+                        <td colspan="5" style="padding: 20px; text-align: center; opacity: 0.5;">NO REGISTERED IDENTITIES ON LEDGER</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="bridge-controls panel">
+    <div class="panel-title">Resonance Sweep Control</div>
+    <div class="epoch-slider-container">
+        <div class="slider-track" id="sliderTrack">
+            <div class="slider-fill" id="sliderFill"></div>
+            <div class="slider-handle" id="sliderHandle"></div>
+            <div class="slider-ticks" id="sliderTicks"></div>
+        </div>
+    </div>
+
+    <div class="bridge-hud">
+        <div>
+            <div style="font-size: 0.55rem; opacity: 0.7; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">DRAGON 9 TIME</div>
+            <div>
+                <span class="clock-display" id="clockD9">00:00:00</span>
+                <span class="clock-milli" id="clockMilli">.000000</span>
+            </div>
+        </div>
+        <div>
+            <div class="bridge-status-text" id="systemStatus">MATRIX BRIDGE ONLINE</div>
+            <div id="bridgeMeta" style="font-size: 0.65rem; font-family: 'Share Tech Mono', monospace; color: var(--accent); margin-top: 4px;">SYNC STABLE - ROOT VALUE: --</div>
+        </div>
+        <div>
+            <button onclick="window.triggerResonanceSweep()" id="sweepBtn">SWEEP MATRIX</button>
+        </div>
+    </div>
+
+    <div class="log-panel" id="logger">
+        <div>[SYSTEM] Universal Bridge initialized. Uplink stable.</div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+<script>
+    function setTheme(theme) {
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('dragon-theme', theme);
+        
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            if (btn.classList.contains(`btn-${theme}`)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+        const logger = document.getElementById('logger');
+        if (logger) logger.style.borderColor = activeColor + '33';
+        const sweepBtn = document.getElementById('sweepBtn');
+        if (sweepBtn) sweepBtn.style.borderColor = activeColor + '44';
+    }
+    const savedTheme = localStorage.getItem('dragon-theme') || 'classic';
+    setTheme(savedTheme);
+</script>
+</body>
+</html>

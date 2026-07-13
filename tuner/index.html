@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Synesthetic Tuner</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #030712;
+            --panel-bg: rgba(17, 24, 39, 0.45);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00e5ff;
+            --accent-gold: #d4af37;
+            --accent-glow-cyan: rgba(0, 229, 255, 0.25);
+            --accent-glow-gold: rgba(212, 175, 55, 0.2);
+            --accent-green: #00ff66;
+            --text-main: #f4e4bc;
+            --text-muted: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated organic background blobs */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.25;
+            animation: drift 25s infinite ease-in-out alternate;
+        }
+
+        .blob-cyan {
+            width: 50vw;
+            height: 50vw;
+            background: linear-gradient(135deg, var(--accent-cyan), #002266);
+            top: -10%;
+            left: -10%;
+        }
+
+        .blob-gold {
+            width: 45vw;
+            height: 45vw;
+            background: linear-gradient(135deg, var(--accent-gold), #4a1d96);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(80px, -50px) scale(1.15) rotate(60deg); }
+        }
+
+        /* Subtle cybernetic scanline grid */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 25px 25px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Navigation Header */
+        header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .nav-nexus {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(17, 24, 39, 0.4);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-nexus:hover {
+            background: rgba(0, 229, 255, 0.12);
+            box-shadow: 0 0 15px var(--accent-glow-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        .logo-area {
+            text-align: right;
+        }
+
+        .logo-area h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--accent-gold);
+            text-shadow: 0 0 10px var(--accent-glow-gold);
+        }
+
+        .logo-area span {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Main Workspace Container */
+        .workspace {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphic Panel Base */
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.01);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(255, 255, 255, 0.02);
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            border-left: 3px solid var(--accent-gold);
+            padding-left: 12px;
+            margin-bottom: 5px;
+        }
+
+        /* --- TUNER READER STYLES --- */
+        .tuner-display-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .tuner-dial-canvas {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1.6;
+        }
+
+        .pitch-readout {
+            text-align: center;
+            margin-top: -15px;
+            z-index: 2;
+        }
+
+        .current-note {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+            line-height: 1;
+        }
+
+        .current-note.in-tune {
+            color: var(--accent-green);
+            text-shadow: 0 0 25px rgba(0, 255, 102, 0.4);
+        }
+
+        .freq-hz {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+            margin: 5px 0;
+        }
+
+        .cents-dev {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .cents-dev.sharp { color: #ff3366; }
+        .cents-dev.flat { color: #ffaa00; }
+        .cents-dev.in-tune { color: var(--accent-green); }
+
+        .btn-action {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-cyan), #0066cc);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 229, 255, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-action.active {
+            background: linear-gradient(135deg, #ff3366, #aa0033);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .btn-action.active:hover {
+            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.5);
+        }
+
+        /* --- FREQUENCY GENERATOR STYLES --- */
+        .controls-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            opacity: 0.85;
+        }
+
+        /* Preset String Buttons */
+        .string-presets {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .btn-preset {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 5px;
+            border-radius: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-preset:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .btn-preset.active {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            box-shadow: 0 0 10px var(--accent-glow-gold);
+        }
+
+        /* Waveform Selectors */
+        .waveform-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .btn-wave {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 5px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-wave:hover {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .btn-wave.active {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-glow-cyan);
+        }
+
+        /* Range Sliders */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .custom-slider {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--accent-cyan);
+            transition: transform 0.1s;
+        }
+
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .custom-slider.slider-gold::-webkit-slider-thumb {
+            background: var(--accent-gold);
+            box-shadow: 0 0 8px var(--accent-gold);
+        }
+
+        .slider-readout {
+            width: 85px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Waveform Visualizer Canvas */
+        .visualizer-wrapper {
+            width: 100%;
+            height: 70px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .scope-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Help Info Panel */
+        .help-panel {
+            width: 100%;
+            max-width: 1100px;
+            padding: 0 20px 40px 20px;
+            z-index: 10;
+        }
+
+        .help-box {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+        }
+
+        .help-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .help-box p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            opacity: 0.8;
+        }
+
+        .in-tune-glow {
+            animation: inTunePulse 1.5s infinite alternate;
+        }
+
+        @keyframes inTunePulse {
+            0% { border-color: var(--border-color); }
+            100% { border-color: var(--accent-green); box-shadow: 0 0 20px rgba(0, 255, 102, 0.15); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient drift blobs -->
+    <div class="ambient-bg">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-gold"></div>
+    </div>
+
+    <!-- Navigation -->
+    <header>
+        <a href="../index.html" class="nav-nexus">← RETURN TO NEXUS</a>
+        <div class="logo-area">
+            <h1>SYNESTHETIC TUNER</h1>
+            <span>Dragon 9 Telemetry Node</span>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+
+        <!-- 1. Frequency Reader (Active Tuner) -->
+        <section class="glass-panel" id="reader-panel">
+            <h2 class="panel-title">Frequency Reader</h2>
+            
+            <div class="tuner-display-wrapper">
+                <canvas id="dialCanvas" class="tuner-dial-canvas" width="320" height="200"></canvas>
+                <div class="pitch-readout">
+                    <div id="note-display" class="current-note">--</div>
+                    <div id="hz-display" class="freq-hz">0.00 Hz</div>
+                    <div id="cents-display" class="cents-dev">Tune to begin</div>
+                </div>
+            </div>
+
+            <button class="btn-action" id="btn-mic-toggle">🎤 ACTIVATE MICROPHONE</button>
+            
+            <div class="control-row">
+                <div class="control-label">Mic Input Analysis</div>
+                <div class="visualizer-wrapper">
+                    <canvas id="micScope" class="scope-canvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Frequency Generator (Oscillator/Tuning Tone) -->
+        <section class="glass-panel">
+            <h2 class="panel-title">Frequency Generator</h2>
+            
+            <div class="controls-grid">
+                
+                <!-- Presets -->
+                <div class="control-row">
+                    <div class="control-label">Guitar String Presets</div>
+                    <div class="string-presets">
+                        <button class="btn-preset" data-freq="82.41" data-note="E2">E2</button>
+                        <button class="btn-preset" data-freq="110.00" data-note="A2">A2</button>
+                        <button class="btn-preset" data-freq="146.83" data-note="D3">D3</button>
+                        <button class="btn-preset" data-freq="196.00" data-note="G3">G3</button>
+                        <button class="btn-preset" data-freq="246.94" data-note="B3">B3</button>
+                        <button class="btn-preset" data-freq="329.63" data-note="E4">E4</button>
+                        <button class="btn-preset" data-freq="21000.00" data-note="DOG" style="background: rgba(0, 229, 255, 0.05); color: var(--accent-cyan); border-color: rgba(0, 229, 255, 0.2);" title="Generates a 21 kHz high-frequency pitch audible to dogs but inaudible to most human adults.">🐾 DOG</button>
+                    </div>
+                </div>
+
+                <!-- Waveforms -->
+                <div class="control-row">
+                    <div class="control-label">Oscillator Waveform</div>
+                    <div class="waveform-grid">
+                        <button class="btn-wave active" data-wave="sine">Sine</button>
+                        <button class="btn-wave" data-wave="triangle">Triangle</button>
+                        <button class="btn-wave" data-wave="sawtooth">Sawtooth</button>
+                        <button class="btn-wave" data-wave="square">Square</button>
+                    </div>
+                </div>
+
+                <!-- Frequency Sweep Slider -->
+                <div class="control-row">
+                    <div class="control-label">Frequency Tone (Hz)</div>
+                    <div class="slider-wrapper">
+                        <input type="range" min="40" max="22000" step="0.1" value="440" class="custom-slider slider-gold" id="gen-freq-slider">
+                        <input type="text" class="slider-readout" id="gen-freq-text" value="440.0 Hz">
+                    </div>
+                </div>
+
+                <!-- Volume Gain Control -->
+                <div class="control-row">
+                    <div class="control-label">Output Level (Gain)</div>
+                    <div class="slider-wrapper">
+                        <input type="range" min="0" max="1" step="0.01" value="0.5" class="custom-slider" id="gen-gain-slider">
+                        <div class="slider-readout" id="gen-gain-text">50%</div>
+                    </div>
+                </div>
+
+                <!-- Toggle Generator Audio -->
+                <button class="btn-action" id="btn-gen-toggle">🔊 PLAY TUNING TONE</button>
+
+                <!-- Generator Output Visualization -->
+                <div class="control-row">
+                    <div class="control-label">Oscillator Output Waveform</div>
+                    <div class="visualizer-wrapper">
+                        <canvas id="genScope" class="scope-canvas"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Help Info -->
+    <footer class="help-panel">
+        <div class="help-box">
+            <h3>How to Tune Your Instrument</h3>
+            <p>
+                <strong>Tuning by Ear (Generator)</strong>: Click any guitar string preset (E2 to E4) to generate a reference pitch tone. Match your guitar's harmonic pitch to the generator output. You can use the slider to adjust the pitch to custom values or sweep target Solfeggio frequencies.
+            </p>
+            <p style="margin-top: 10px;">
+                <strong>Interactive Tuning (Reader)</strong>: Click the Microphone button and grant input permissions. Pluck a string. The frequency reader analyzes your micro-signals and highlights the nearest pitch. Watch the dial needle: adjust string tension until the needle aligns at exactly 0 cents (turning the note readout green).
+            </p>
+        </div>
+    </footer>
+
+    <!-- Web Audio Tuner Script -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
