@@ -730,7 +730,7 @@
             </div>
         </div>
 
-        <button class="admin-save-btn" style="background: rgba(255, 0, 85, 0.15); border: 1.5px solid var(--alert); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 5px;" onclick="resetToBlankAlbumTemplate()">🧹 START BLANK ALBUM TEMPLATE</button>
+        <button class="admin-save-btn" style="background: rgba(255, 0, 85, 0.3); border: 2px solid var(--alert); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 8px; margin-bottom: 8px; padding: 14px; font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); text-transform: uppercase;" onclick="resetToBlankAlbumTemplate()">🧹 START BLANK ALBUM TEMPLATE</button>
         <button class="admin-save-btn" onclick="saveAdminSettings()">MINT & SAVE CONFIGURATION</button>
         <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 5px;" onclick="exportStandaloneHTML()">📥 DOWNLOAD STANDALONE HTML</button>
         <button class="admin-save-btn" style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;" onclick="toggleAdminPanel()">CANCEL</button>
@@ -774,6 +774,7 @@
             <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-main);">SELECT FUNNEL FILTER:</span>
             <select id="stream-funnel" class="funnel-select" onchange="switchStreamFunnel()">
                 <option value="album">💿 CURATED SECTOR ALBUM</option>
+                <option value="clear_blank">🧹 CREATE BLANK ALBUM TEMPLATE</option>
                 <option value="hot26">🔥 ROLLING TOP 26 LOOP (26-HOUR MIX)</option>
                 <option value="radio">📻 DRAGON 9 LIVE RADIO STATION</option>
             </select>
@@ -1849,7 +1850,14 @@
         let originalTracksBackup = null;
 
         function switchStreamFunnel() {
-            const funnel = document.getElementById('stream-funnel').value;
+            const selectEl = document.getElementById('stream-funnel');
+            const funnel = selectEl.value;
+            
+            if (funnel === 'clear_blank') {
+                selectEl.value = 'album';
+                resetToBlankAlbumTemplate();
+                return;
+            }
             
             if (!originalTracksBackup) {
                 originalTracksBackup = [...currentSettings.tracks];
