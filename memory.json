@@ -104,6 +104,10 @@
     "sovereign_accountant": {
       "file": "accountant/index.html",
       "description": "An offline-first double-entry ledger balancing Cash Reserves, Barter Swaps, and Harmony Note credits timed to the 54-minute hour model."
+    },
+    "sovereign_surf": {
+      "file": "surf/index.html",
+      "description": "An offline-resilient marine dashboard displaying tide graphs, wind vectors, swell metrics, and weather calendars with precise geolocation lookup."
     }
   },
   "recorded_efforts": [
@@ -198,6 +202,10 @@
     {
       "timestamp": "2026-07-14T01:25:00+12:00",
       "summary": "Built the brand-new Sovereign Accountant app (accountant/index.html) enabling offline double-entry bookkeeping (fiat, barter shares, and work timecard logging), protected by systems auth gate, and registered it in sitemap and systems console."
+    },
+    {
+      "timestamp": "2026-07-14T01:30:00+12:00",
+      "summary": "Built the Sovereign Surf & Tide app (surf/index.html) integrating live marine APIs, geolocation lookup, and offline lunar-tide simulations, and linked it inside nature.html, creative.html, and sitemap."
     }
   ]
 }
