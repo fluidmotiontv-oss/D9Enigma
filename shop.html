@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon 9 | 3D Resonance</title>
+    <title>Dragon 9 | 3D Resonance Shop</title>
     <!-- Google Fonts Integration -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -895,11 +895,11 @@
         </div>
     </div>
     <div style="text-align: center; margin: 0 10px;">
-        <div style="color: var(--accent); font-size: 0.95rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">DRAGON 9: 3D RESONANCE</div>
-        <div id="location-tag" style="font-size: 0.55rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">SYNCING 3D NETWORK...</div>
+        <div style="color: var(--accent); font-size: 0.95rem; letter-spacing: 5px; font-weight: 900; font-family: 'Orbitron', sans-serif; transition: color 0.5s ease;">DRAGON 9: 3D SHOP PORTAL</div>
+        <div id="location-tag" style="font-size: 0.55rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">SUPPORT COOPERATIVE CREATION</div>
     </div>
     <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; opacity: 0.8; text-align: right; display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
-        <a href="shop.html" style="font-size: 0.55rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 6px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(214,175,55,0.15)'; this.style.boxShadow='0 0 8px var(--accent-glow)'" onmouseout="this.style.background='transparent'; this.style.boxShadow='none'">🛒 SHOP</a>
+        <a href="index.html" style="font-size: 0.55rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 6px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(214,175,55,0.15)'; this.style.boxShadow='0 0 8px var(--accent-glow)'" onmouseout="this.style.background='transparent'; this.style.boxShadow='none'">🌌 NEXUS</a>
         <div id="gh-sync-indicator" style="font-size: 0.5rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 6px; cursor: pointer; transition: all 0.3s ease; opacity: 0.75;" title="Click to manually sync with GitHub server clock" onclick="window.triggerGithubTimeSync()">GH-SYNC: CONNECTING</div>
         <span id="header-standard-clock">00:00:00 UTC</span>
     </div>
@@ -1061,24 +1061,24 @@
     if (!track) return;
 
     const apps = [
-        { name: 'DIAL', icon: '⏱️', url: 'dial/' },
-        { name: 'GRID', icon: '🌐', url: 'grid/' },
-        { name: 'ALBUM', icon: '💿', url: 'album-builder/index.html' },
-        { name: 'CRATE', icon: '🎵', url: 'stemcrate.html' },
-        { name: 'BRIDGE', icon: '🌉', url: 'universalbridge/' },
-        { name: 'EXCHANGE', icon: '🎼', url: 'harmonyexchange/' },
-        { name: 'GALLERY', icon: '🎨', url: 'exhibition/' },
-        { name: 'SHIELD', icon: '🛡️', url: 'kiterider/' },
+        { name: 'DIAL', icon: '⏱️', url: 'dial/landing.html' },
+        { name: 'GRID', icon: '🌐', url: 'apps.html' },
+        { name: 'ALBUM', icon: '💿', url: 'album-builder/landing.html' },
+        { name: 'CRATE', icon: '🎵', url: 'stemcrate_landing.html' },
+        { name: 'BRIDGE', icon: '🌉', url: 'universalbridge/landing.html' },
+        { name: 'EXCHANGE', icon: '🎼', url: 'apps.html' },
+        { name: 'GALLERY', icon: '🎨', url: 'exhibition/landing.html' },
+        { name: 'SHIELD', icon: '🛡️', url: 'kiterider/landing.html' },
         { name: 'LOTUS', icon: '🌸', url: 'landing-page/index.html' },
-        { name: 'PYRO', icon: '🎆', url: 'pyro-drummer/index.html' },
-        { name: 'FABRIC', icon: '🕸️', url: 'nodefabric/' },
-        { name: 'VDO4N6', icon: '📹', url: 'vdo4n6/' },
-        { name: 'EDITOR', icon: '🎬', url: 'dragon8editor/' },
-        { name: 'RIDER', icon: '🕹️', url: 'infinity-racer/' },
-        { name: 'ARTIST', icon: '🌊', url: 'artist-gallery/' },
-        { name: 'GARDEN', icon: '🌱', url: 'garden/' },
-        { name: 'TUNER', icon: '🎸', url: 'tuner/' },
-        { name: 'HEALER', icon: '🧘', url: 'healer/' },
+        { name: 'PYRO', icon: '🎆', url: 'pyro-drummer/landing.html' },
+        { name: 'FABRIC', icon: '🕸️', url: 'nodefabric/landing.html' },
+        { name: 'VDO4N6', icon: '📹', url: 'vdo4n6/landing.html' },
+        { name: 'EDITOR', icon: '🎬', url: 'apps.html' },
+        { name: 'RIDER', icon: '🕹️', url: 'apps.html' },
+        { name: 'ARTIST', icon: '🌊', url: 'artist-gallery/landing.html' },
+        { name: 'GARDEN', icon: '🌱', url: 'garden/landing.html' },
+        { name: 'TUNER', icon: '🎸', url: 'tuner/landing.html' },
+        { name: 'HEALER', icon: '🧘', url: 'healer/landing.html' },
         { name: 'SHOP', icon: '🛒', url: 'shop.html' },
         { name: 'APPS', icon: '💻', url: 'apps.html' }
     ];

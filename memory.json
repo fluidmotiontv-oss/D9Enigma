@@ -65,6 +65,10 @@
       "file": "tuner/index.html",
       "logic": "tuner/script.js",
       "description": "A high-precision Web Audio-based Guitar Tuner & Frequency Reader/Generator featuring sub-Hz autocorrelation pitch detection and neon visualizers."
+    },
+    "resonance_shop": {
+      "file": "shop.html",
+      "description": "A replicated 3D cybernetic portal showing the Lunar Calendar grid, acting as a portal for supporting app development via tips and Koha."
     }
   },
   "recorded_efforts": [
@@ -115,6 +119,10 @@
     {
       "timestamp": "2026-07-13T16:05:00+12:00",
       "summary": "Replaced 'Upgrade to PRO' elements with 'Koha / Donate' labels in pyro-drummer/index.html and landing-page/lotus-spinner.html. Renamed header buttons, modal titles, and unlock success notification banners to refer to Donor Sessions and Koha instead of commercial upgrades."
+    },
+    {
+      "timestamp": "2026-07-13T18:05:00+12:00",
+      "summary": "Replicated the main 3D home portal into a dedicated shop interface (shop.html), mapping the 3D rotating app nodes to their respective Koha/landing pages, and integrated SHOP and HOME nav buttons."
     }
   ]
 }
