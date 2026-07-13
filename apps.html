@@ -343,8 +343,9 @@
 
         </main>
 
-        <div class="back-home">
+        <div class="back-home" style="display: flex; gap: 15px; justify-content: center; align-items: center;">
             <a href="index.html" class="back-link">← Return to Nexus</a>
+            <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9 Co-op!\n\nEnter Koha/donation amount (USD):', '10.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Dragon%209%20Co-op&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="back-link" style="border-color: rgba(212, 175, 55, 0.4); color: #fff; background: rgba(212, 175, 55, 0.08); display: inline-flex; align-items: center; gap: 5px;">☕ Support Koha</a>
         </div>
     </div>
 
