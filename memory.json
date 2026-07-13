@@ -95,6 +95,11 @@
       "logic": "sequencer/script.js",
       "landing": "sound.html#sequencer",
       "description": "An offline multi-track song compiler and step sequencer with pre-synthesized creative loops, custom audio loading, individual track mutes/solos/volume mixing, and client-side WAV export."
+    },
+    "sitemap": {
+      "file": "sitemap.html",
+      "pdf": "sitemap.pdf",
+      "description": "A print-friendly accessible layout map of the entire Dragon 9 directory hierarchy and sub-applications structure."
     }
   },
   "recorded_efforts": [
@@ -165,6 +170,10 @@
     {
       "timestamp": "2026-07-13T19:25:00+12:00",
       "summary": "Restructured creative suite into synesthetic sensory themes (Sound, Vision, Senses/Nature). Consolidated 9 individual landing pages into unified sensory portals (sound.html, vision.html, nature.html) with PayPal Koha prompts, updating creative.html and carousel nodes."
+    },
+    {
+      "timestamp": "2026-07-13T19:40:00+12:00",
+      "summary": "Resolved PWA caching issues by incrementing the service worker cache to fluidmotion-v5, and generated a print-friendly sitemap.html which was converted into a downloadable sitemap.pdf using headless LibreOffice."
     }
   ]
 }
