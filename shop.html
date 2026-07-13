@@ -1104,10 +1104,10 @@
             <div>🧑‍🎨 ARTIST: <span id="split-item-artist" style="color: #fff; font-weight: bold;">-</span></div>
             <div>💰 LISTED PRICE: <span id="split-item-price" style="color: var(--highlight); font-weight: bold;">-</span></div>
             <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 10px; padding-top: 10px;">
-                <div style="color: var(--matrix-green); font-weight: bold;">99% Direct support to Artist: <span id="split-artist-amount">-</span></div>
-                <div style="color: var(--accent); font-weight: bold;">1% Co-op Commission to Dragon 9: <span id="split-platform-amount">-</span></div>
+                <div style="color: var(--matrix-green); font-weight: bold;"><span id="label-artist-split">99% Direct support to Artist</span>: <span id="split-artist-amount">-</span></div>
+                <div style="color: var(--accent); font-weight: bold;"><span id="label-platform-split">1% Co-op Commission to Dragon 9</span>: <span id="split-platform-amount">-</span></div>
             </div>
-            <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 10px; line-height: 1.3;">
+            <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 10px; line-height: 1.3;" id="split-checkout-note">
                 By completing this purchase, you support off-grid local nodes directly while routing 1% to the platform node framework for offline PWA operations.
             </div>
         </div>
@@ -1446,8 +1446,26 @@
             }
         }
 
-        const platformCut = numVal * 0.01;
-        const artistCut = numVal * 0.99;
+        const salesCount = selectedCatalogAlbum.sales_count || 0;
+        const hasFee = salesCount >= 54;
+        const platformCut = hasFee ? numVal * 0.01 : 0;
+        const artistCut = hasFee ? numVal * 0.99 : numVal;
+
+        // Update labels dynamically
+        const labelArtist = hasFee ? "99% Direct support to Artist" : "100% Direct support to Artist (Intro Wave)";
+        const labelPlatform = hasFee ? "1% Co-op Commission to Dragon 9" : "0% Co-op Commission (Waived for first 54 sales!)";
+        
+        document.getElementById('label-artist-split').innerText = labelArtist;
+        document.getElementById('label-platform-split').innerText = labelPlatform;
+
+        const noteEl = document.getElementById('split-checkout-note');
+        if (noteEl) {
+            if (hasFee) {
+                noteEl.innerText = "By completing this purchase, you support off-grid local nodes directly while routing 1% to the platform node framework for offline PWA operations.";
+            } else {
+                noteEl.innerText = `By completing this purchase, 100% of the payment goes directly to the artist. The 1% platform commission is waived (Album sales: ${salesCount}/54).`;
+            }
+        }
 
         if (isHNotes) {
             document.getElementById('split-artist-amount').innerText = `${artistCut.toFixed(2)} H-Notes`;
@@ -1458,7 +1476,7 @@
         }
 
         const completeBtn = document.getElementById('btn-complete-split-purchase');
-        completeBtn.onclick = () => executeSplitPurchase(isHNotes, artistCut, platformCut);
+        completeBtn.onclick = () => executeSplitPurchase(isHNotes, artistCut, platformCut, hasFee, salesCount);
 
         const modal = document.getElementById('checkout-split-modal');
         if (modal) modal.style.display = 'flex';
@@ -1469,20 +1487,51 @@
         if (modal) modal.style.display = 'none';
     }
 
-    function executeSplitPurchase(isHNotes, artistCut, platformCut) {
+    function executeSplitPurchase(isHNotes, artistCut, platformCut, hasFee, salesCount) {
         if (!selectedCatalogAlbum) return;
 
+        // Record sale counter to server
+        fetch('/api/record-album-sale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: selectedCatalogAlbum.url })
+        }).then(res => {
+            if (res.ok) {
+                console.log("Album sale recorded on server.");
+            }
+        }).catch(() => {
+            console.log("Recorded album sale offline.");
+        });
+
+        // Offline local update fallback
+        const localList = JSON.parse(localStorage.getItem('d9_local_registered_albums') || '[]');
+        const localAlbum = localList.find(a => a.url === selectedCatalogAlbum.url);
+        if (localAlbum) {
+            localAlbum.sales_count = (localAlbum.sales_count || 0) + 1;
+            localStorage.setItem('d9_local_registered_albums', JSON.stringify(localList));
+        }
+
         if (isHNotes) {
-            alert(`💳 Double-Entry Ledger Transaction:\n\nRouted ${artistCut.toFixed(2)} H-Notes to artist wallet address: ${selectedCatalogAlbum.payment || 'D9_LOVE'}.\nRouted ${platformCut.toFixed(2)} H-Notes (1% Platform fee) to Dragon 9 Co-op.`);
+            if (hasFee) {
+                alert(`💳 Double-Entry Ledger Transaction:\n\nRouted ${artistCut.toFixed(2)} H-Notes to artist wallet address: ${selectedCatalogAlbum.payment || 'D9_LOVE'}.\nRouted ${platformCut.toFixed(2)} H-Notes (1% Platform fee) to Dragon 9 Co-op.`);
+            } else {
+                alert(`💳 Double-Entry Ledger Transaction (Intro Wave):\n\nRouted ${artistCut.toFixed(2)} H-Notes (100% payout) to artist wallet address: ${selectedCatalogAlbum.payment || 'D9_LOVE'}.\n0% Platform fee applied (Album sales: ${salesCount}/54).`);
+            }
         } else {
             const paypalArtist = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(selectedCatalogAlbum.payment || 'fluidmotion.tv@gmail.com')}&item_name=Artist+Payout+for+${encodeURIComponent(selectedCatalogAlbum.title)}&amount=${artistCut.toFixed(2)}&currency_code=USD`;
-            const paypalCoop = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Platform+Commission+for+${encodeURIComponent(selectedCatalogAlbum.title)}&amount=${platformCut.toFixed(2)}&currency_code=USD`;
+            
+            if (hasFee) {
+                const paypalCoop = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Platform+Commission+for+${encodeURIComponent(selectedCatalogAlbum.title)}&amount=${platformCut.toFixed(2)}&currency_code=USD`;
 
-            alert(`🔗 Open PayPal Checkout Split:\n\nFirst transaction: $${artistCut.toFixed(2)} USD goes to the artist.\nSecond transaction: $${platformCut.toFixed(2)} USD (1% platform fee) supports Dragon 9 platform maintenance.\n\nPress OK to open the artist transaction.`);
-            window.open(paypalArtist, '_blank');
-            setTimeout(() => {
-                window.open(paypalCoop, '_blank');
-            }, 1000);
+                alert(`🔗 Open PayPal Checkout Split:\n\nFirst transaction: $${artistCut.toFixed(2)} USD goes to the artist.\nSecond transaction: $${platformCut.toFixed(2)} USD (1% platform fee) supports Dragon 9 platform maintenance.\n\nPress OK to open the artist transaction.`);
+                window.open(paypalArtist, '_blank');
+                setTimeout(() => {
+                    window.open(paypalCoop, '_blank');
+                }, 1000);
+            } else {
+                alert(`🔗 Open PayPal Checkout (Intro Wave):\n\n100% of payment ($${artistCut.toFixed(2)} USD) goes to the artist. Platform fee is waived.\n\nPress OK to proceed to PayPal.`);
+                window.open(paypalArtist, '_blank');
+            }
         }
 
         alert(`🎉 Purchase completed successfully!\n\nOpen Cloud Hosted Album: ${selectedCatalogAlbum.url}`);

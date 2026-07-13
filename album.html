@@ -590,6 +590,55 @@
             background: rgba(212,175,55,0.1);
             color: var(--accent);
         }
+
+        /* Carousel Navigation Arrows */
+        .carousel-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: rgba(15, 15, 20, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid var(--accent);
+            color: #fff;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            outline: none;
+            user-select: none;
+        }
+        .carousel-nav-btn:hover {
+            border-color: var(--highlight);
+            box-shadow: 0 0 20px var(--highlight-glow);
+            background: rgba(0, 229, 255, 0.15);
+            transform: translateY(-50%) scale(1.1);
+            color: var(--highlight);
+        }
+        #carousel-prev-btn { left: 40px; }
+        #carousel-next-btn { right: 40px; }
+
+        /* Carousel dot indicators */
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .carousel-dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.15);
+        }
     </style>
 </head>
 <body>
@@ -603,8 +652,9 @@
         
         <!-- Tab Navigation -->
         <div style="display: flex; gap: 4px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-            <button id="tab-btn-config" onclick="switchAdminTab('config')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700; background: var(--accent); color: #000; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 1px;">1. BRAND CONFIG</button>
-            <button id="tab-btn-onboard" onclick="switchAdminTab('onboard')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700; background: rgba(255,255,255,0.05); color: #888; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 1px;">2. ARTIST ONBOARD</button>
+            <button id="tab-btn-config" onclick="switchAdminTab('config')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.55rem; font-weight: 700; background: var(--accent); color: #000; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 0.5px;">1. BRAND CONFIG</button>
+            <button id="tab-btn-onboard" onclick="switchAdminTab('onboard')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.55rem; font-weight: 700; background: rgba(255,255,255,0.05); color: #888; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 0.5px;">2. ARTIST ONBOARD</button>
+            <button id="tab-btn-guide" onclick="switchAdminTab('guide')" style="flex: 1; padding: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.55rem; font-weight: 700; background: rgba(255,255,255,0.05); color: #888; border: none; cursor: pointer; border-radius: 4px; letter-spacing: 0.5px;">3. SOVEREIGN GUIDE</button>
         </div>
         
         <!-- Tab 1: Configuration -->
@@ -700,6 +750,16 @@
                 <div class="admin-row">
                     <input type="text" id="new-video-youtube" class="admin-input" placeholder="YouTube Video URL (Optional, e.g. https://youtube.com/watch?v=...)">
                 </div>
+                <div class="admin-row">
+                    <input type="text" id="new-video-image" class="admin-input" placeholder="Cover Image URL / Picture Path (Optional)">
+                </div>
+                <div class="admin-row" style="display: flex; gap: 8px;">
+                    <input type="text" id="new-video-link-url" class="admin-input" style="flex: 2; margin-bottom: 0;" placeholder="Custom Link URL (Optional)">
+                    <input type="text" id="new-video-link-label" class="admin-input" style="flex: 1; margin-bottom: 0;" placeholder="Label (e.g. Spotify)">
+                </div>
+                <div class="admin-row" style="margin-top: 10px;">
+                    <input type="text" id="new-video-download-url" class="admin-input" placeholder="Downloadable File/Stem ZIP URL (Unlocked Only)">
+                </div>
 
                 <!-- Track sale configuration -->
                 <div style="border: 1px solid rgba(212, 175, 55, 0.15); background: rgba(212, 175, 55, 0.02); padding: 8px; border-radius: 6px; margin-bottom: 12px;">
@@ -727,6 +787,44 @@
                 </div>
 
                 <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 0; margin-bottom: 10px;" onclick="addNewVideoToState()">+ ADD TRACK TO LIST</button>
+            </div>
+        </div>
+
+        <!-- Tab 3: Sovereign Guide & Tutorial -->
+        <div id="admin-tab-guide" style="display: none; max-height: 320px; overflow-y: auto; padding-right: 4px; font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: var(--text-main); line-height: 1.4;">
+            <div style="font-family:'Orbitron'; font-size:0.7rem; color:var(--accent); font-weight:700; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:4px; text-transform:uppercase; letter-spacing: 1px;">Sovereign Music Tutorial</div>
+            
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px;">
+                <span style="font-weight:700; color:#fff; font-size:0.65rem;">🧬 WHAT IS A SOVEREIGN NODE?</span>
+                <p style="margin-top:4px; color:var(--text-muted); font-size:0.58rem;">
+                    A Sovereign Node is a single, self-contained HTML file containing your entire audio-visual album player, visualizers, and links. It runs anywhere, fully offline, and is downloadable by fans as a direct file.
+                </p>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px;">
+                <span style="font-weight:700; color:var(--accent); font-size:0.65rem;">💰 PLATFORM FEES & CO-OP SPLITS</span>
+                <p style="margin-top:4px; color:var(--text-muted); font-size:0.58rem;">
+                    Payments route peer-to-peer directly from listeners to you (via PayPal, Venmo, or crypto addresses).
+                    <br><strong style="color:var(--highlight);">INTRO WAVE POLICY:</strong> The 1% platform commission is waived for your first 54 sold copies (100% direct artist support). From copy 55 onward, a tiny 1% split routes to Timothy Dwen / Dragon 9 Co-op for offline PWA framework maintenance.
+                </p>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px;">
+                <span style="font-weight:700; color:var(--highlight); font-size:0.65rem;">🌀 DRAGON 9 TIME RESOLUTION</span>
+                <p style="margin-top:4px; color:var(--text-muted); font-size:0.58rem;">
+                    Decoupled from standard commercial timetables, Dragon 9 tracks listener time in 54-minute hours. Fans earn H-Notes as they listen, which they can use to unlock locked tracks or download stems.
+                </p>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:6px; margin-bottom:10px;">
+                <span style="font-weight:700; color:#fff; font-size:0.65rem;">🚀 STEP-BY-STEP PUBLISHING GUIDE</span>
+                <ol style="margin-top:4px; padding-left:12px; color:var(--text-muted); font-size:0.58rem; display:flex; flex-direction:column; gap:4px;">
+                    <li>1. Onboard tracks, upload cover image URLs, custom links, or stems ZIP.</li>
+                    <li>2. Enter your PayPal email or crypto address in the Payment fields.</li>
+                    <li>3. Click "MINT & SAVE CONFIGURATION" to write configuration parameters.</li>
+                    <li>4. Click "DOWNLOAD STANDALONE HTML" to compile your standalone player.</li>
+                    <li>5. Check "Publish to Cooperative Shop" and enter your cloud URL (e.g. GitHub Pages or GCS static link) so listeners can find your node in the global registry!</li>
+                </ol>
             </div>
         </div>
 
@@ -788,6 +886,13 @@
             <!-- Initial Tracks will be loaded dynamically -->
         </main>
 
+        <!-- Carousel navigation arrows -->
+        <button id="carousel-prev-btn" class="carousel-nav-btn" onclick="scrollCarousel(-1)">◀</button>
+        <button id="carousel-next-btn" class="carousel-nav-btn" onclick="scrollCarousel(1)">▶</button>
+
+        <!-- Carousel Indicators (Dots) -->
+        <div id="carousel-indicators" style="display: flex; gap: 8px; justify-content: center; align-items: center; margin: 15px 0; z-index: 100;"></div>
+
         <!-- LISTENER REWARD LEDGER -->
         <div class="reward-ledger-container">
             <div class="ledger-stats">
@@ -822,12 +927,54 @@
     <script>
         // --- ADMIN SETTINGS LOCAL STORAGE CONTROLLER ---
         const defaultTracks = [
-            { title: "TE IKA O TE PŌ // HOLOGRAPHIC", url: "night-fish-holo", desc: "Live-rendered holographic AI crew member segment. Interactive audio sync and vocal output actuator." },
-            { title: "FUTURE FRWARD beat 2", url: "assets/crew/corey/audio/FUTURE FRWARD beat 2.mp3", desc: "Sovereign frequency rhythm design with phase-locked resonance." },
-            { title: "FUTURE FRWARD beat 3", url: "assets/crew/corey/audio/FUTURE FRWARD beat 3.mp3", desc: "High-resonance rhythmic segment for multiversal temporal alignment." },
-            { title: "FUTURE FRWARD beat 6 💎", url: "assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.mp3", desc: "Exclusive aligned portal core reward track.", friendName: "Conan", friendContact: "@conan" },
-            { title: "DARK LAWD BEAT 🦈", url: "assets/crew/corey/audio/DARK LAWD 🦈.mp3", desc: "Deep sub-bass laser groove for underwater resonance." },
-            { title: "RAINBOW IN THE DARK", url: "assets/crew/corey/audio/2-Rainbow in the DARK  .mp3", desc: "Classic retro ambient synth alignment mix." }
+            { 
+                title: "TE IKA O TE PŌ // HOLOGRAPHIC", 
+                url: "night-fish-holo", 
+                desc: "Live-rendered holographic AI crew member segment. Interactive audio sync and vocal output actuator." 
+            },
+            { 
+                title: "FUTURE FRWARD beat 2", 
+                url: "assets/crew/corey/audio/FUTURE FRWARD beat 2.mp3", 
+                desc: "Sovereign frequency rhythm design with phase-locked resonance.",
+                imageUrl: "assets/newinfiniti433.png",
+                linkUrl: "https://spotify.com",
+                linkLabel: "Spotify",
+                downloadUrl: "assets/crew/corey/audio/FUTURE FRWARD beat 2.mp3"
+            },
+            { 
+                title: "FUTURE FRWARD beat 3", 
+                url: "assets/crew/corey/audio/FUTURE FRWARD beat 3.mp3", 
+                desc: "High-resonance rhythmic segment for multiversal temporal alignment.",
+                imageUrl: "assets/grid_polyhedron.png",
+                linkUrl: "https://bandcamp.com",
+                linkLabel: "Bandcamp",
+                downloadUrl: "assets/crew/corey/audio/FUTURE FRWARD beat 3.mp3"
+            },
+            { 
+                title: "FUTURE FRWARD beat 6 💎", 
+                url: "assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.mp3", 
+                desc: "Exclusive aligned portal core reward track.", 
+                friendName: "Conan", 
+                friendContact: "@conan",
+                imageUrl: "assets/diamond.jpg",
+                downloadUrl: "assets/crew/corey/audio/FUTURE FRWARD beat 6 💎.mp3"
+            },
+            { 
+                title: "DARK LAWD BEAT 🦈", 
+                url: "assets/crew/corey/audio/DARK LAWD 🦈.mp3", 
+                desc: "Deep sub-bass laser groove for underwater resonance.",
+                imageUrl: "assets/dolphin_look_fish.png",
+                linkUrl: "https://soundcloud.com",
+                linkLabel: "SoundCloud",
+                downloadUrl: "assets/crew/corey/audio/DARK LAWD 🦈.mp3"
+            },
+            { 
+                title: "RAINBOW IN THE DARK", 
+                url: "assets/crew/corey/audio/2-Rainbow in the DARK  .mp3", 
+                desc: "Classic retro ambient synth alignment mix.",
+                imageUrl: "assets/great_barrier_island.jpg",
+                downloadUrl: "assets/crew/corey/audio/2-Rainbow in the DARK  .mp3"
+            }
         ];
 
         let currentSettings = {
@@ -902,12 +1049,21 @@
                             <button onclick="openTheaterMode('${track.url}', false)" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); border:1px solid var(--accent); color:#fff; padding:4px 8px; border-radius:4px; font-size:0.55rem; font-family:'Orbitron'; cursor:pointer; z-index:25; box-shadow:0 0 8px var(--accent-glow);">📺 THEATER</button>
                         </div>`;
                 } else if (isAudio) {
-                    mediaHTML = `
-                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #161020 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; position: relative; z-index: 10;">
-                            <div class="disc-spinner-${index}" style="font-size: 4rem; filter: drop-shadow(0 0 12px var(--accent-glow)); transition: transform 0.1s linear; transform-origin: center; display: inline-block;">💿</div>
-                            <audio id="audio-player-${index}" src="${track.url}" controls style="width: 90%; margin-top: 25px; filter: invert(1) hue-rotate(180deg); opacity: 0.85; outline: none; z-index: 20;"></audio>
-                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; margin-top: 10px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">SOURCE: CORE RESONANCE SPLIT</div>
-                        </div>`;
+                    if (track.imageUrl) {
+                        mediaHTML = `
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, rgba(22, 16, 32, 0.7) 0%, rgba(0, 0, 0, 0.85) 100%), url('${track.imageUrl}') no-repeat center/cover; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; position: relative; z-index: 10;">
+                                <img src="${track.imageUrl}" style="width: 110px; height: 110px; border-radius: 12px; border: 2.2px solid var(--accent); object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.6); margin-bottom: 5px; transition: transform 0.1s linear;" class="disc-spinner-${index}" alt="Cover Art">
+                                <audio id="audio-player-${index}" src="${track.url}" controls style="width: 90%; margin-top: 15px; filter: invert(1) hue-rotate(180deg); opacity: 0.85; outline: none; z-index: 20;"></audio>
+                                <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; margin-top: 8px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">SOURCE: CORE RESONANCE SPLIT</div>
+                            </div>`;
+                    } else {
+                        mediaHTML = `
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #161020 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; position: relative; z-index: 10;">
+                                <div class="disc-spinner-${index}" style="font-size: 4rem; filter: drop-shadow(0 0 12px var(--accent-glow)); transition: transform 0.1s linear; transform-origin: center; display: inline-block;">💿</div>
+                                <audio id="audio-player-${index}" src="${track.url}" controls style="width: 90%; margin-top: 25px; filter: invert(1) hue-rotate(180deg); opacity: 0.85; outline: none; z-index: 20;"></audio>
+                                <div style="font-family: 'Orbitron', sans-serif; font-size: 0.65rem; margin-top: 10px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">SOURCE: CORE RESONANCE SPLIT</div>
+                            </div>`;
+                    }
                 } else if (track.url && (track.url.includes("youtube.com") || track.url.includes("youtu.be") || track.url.includes("facebook.com") || track.url.startsWith("http"))) {
                     let embedUrl = track.url;
                     if (embedUrl.includes("youtube.com/watch?v=")) {
@@ -923,12 +1079,21 @@
                             <button onclick="openTheaterMode('${embedUrl}', true)" style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); border:1px solid var(--accent); color:#fff; padding:4px 8px; border-radius:4px; font-size:0.55rem; font-family:'Orbitron'; cursor:pointer; z-index:25; box-shadow:0 0 8px var(--accent-glow);">📺 THEATER</button>
                         </div>`;
                 } else {
-                    mediaHTML = `
-                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #161020 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; z-index: 10;">
-                            <span style="font-size: 3rem; filter: drop-shadow(0 0 10px var(--accent-glow));">💿</span>
-                            <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; margin-top: 15px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">${track.title.toUpperCase()}</div>
-                            <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 5px; font-family: 'Share Tech Mono', monospace;">SOURCE: SECURE LOCAL VDO VAULT</div>
-                        </div>`;
+                    if (track.imageUrl) {
+                        mediaHTML = `
+                            <div style="width: 100%; height: 100%; background: url('${track.imageUrl}') no-repeat center/cover; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 20px 20px 0 0; position: relative; z-index: 10;">
+                                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); text-align: center;">
+                                    <span style="font-size: 0.55rem; color: var(--accent); font-family: 'Orbitron'; font-weight: 700; letter-spacing: 1px;">VAULT MEDIA SECURED</span>
+                                </div>
+                            </div>`;
+                    } else {
+                        mediaHTML = `
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #161020 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border-radius: 20px 20px 0 0; z-index: 10;">
+                                <span style="font-size: 3rem; filter: drop-shadow(0 0 10px var(--accent-glow));">💿</span>
+                                <div style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; margin-top: 15px; color: var(--accent); font-weight: 700; letter-spacing: 1px;">${track.title.toUpperCase()}</div>
+                                <div style="font-size: 0.55rem; color: var(--text-muted); margin-top: 5px; font-family: 'Share Tech Mono', monospace;">SOURCE: SECURE LOCAL VDO VAULT</div>
+                            </div>`;
+                    }
                 }
 
                 let friendBadgeHTML = "";
@@ -953,12 +1118,14 @@
                         </div>
                         <p class="track-desc" style="flex-grow: 1; margin-bottom: 5px;">${track.desc}</p>
                         ${friendBadgeHTML}
-                        <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap;">
+                        <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap; width:100%;">
                             ${isPurchased ? 
-                              (track.url !== "night-fish-holo" ? `<a href="${track.url}" download="${track.title}" class="chat-btn" style="flex:1; border-color:var(--accent); background:rgba(212,175,55,0.15); text-decoration:none; text-align:center; padding:4px 8px; font-size:0.55rem; font-family:'Orbitron';">📥 DOWNLOAD</a>` : '') 
+                              (track.url !== "night-fish-holo" ? `<a href="${track.url}" download="${track.title}" class="chat-btn" style="flex:1; border-color:var(--accent); background:rgba(212,175,55,0.15); text-decoration:none; text-align:center; padding:4px 8px; font-size:0.55rem; font-family:'Orbitron';">📥 PLAY FILE</a>` : '') 
                               : 
                               `<button onclick="openCheckout(${index})" class="chat-btn" style="flex:1; border-color:var(--highlight); background:rgba(0,229,255,0.15); font-size:0.55rem; font-family:'Orbitron'; cursor:pointer;">💰 BUY SONG</button>`
                             }
+                            ${(isPurchased && track.downloadUrl) ? `<a href="${track.downloadUrl}" download target="_blank" class="chat-btn" style="flex:1; border-color:var(--accent); color:var(--accent); background:rgba(212,175,55,0.08); text-decoration:none; text-align:center; padding:4px 8px; font-size:0.55rem; font-family:'Orbitron';">📦 DOWNLOAD ZIP</a>` : ''}
+                            ${track.linkUrl ? `<a href="${track.linkUrl}" target="_blank" class="chat-btn" style="flex:1; border-color:var(--highlight); color:var(--highlight); background:rgba(0, 229, 255, 0.08); text-decoration:none; text-align:center; padding:4px 8px; font-size:0.55rem; font-family:'Orbitron';">🔗 ${track.linkLabel || 'LINK'}</a>` : ''}
                             ${track.youtubeUrl ? `<button onclick="event.stopPropagation(); playTrackYouTube('${track.youtubeUrl}')" class="chat-btn" style="flex:1; border-color:var(--highlight); color:var(--highlight); background:rgba(0,229,255,0.08); font-size:0.55rem; font-family:'Orbitron'; cursor:pointer;">🎥 WATCH VIDEO</button>` : ''}
                         </div>
                     </div>
@@ -1035,9 +1202,30 @@
                                 }
                             });
                         }
-                    }
                 }, 60);
             });
+
+            // Re-render dot indicators
+            const indicatorsContainer = document.getElementById('carousel-indicators');
+            if (indicatorsContainer) {
+                indicatorsContainer.innerHTML = '';
+                const originalCount = currentSettings.tracks.length;
+                for (let i = 0; i < originalCount; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'carousel-dot';
+                    dot.onclick = (e) => {
+                        e.stopPropagation();
+                        scrollToTrack(i);
+                    };
+                    indicatorsContainer.appendChild(dot);
+                }
+            }
+
+            // Re-initialize infinity scroll if decrypted / portal is visible
+            const portal = document.getElementById('portal-view');
+            if (portal && portal.style.display === 'flex') {
+                initInfinityScroll();
+            }
         }
 
         function applyConfigSettings() {
@@ -1074,24 +1262,39 @@
         function switchAdminTab(tabName) {
             const configTab = document.getElementById('admin-tab-config');
             const onboardTab = document.getElementById('admin-tab-onboard');
+            const guideTab = document.getElementById('admin-tab-guide');
             const configBtn = document.getElementById('tab-btn-config');
             const onboardBtn = document.getElementById('tab-btn-onboard');
+            const guideBtn = document.getElementById('tab-btn-guide');
+
+            configTab.style.display = 'none';
+            onboardTab.style.display = 'none';
+            if (guideTab) guideTab.style.display = 'none';
+
+            configBtn.style.background = 'rgba(255,255,255,0.05)';
+            configBtn.style.color = '#888';
+            onboardBtn.style.background = 'rgba(255,255,255,0.05)';
+            onboardBtn.style.color = '#888';
+            if (guideBtn) {
+                guideBtn.style.background = 'rgba(255,255,255,0.05)';
+                guideBtn.style.color = '#888';
+            }
 
             if (tabName === 'config') {
                 configTab.style.display = 'block';
-                onboardTab.style.display = 'none';
                 configBtn.style.background = 'var(--accent)';
                 configBtn.style.color = '#000';
-                onboardBtn.style.background = 'rgba(255,255,255,0.05)';
-                onboardBtn.style.color = '#888';
-            } else {
-                configTab.style.display = 'none';
+            } else if (tabName === 'onboard') {
                 onboardTab.style.display = 'block';
                 onboardBtn.style.background = 'var(--accent)';
                 onboardBtn.style.color = '#000';
-                configBtn.style.background = 'rgba(255,255,255,0.05)';
-                configBtn.style.color = '#888';
                 renderAdminVideosList();
+            } else if (tabName === 'guide') {
+                if (guideTab) guideTab.style.display = 'block';
+                if (guideBtn) {
+                    guideBtn.style.background = 'var(--accent)';
+                    guideBtn.style.color = '#000';
+                }
             }
         }
 
@@ -1151,6 +1354,10 @@
             const priceInput = document.getElementById('new-video-price');
             const submitRadioCheck = document.getElementById('new-video-submit-radio');
             const paymentInput = document.getElementById('new-video-payment');
+            const imageInput = document.getElementById('new-video-image');
+            const linkUrlInput = document.getElementById('new-video-link-url');
+            const linkLabelInput = document.getElementById('new-video-link-label');
+            const downloadUrlInput = document.getElementById('new-video-download-url');
 
             const title = titleInput.value.trim();
             const url = urlInput.value.trim();
@@ -1160,6 +1367,11 @@
             const price = priceInput ? parseInt(priceInput.value) || 5 : 5;
             const submitRadio = submitRadioCheck ? submitRadioCheck.checked : false;
             const payment = paymentInput ? paymentInput.value.trim() : (tempSettings ? tempSettings.vaultKey : "D9_LOVE");
+            
+            const imageUrl = imageInput ? imageInput.value.trim() : "";
+            const linkUrl = linkUrlInput ? linkUrlInput.value.trim() : "";
+            const linkLabel = linkLabelInput ? linkLabelInput.value.trim() : "";
+            const downloadUrl = downloadUrlInput ? downloadUrlInput.value.trim() : "";
 
             if (!title || !url) {
                 alert("Please enter both a track title and path/URL!");
@@ -1187,7 +1399,11 @@
                 price: price,
                 submitRadio: submitRadio,
                 payment: payment,
-                youtubeUrl: youtubeUrl
+                youtubeUrl: youtubeUrl,
+                imageUrl: imageUrl,
+                linkUrl: linkUrl,
+                linkLabel: linkLabel,
+                downloadUrl: downloadUrl
             };
 
             const target = tempSettings || currentSettings;
@@ -1211,6 +1427,10 @@
             if (priceInput) priceInput.value = '';
             if (submitRadioCheck) submitRadioCheck.checked = false;
             if (paymentInput) paymentInput.value = '';
+            if (imageInput) imageInput.value = '';
+            if (linkUrlInput) linkUrlInput.value = '';
+            if (linkLabelInput) linkLabelInput.value = '';
+            if (downloadUrlInput) downloadUrlInput.value = '';
 
             renderAdminVideosList();
 
@@ -2068,43 +2288,137 @@
                 card.style.opacity = opacity;
                 card.style.zIndex = Math.round(100 - factor * 10);
             });
+
+            // Update dot indicators
+            const dots = document.querySelectorAll('.carousel-dot');
+            if (dots.length > 0) {
+                let closestDotIndex = -1;
+                let minDistance = Infinity;
+
+                // Find the original track card closest to center
+                const originalCards = Array.from(cards).filter(c => !c.classList.contains('clone'));
+                if (originalCards.length > 0) {
+                    originalCards.forEach((card, index) => {
+                        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+                        const distance = Math.abs(cardCenter - menuCenter);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestDotIndex = index;
+                        }
+                    });
+                } else {
+                    cards.forEach((card, index) => {
+                        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+                        const distance = Math.abs(cardCenter - menuCenter);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestDotIndex = index % dots.length;
+                        }
+                    });
+                }
+
+                if (closestDotIndex >= 0 && closestDotIndex < dots.length) {
+                    dots.forEach((dot, idx) => {
+                        if (idx === closestDotIndex) {
+                            dot.style.background = 'var(--accent)';
+                            dot.style.boxShadow = '0 0 10px var(--accent-glow)';
+                            dot.style.transform = 'scale(1.25)';
+                            dot.style.width = '16px';
+                            dot.style.borderRadius = '5px';
+                        } else {
+                            dot.style.background = 'rgba(255, 255, 255, 0.2)';
+                            dot.style.boxShadow = 'none';
+                            dot.style.transform = 'scale(1)';
+                            dot.style.width = '10px';
+                            dot.style.borderRadius = '50%';
+                        }
+                    });
+                }
+            }
         }
 
         // --- INFINITY LOOPING SCROLL ---
         function initInfinityScroll() {
             const menu = document.getElementById('flow-menu');
-            const cards = Array.from(menu.children);
-            if (cards.length === 0) return;
+            if (!menu) return;
             
-            cards.forEach(card => {
+            // Clean up any cloned nodes first to start fresh and avoid duplicate clones
+            const originalCards = Array.from(menu.querySelectorAll('.track-card:not(.clone)'));
+            if (originalCards.length === 0) return;
+            
+            // Re-render clean list of originals
+            menu.innerHTML = '';
+            originalCards.forEach(card => {
+                card.classList.remove('clone');
+                menu.appendChild(card);
+            });
+
+            // Clone before and after
+            originalCards.forEach(card => {
                 const cloneBefore = card.cloneNode(true);
+                cloneBefore.classList.add('clone');
                 const cloneAfter = card.cloneNode(true);
+                cloneAfter.classList.add('clone');
                 menu.insertBefore(cloneBefore, menu.firstChild);
                 menu.appendChild(cloneAfter);
             });
 
-            const cardWidth = cards[0].offsetWidth + 50; 
-            const totalOriginalWidth = cards.length * cardWidth;
+            const cardWidth = originalCards[0].offsetWidth + 50; 
+            const totalOriginalWidth = originalCards.length * cardWidth;
             menu.scrollLeft = totalOriginalWidth;
 
-            menu.addEventListener('scroll', () => {
-                if (menu.scrollLeft <= 50) {
-                    menu.scrollLeft += totalOriginalWidth;
-                } else if (menu.scrollLeft >= totalOriginalWidth * 2 - 100) {
-                    menu.scrollLeft -= totalOriginalWidth;
-                }
-                update3DCardEffects();
-            });
+            if (!menu.dataset.listenerBound) {
+                menu.addEventListener('scroll', () => {
+                    if (menu.scrollLeft <= 50) {
+                        menu.scrollLeft += totalOriginalWidth;
+                    } else if (menu.scrollLeft >= totalOriginalWidth * 2 - 100) {
+                        menu.scrollLeft -= totalOriginalWidth;
+                    }
+                    update3DCardEffects();
+                });
 
-            menu.addEventListener('wheel', (e) => {
-                if (e.deltaY !== 0) {
-                    e.preventDefault();
-                    menu.scrollLeft += e.deltaY;
-                }
-            });
+                menu.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        menu.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+
+                menu.dataset.listenerBound = 'true';
+            }
 
             // Initial calculation
             setTimeout(update3DCardEffects, 250);
+        }
+
+        // --- CAROUSEL NAVIGATION HELPERS ---
+        function scrollCarousel(direction) {
+            const menu = document.getElementById('flow-menu');
+            if (!menu) return;
+            const cards = menu.querySelectorAll('.track-card');
+            if (cards.length === 0) return;
+            
+            const cardWidth = cards[0].offsetWidth + 50; // card width + gap
+            menu.scrollBy({
+                left: direction * cardWidth,
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToTrack(index) {
+            const menu = document.getElementById('flow-menu');
+            if (!menu) return;
+            const originalCards = Array.from(menu.querySelectorAll('.track-card:not(.clone)'));
+            if (originalCards.length === 0) return;
+
+            const targetCard = originalCards[index];
+            if (!targetCard) return;
+
+            const targetScrollLeft = targetCard.offsetLeft - (menu.offsetWidth - targetCard.offsetWidth) / 2;
+            menu.scrollTo({
+                left: targetScrollLeft,
+                behavior: 'smooth'
+            });
         }
     </script>
     <!-- Immersive Video Theater Screen -->

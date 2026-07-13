@@ -262,6 +262,26 @@
     {
       "timestamp": "2026-07-14T04:25:00+12:00",
       "summary": "Integrated geographical coordinates and actual solar declination calculations into Solar Simulator, adapting sun paths dynamically for Northern/Southern Hemisphere presets (Ahipara, Raglan, Dunedin, USA) and custom latitudes."
+    },
+    {
+      "timestamp": "2026-07-14T06:58:00+12:00",
+      "summary": "Downloaded CDN-hosted JS and CSS dependencies (FFmpeg, Leaflet, QRious, and jsQR) locally under the root lib/ directory and updated all references across standalone HTMLs (Resonance Video Editor, K.I.T.E. Bodyguard, Sovereign Surf, Harmony Exchange). Registered all local libraries and standalone applications in the Service Worker pre-cache configuration, incrementing cache version to fluidmotion-v25 to ensure 100% offline functionality."
+    },
+    {
+      "timestamp": "2026-07-14T07:12:00+12:00",
+      "summary": "Upgraded Sovereign Album Builder (album.html) to the next level. Added support for track cover art images, custom external links (e.g. Spotify, Bandcamp), and secure downloadable files (e.g. stems) for unlocked tracks. Enhanced the 3D coverflow carousel with floating prev/next navigation wands and active card dot indicators, enabling seamless desktop carousel browsing."
+    },
+    {
+      "timestamp": "2026-07-14T07:26:00+12:00",
+      "summary": "Implemented the 'Sovereign Guide' tutorial tab inside the Album Builder admin suite, detailing Sovereign Nodes, Direct Pay-splits, Dragon 9 Pacing, and Publishing. Updated the Cooperative Shop checkout flow to waive the 1% platform fee (providing a 100% direct payout to the artist) for the first 54 copies sold of any album, with a new backend endpoint to increment registered album sales counters."
+    },
+    {
+      "timestamp": "2026-07-14T07:35:00+12:00",
+      "summary": "Replicated the 54-sales waived commission checkout split and the guide system into the Fluid Exhibition & Shop (exhibition/index.html & script.js). Created the Art Split Checkout Modal offering dual-currency payouts (H-Notes or PayPal USD) with dynamic waiver messages, and set up backend routes (/api/get-artwork-sales & /api/record-artwork-sale) to track sales per artwork item."
+    },
+    {
+      "timestamp": "2026-07-14T07:51:00+12:00",
+      "summary": "Embedded the Sovereign Tools for the Fluid Motion of the Future presentation tutorial video as a responsive video section across the apps gateway (apps.html), the Creative Suite hub (creative.html), and the Sovereign Systems hub (systems.html)."
     }
   ]
 }

@@ -102,6 +102,18 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
             self.send_success_response({"status": "success", "albums": []})
             return
 
+        elif self.path.startswith('/api/get-artwork-sales'):
+            filepath = os.path.join(DIRECTORY, 'artwork_sales.json')
+            data = {}
+            if os.path.exists(filepath):
+                try:
+                    with open(filepath, 'r') as f:
+                        data = json.load(f)
+                except:
+                    pass
+            self.send_success_response({"status": "success", "sales": data})
+            return
+
         elif self.path.startswith('/api/get-artist-earnings'):
             from urllib.parse import urlparse, parse_qs
             parsed_url = urlparse(self.path)
@@ -609,7 +621,8 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                         "price": price,
                         "payment": payment,
                         "description": description,
-                        "timestamp": int(time.time())
+                        "timestamp": int(time.time()),
+                        "sales_count": 0
                     })
                     with open(filepath, 'w') as f:
                         json.dump(data, f, indent=4)
@@ -618,6 +631,60 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_error_response("This album URL is already registered.")
             except Exception as e:
                 self.send_error_response(f"Registration failed: {str(e)}")
+        elif self.path == '/api/record-album-sale':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                params = json.loads(post_data.decode('utf-8'))
+                url = params.get('url', '').strip()
+                if not url:
+                    self.send_error_response("Album URL is required.")
+                    return
+                filepath = os.path.join(DIRECTORY, 'registered_albums.json')
+                data = []
+                if os.path.exists(filepath):
+                    try:
+                        with open(filepath, 'r') as f:
+                            data = json.load(f)
+                    except:
+                        pass
+                updated = False
+                for album in data:
+                    if album.get('url') == url:
+                        album['sales_count'] = album.get('sales_count', 0) + 1
+                        updated = True
+                        break
+                if updated:
+                    with open(filepath, 'w') as f:
+                        json.dump(data, f, indent=4)
+                    self.send_success_response({"status": "success", "message": "Album sale counter incremented."})
+                else:
+                    self.send_error_response("Album not found in registry.")
+            except Exception as e:
+                self.send_error_response(f"Record album sale failed: {str(e)}")
+        elif self.path == '/api/record-artwork-sale':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                params = json.loads(post_data.decode('utf-8'))
+                artwork_id = params.get('id', '').strip()
+                if not artwork_id:
+                    self.send_error_response("Artwork ID is required.")
+                    return
+                filepath = os.path.join(DIRECTORY, 'artwork_sales.json')
+                data = {}
+                if os.path.exists(filepath):
+                    try:
+                        with open(filepath, 'r') as f:
+                            data = json.load(f)
+                    except:
+                        pass
+                data[artwork_id] = data.get(artwork_id, 0) + 1
+                with open(filepath, 'w') as f:
+                    json.dump(data, f, indent=4)
+                self.send_success_response({"status": "success", "message": "Artwork sale counter incremented.", "sales_count": data[artwork_id]})
+            except Exception as e:
+                self.send_error_response(f"Record artwork sale failed: {str(e)}")
         else:
             self.send_response(404)
             self.end_headers()

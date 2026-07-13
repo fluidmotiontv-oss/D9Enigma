@@ -792,6 +792,7 @@
     </div>
 
     <div class="nav-links">
+        <a href="javascript:void(0)" class="nav-btn" onclick="openExhibitionGuideModal()" style="border-color: var(--highlight); color: var(--highlight);">ℹ️ GUIDE</a>
         <a href="../creative.html" class="nav-btn">🌌 APPS</a>
         <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
         <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
@@ -991,6 +992,73 @@
         </div>
     </div>
 </div>
+
+<!-- Exhibition Guide Modal -->
+<div id="exhibition-guide-modal" class="quest-modal" style="z-index: 100002; display: none;">
+    <div class="quest-modal-content" style="max-width: 460px; border-color: var(--accent); box-shadow: 0 0 35px var(--accent-glow);">
+        <div class="reward-badge">🎨</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent); margin-bottom: 12px; font-weight: 900; text-align: center; font-size: 1.1rem;">RESONANCE ART SHOP GUIDE</h2>
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; text-align: left; margin-bottom: 20px; line-height: 1.5; max-height: 260px; overflow-y: auto; color: var(--text);">
+            <div style="margin-bottom: 12px;">
+                <span style="font-weight: 700; color: #fff; font-size: 0.75rem;">🖼️ IMMERSIVE DIGITAL ART EXHIBITION</span><br>
+                Welcome to the Dragon 9 Resonance Shop. Here, artists showcase limited-edition high-definition prints, sticker designs, and interface blueprints.
+            </div>
+            <div style="margin-bottom: 12px;">
+                <span style="font-weight: 700; color: var(--accent); font-size: 0.75rem;">💰 DUAL-CURRENCY PAYMENTS</span><br>
+                You can acquire art items using earned <strong>H-Notes (HN)</strong>, or complete USD cash payments directly to the artist's PayPal address.
+            </div>
+            <div style="margin-bottom: 12px;">
+                <span style="font-weight: 700; color: var(--highlight); font-size: 0.75rem;">🤝 1% CO-OP SPLIT WAIVER (INTRO WAVE)</span><br>
+                To support independent artists, the 1% platform commission is waived for the first 54 sold copies of any artwork design (100% direct artist support). Subsequent sales split 99% to the artist and 1% to the Dragon 9 Co-op node grid.
+            </div>
+            <div style="margin-bottom: 12px;">
+                <span style="font-weight: 700; color: #fff; font-size: 0.75rem;">🔐 HD DECRYPTION & VIEWING</span><br>
+                Acquired prints are unlocked in your local browser vault. Click "VIEW HD PRINT" to open the high-definition canvas, or print it locally for spatial curation.
+            </div>
+        </div>
+        <button class="action-btn" onclick="closeExhibitionGuideModal()" style="margin-top: 0; background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--highlight); border-radius: 6px; color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer; text-align: center; width: 100%; padding: 10px; font-size: 0.75rem;">UNDERSTOOD</button>
+    </div>
+</div>
+
+<!-- Art Split Checkout Modal -->
+<div id="art-checkout-split-modal" class="quest-modal" style="z-index: 100001; display: none;">
+    <div class="quest-modal-content" style="max-width: 420px; border-color: var(--accent); box-shadow: 0 0 35px var(--accent-glow);">
+        <div class="reward-badge">🎨</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent); margin-bottom: 12px; font-weight: 900; text-align: center; font-size: 1.1rem;">ARTIST CO-OP CHECKOUT</h2>
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; text-align: left; margin-bottom: 20px; line-height: 1.6; color: var(--text);">
+            <div>🖼️ ARTWORK: <span id="art-split-item-name" style="color: #fff; font-weight: bold;">-</span></div>
+            <div>🧑‍🎨 ARTIST: <span id="art-split-item-artist" style="color: #fff; font-weight: bold;">-</span></div>
+            <div>💰 LISTED VALUE: <span id="art-split-item-price" style="color: var(--highlight); font-weight: bold;">-</span></div>
+            <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 10px; padding-top: 10px;">
+                <div style="color: var(--matrix-green); font-weight: bold;"><span id="art-label-artist-split">99% Direct Payout to Artist</span>: <span id="art-split-artist-amount">-</span></div>
+                <div style="color: var(--accent); font-weight: bold;"><span id="art-label-platform-split">1% Co-op Commission</span>: <span id="art-split-platform-amount">-</span></div>
+            </div>
+            <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 10px; line-height: 1.3;" id="art-split-checkout-note">
+                By completing this purchase, you support off-grid local nodes directly while routing 1% to the platform node framework.
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+            <button class="action-btn" id="art-btn-pay-hnotes" style="margin-top: 0; background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); border-radius: 6px; color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer; text-align: center; width: 100%; padding: 10px; font-size: 0.75rem;">🎼 PAY WITH H-NOTES</button>
+            <button class="action-btn" id="art-btn-pay-paypal" style="margin-top: 0; background: rgba(212, 175, 55, 0.15); border: 1.5px solid var(--highlight); border-radius: 6px; color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer; text-align: center; width: 100%; padding: 10px; font-size: 0.75rem;">💳 PAY USD WITH PAYPAL</button>
+            <button class="action-btn" onclick="closeArtCheckoutSplitModal()" style="margin-top: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text-muted); cursor: pointer; text-align: center; width: 100%; padding: 10px; font-size: 0.75rem;">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openExhibitionGuideModal() {
+        const modal = document.getElementById('exhibition-guide-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+    function closeExhibitionGuideModal() {
+        const modal = document.getElementById('exhibition-guide-modal');
+        if (modal) modal.style.display = 'none';
+    }
+    function closeArtCheckoutSplitModal() {
+        const modal = document.getElementById('art-checkout-split-modal');
+        if (modal) modal.style.display = 'none';
+    }
+</script>
 
 <script type="module" src="script.js"></script>
 <script>

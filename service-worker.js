@@ -1,4 +1,4 @@
-const cacheName = 'fluidmotion-v24';
+const cacheName = 'fluidmotion-v25';
 const staticAssets = [
   './',
   './index.html',
@@ -18,7 +18,22 @@ const staticAssets = [
   './designer/landing.html',
   './designer/index.html',
   './designer/style.css',
-  './designer/script.js'
+  './designer/script.js',
+  './dragon8editor/index.html',
+  './dragon8editor/script.js',
+  './kiterider/index.html',
+  './kiterider/script.js',
+  './surf/index.html',
+  './harmonyexchange/index.html',
+  './harmonyexchange/script.js',
+  './lib/ffmpeg.min.js',
+  './lib/qrious.min.js',
+  './lib/leaflet.js',
+  './lib/leaflet.css',
+  './lib/jsQR.js',
+  './lib/images/marker-icon.png',
+  './lib/images/marker-icon-2x.png',
+  './lib/images/marker-shadow.png'
 ];
 
 // Cache core assets on install

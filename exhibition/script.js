@@ -28,133 +28,171 @@ const shopItems = [
         title: "The Fluid Motion Poster",
         price: 40,
         img: "../assets/newinfiniti4.png",
-        desc: "Premium canvas digital print of the custom Dragon 9 Infinity Resonance logo."
+        desc: "Premium canvas digital print of the custom Dragon 9 Infinity Resonance logo.",
+        artist: "Timothy Dwen",
+        payment: "fluidmotion.tv@gmail.com"
     },
     {
         id: "item-dolphin",
         title: "Matariki Dolphin Print",
         price: 100,
         img: "../assets/Dolphin-logo.jpg",
-        desc: "Limited physical print of the sacred Dolphin logo representing oceanic fluid harmony."
+        desc: "Limited physical print of the sacred Dolphin logo representing oceanic fluid harmony.",
+        artist: "Timothy Dwen",
+        payment: "fluidmotion.tv@gmail.com"
     },
     {
         id: "item-whale",
         title: "Whale & Tim Conceptual Print",
         price: 150,
         img: "../assets/crew/tim/images/whale_tim_concept.jpg",
-        desc: "Authentic conceptual art sketching the whale and Tim resonance pathways."
+        desc: "Authentic conceptual art sketching the whale and Tim resonance pathways.",
+        artist: "Timothy Dwen",
+        payment: "fluidmotion.tv@gmail.com"
     },
     {
         id: "item-plant",
         title: "Evolutionary Sea-Dolphin Print",
         price: 200,
         img: "../assets/bridge/208 a early plant 208 e early dolphin look fish 395-345mill.jpeg",
-        desc: "Earth timeline print showcasing early vascular plant growth and cetacean prototypes."
+        desc: "Earth timeline print showcasing early vascular plant growth and cetacean prototypes.",
+        artist: "Timothy Dwen",
+        payment: "fluidmotion.tv@gmail.com"
     },
     {
         id: "item-butterfly",
         title: "Orange Lovely Butterfly Sticker",
         price: 20,
         img: "../assets/shop/orange-lovely.png",
-        desc: "Ginos NZ custom orange lovely butterfly vector sticker."
+        desc: "Ginos NZ custom orange lovely butterfly vector sticker.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-bee",
         title: "Humble Bee Badge Stamp",
         price: 30,
         img: "../assets/shop/bee-humble-bee.png",
-        desc: "Fluid motion humble Matariki bee badge stamp."
+        desc: "Fluid motion humble Matariki bee badge stamp.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-seaslug",
         title: "Organic Pink Seaslug Icon",
         price: 50,
         img: "../assets/shop/pink-seaslug.png",
-        desc: "Ginos custom organic pink seaslug creature avatar."
+        desc: "Ginos custom organic pink seaslug creature avatar.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-blakruffie",
         title: "Black Ruffie Marine Badge",
         price: 35,
         img: "../assets/shop/blakruffie.png",
-        desc: "Fluid motion marine signature badge representing black ruffie."
+        desc: "Fluid motion marine signature badge representing black ruffie.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-blue-buttfly",
         title: "Blue Butterfly Sticker",
         price: 25,
         img: "../assets/shop/blue-buttfly-right.png",
-        desc: "Ginos NZ custom blue butterfly right-facing sticker."
+        desc: "Ginos NZ custom blue butterfly right-facing sticker.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-kiwis",
         title: "Kiwis in the Middle Sticker",
         price: 45,
         img: "../assets/shop/kiwis-in-midle.png",
-        desc: "Special fluid motion Kiwi birds centered badge."
+        desc: "Special fluid motion Kiwi birds centered badge.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-palm-left",
         title: "Left Palm Tree Sticker",
         price: 30,
         img: "../assets/shop/palmtree-left.png",
-        desc: "Ginos tropical palm tree left sticker configuration."
+        desc: "Ginos tropical palm tree left sticker configuration.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-palm-right",
         title: "Right Palm Tree Sticker",
         price: 30,
         img: "../assets/shop/palmtree-right.png",
-        desc: "Ginos tropical palm tree right sticker configuration."
+        desc: "Ginos tropical palm tree right sticker configuration.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-welcome",
         title: "Welcome Screen Blueprint",
         price: 80,
         img: "../assets/shop/homeand-welcome.png",
-        desc: "4:3 retro menu layout welcome screen blueprint."
+        desc: "4:3 retro menu layout welcome screen blueprint.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-network",
         title: "Network Grid Layout Blueprint",
         price: 90,
         img: "../assets/shop/networkhome1.png",
-        desc: "Dynamic network node distribution layout map."
+        desc: "Dynamic network node distribution layout map.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-shoppage",
         title: "Gift Shop Layout Blueprint",
         price: 95,
         img: "../assets/shop/shopPage1.png",
-        desc: "Interactive shop interface layout mockup preview."
+        desc: "Interactive shop interface layout mockup preview.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-stamp-blue",
         title: "Blue Stamp Badge",
         price: 15,
         img: "../assets/shop/bluestamp.png",
-        desc: "Calibration badge in fluid blue hue."
+        desc: "Calibration badge in fluid blue hue.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-stamp-red",
         title: "Red Stamp Badge",
         price: 15,
         img: "../assets/shop/redstamp.png",
-        desc: "Calibration badge in fluid red hue."
+        desc: "Calibration badge in fluid red hue.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-stamp-white",
         title: "White Stamp Badge",
         price: 15,
         img: "../assets/shop/whitestamp.png",
-        desc: "Calibration badge in neutral white hue."
+        desc: "Calibration badge in neutral white hue.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     },
     {
         id: "item-stamp-yellow",
         title: "Yellow Stamp Badge",
         price: 15,
         img: "../assets/shop/yellowstamp.png",
-        desc: "Calibration badge in fluid yellow hue."
+        desc: "Calibration badge in fluid yellow hue.",
+        artist: "Ginos NZ",
+        payment: "ginos.nz@gmail.com"
     }
 ];
 
@@ -245,8 +283,28 @@ function getThumbnailUrl(url, type) {
     return '../assets/vuddfiniti2.png';
 }
 
+let artworkSales = {};
+
+async function fetchArtworkSales() {
+    try {
+        const response = await fetch('/api/get-artwork-sales');
+        if (response.ok) {
+            const res = await response.json();
+            artworkSales = res.sales || {};
+        }
+    } catch (err) {
+        console.log("Offline mode: using local artwork sales counter.");
+    }
+    // Merge with localStorage local sales fallback
+    const localSales = JSON.parse(localStorage.getItem('d9_local_artwork_sales') || '{}');
+    for (let key in localSales) {
+        artworkSales[key] = Math.max(artworkSales[key] || 0, localSales[key]);
+    }
+}
+
 // Load databases from localStorage
-function loadDatabases() {
+async function loadDatabases() {
+    await fetchArtworkSales();
     try {
         // 1. Load Channels
         const savedChannels = localStorage.getItem('exhibition-channels');
@@ -1128,43 +1186,152 @@ window.acquireShopItem = function(id) {
     } catch(e) {}
     const balance = vaultLedger.reduce((sum, note) => sum + note.value, 0);
 
-    if (balance < item.price) {
-        log(`Vault alert: insufficient resonance balance for '${item.title}' (Requires ${item.price} HN). Deposit/mint notes.`, "WARN");
-        alert(`Insufficient Balance!\nYour balance: ${balance} HN\nRequired: ${item.price} HN\n\nPlease navigate to the EXCHANGE terminal in the top header and mint or scan QR notes to increase balance.`);
-        return;
+    const salesCount = artworkSales[item.id] || 0;
+    const hasFee = salesCount >= 54;
+    const platformCut = hasFee ? item.price * 0.01 : 0;
+    const artistCut = hasFee ? item.price * 0.99 : item.price;
+
+    // Populate dynamic split details in checkout modal
+    document.getElementById('art-split-item-name').innerText = item.title;
+    document.getElementById('art-split-item-artist').innerText = item.artist || 'Timothy Dwen';
+    document.getElementById('art-split-item-price').innerText = `${item.price} HN / $${item.price.toFixed(2)} USD`;
+
+    const labelArtist = hasFee ? "99% Direct Payout to Artist" : "100% Direct Payout to Artist (Intro Wave)";
+    const labelPlatform = hasFee ? "1% Co-op Commission" : "0% Co-op Commission (Waived for first 54 sales!)";
+    
+    document.getElementById('art-label-artist-split').innerText = labelArtist;
+    document.getElementById('art-label-platform-split').innerText = labelPlatform;
+
+    if (hasFee) {
+        document.getElementById('art-split-artist-amount').innerText = `${artistCut.toFixed(1)} HN / $${artistCut.toFixed(2)} USD`;
+        document.getElementById('art-split-platform-amount').innerText = `${platformCut.toFixed(1)} HN / $${platformCut.toFixed(2)} USD`;
+        document.getElementById('art-split-checkout-note').innerText = "By completing this purchase, you support off-grid local nodes directly while routing 1% to the platform node framework.";
+    } else {
+        document.getElementById('art-split-artist-amount').innerText = `${artistCut.toFixed(1)} HN / $${artistCut.toFixed(2)} USD`;
+        document.getElementById('art-split-platform-amount').innerText = "0.0 HN / $0.00 USD";
+        document.getElementById('art-split-checkout-note').innerText = `By completing this purchase, 100% goes directly to the artist. The 1% platform commission is waived (Artwork sales: ${salesCount}/54).`;
     }
 
-    const txId = 'HN-' + Math.floor(100000 + Math.random() * 900000);
-    const debitNote = {
-        id: txId,
-        value: -item.price,
-        creator: 'Resonance Shop',
-        keyphrase: `DEBIT-ACQUISITION: ${item.id}`,
-        mintDate: new Date().toISOString(),
-        rootVal: currentRoot,
-        d9Time: currentD9Time
+    // Attach event listeners for H-Notes and PayPal payment options
+    const payHNotesBtn = document.getElementById('art-btn-pay-hnotes');
+    const payPaypalBtn = document.getElementById('art-btn-pay-paypal');
+
+    payHNotesBtn.onclick = () => {
+        if (balance < item.price) {
+            log(`Vault alert: insufficient resonance balance for '${item.title}' (Requires ${item.price} HN).`, "WARN");
+            alert(`Insufficient Balance!\nYour balance: ${balance} HN\nRequired: ${item.price} HN\n\nPlease navigate to the EXCHANGE terminal in the top header and mint or scan QR notes to increase balance.`);
+            return;
+        }
+
+        executeAcquisition('HNOTES', item, balance, vaultLedger, artistCut, platformCut, hasFee, salesCount);
     };
 
-    vaultLedger.push(debitNote);
-    localStorage.setItem('harmony-vault', JSON.stringify(vaultLedger));
+    payPaypalBtn.onclick = () => {
+        executeAcquisition('PAYPAL', item, balance, vaultLedger, artistCut, platformCut, hasFee, salesCount);
+    };
+
+    const modal = document.getElementById('art-checkout-split-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+function executeAcquisition(method, item, balance, vaultLedger, artistCut, platformCut, hasFee, salesCount) {
+    // Record sale counter to server
+    fetch('/api/record-artwork-sale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id })
+    }).then(async res => {
+        if (res.ok) {
+            const data = await res.json();
+            artworkSales[item.id] = data.sales_count;
+            console.log(`Artwork sale recorded on server. Current sales count: ${data.sales_count}`);
+        }
+    }).catch(() => {
+        console.log("Recorded artwork sale offline.");
+    });
+
+    // Offline local update fallback
+    const localSales = JSON.parse(localStorage.getItem('d9_local_artwork_sales') || '{}');
+    localSales[item.id] = (localSales[item.id] || 0) + 1;
+    localStorage.setItem('d9_local_artwork_sales', JSON.stringify(localSales));
+    artworkSales[item.id] = Math.max(artworkSales[item.id] || 0, localSales[item.id]);
 
     const dateAcquired = new Date().toLocaleString();
-    const acquiredMeta = {
-        ...item,
-        txId: txId,
-        dateAcquired: dateAcquired
-    };
-    acquiredItems.push(acquiredMeta);
-    localStorage.setItem('exhibition-acquired', JSON.stringify(acquiredItems));
+    const txId = 'HN-' + Math.floor(100000 + Math.random() * 900000);
 
-    updateVaultUI();
-    updateShopUI();
-    
-    log(`Acquisition node success: '${item.title}' acquired! Deducted ${item.price} HN.`, "SUCCESS");
+    if (method === 'HNOTES') {
+        const debitNote = {
+            id: txId,
+            value: -item.price,
+            creator: 'Resonance Shop',
+            keyphrase: `DEBIT-ACQUISITION: ${item.id}`,
+            mintDate: new Date().toISOString(),
+            rootVal: currentRoot,
+            d9Time: currentD9Time
+        };
 
-    const newBal = balance - item.price;
-    window.openReceiptModal(txId, debitNote.mintDate, item.title, item.id, item.price, newBal);
-};
+        vaultLedger.push(debitNote);
+        localStorage.setItem('harmony-vault', JSON.stringify(vaultLedger));
+
+        if (hasFee) {
+            alert(`💳 Double-Entry Ledger Transaction:\n\nRouted ${artistCut.toFixed(1)} H-Notes to artist wallet address: ${item.payment || 'D9_LOVE'}.\nRouted ${platformCut.toFixed(1)} H-Notes (1% Co-op fee) to Dragon 9 Co-op.`);
+        } else {
+            alert(`💳 Double-Entry Ledger Transaction (Intro Wave):\n\nRouted ${artistCut.toFixed(1)} H-Notes (100% payout) to artist wallet address: ${item.payment || 'D9_LOVE'}.\n0% platform commission applied (Artwork sales: ${salesCount}/54).`);
+        }
+
+        const acquiredMeta = {
+            ...item,
+            txId: txId,
+            dateAcquired: dateAcquired
+        };
+        acquiredItems.push(acquiredMeta);
+        localStorage.setItem('exhibition-acquired', JSON.stringify(acquiredItems));
+
+        updateVaultUI();
+        updateShopUI();
+        
+        log(`Acquisition node success: '${item.title}' acquired! Deducted ${item.price} HN.`, "SUCCESS");
+
+        const newBal = balance - item.price;
+        window.openReceiptModal(txId, debitNote.mintDate, item.title, item.id, item.price, newBal);
+    } else {
+        // PayPal checkout split or waived commission
+        const artistEmail = item.payment || 'fluidmotion.tv@gmail.com';
+        const paypalArtist = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(artistEmail)}&item_name=Artwork+Purchase+for+${encodeURIComponent(item.title)}&amount=${artistCut.toFixed(2)}&currency_code=USD`;
+
+        if (hasFee) {
+            const paypalCoop = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Artwork+Coop+Commission+for+${encodeURIComponent(item.title)}&amount=${platformCut.toFixed(2)}&currency_code=USD`;
+
+            alert(`🔗 Open PayPal Checkout Split:\n\nFirst transaction: $${artistCut.toFixed(2)} USD goes to the artist (${item.artist || 'Timothy Dwen'}).\nSecond transaction: $${platformCut.toFixed(2)} USD (1% platform fee) supports Dragon 9 maintenance.\n\nPress OK to open the artist transaction.`);
+            window.open(paypalArtist, '_blank');
+            setTimeout(() => {
+                window.open(paypalCoop, '_blank');
+            }, 1000);
+        } else {
+            alert(`🔗 Open PayPal Checkout (Intro Wave):\n\n100% of payment ($${artistCut.toFixed(2)} USD) goes directly to the artist. Platform fee is waived.\n\nPress OK to proceed to PayPal.`);
+            window.open(paypalArtist, '_blank');
+        }
+
+        const acquiredMeta = {
+            ...item,
+            txId: 'PP-' + Math.floor(100000 + Math.random() * 900000),
+            dateAcquired: dateAcquired
+        };
+        acquiredItems.push(acquiredMeta);
+        localStorage.setItem('exhibition-acquired', JSON.stringify(acquiredItems));
+
+        updateVaultUI();
+        updateShopUI();
+
+        log(`USD Acquisition logged: '${item.title}' acquired! direct support to ${item.artist || 'Timothy Dwen'}.`, "SUCCESS");
+        
+        setTimeout(() => {
+            window.openHdViewerModal(item.id);
+        }, 1500);
+    }
+
+    closeArtCheckoutSplitModal();
+}
 
 // Receipt Modal Controls
 window.openReceiptModal = function(txId, timestamp, itemTitle, itemId, price, balance) {
@@ -1223,6 +1390,8 @@ function tick() {
 }
 
 // Initialize on page load
-loadDatabases();
-tick();
-log("Exhibition and shop systems synchronized with local ledger. Awaiting frequency signals...");
+(async () => {
+    await loadDatabases();
+    tick();
+    log("Exhibition and shop systems synchronized with local ledger. Awaiting frequency signals...");
+})();
