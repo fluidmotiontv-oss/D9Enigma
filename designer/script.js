@@ -697,6 +697,10 @@ let cameraRotation = { theta: Math.PI / 4, phi: Math.PI / 6, radius: 550 };
 let isDragging3D = false;
 let prevMouse3D = { x: 0, y: 0 };
 let threeMeshes = [];
+let mouseDownPos = { x: 0, y: 0 };
+
+const raycaster = new THREE.Raycaster();
+const mouse3D = new THREE.Vector2();
 
 window.toggle3DView = function() {
     show3D = !show3D;
@@ -764,6 +768,9 @@ function handleThreeMouseDown(e) {
     isDragging3D = true;
     prevMouse3D.x = e.clientX;
     prevMouse3D.y = e.clientY;
+    
+    mouseDownPos.x = e.clientX;
+    mouseDownPos.y = e.clientY;
 }
 
 function handleThreeMouseMove(e) {
@@ -781,14 +788,123 @@ function handleThreeMouseMove(e) {
     updateCameraPosition();
 }
 
-function handleThreeMouseUp() {
+function handleThreeMouseUp(e) {
     isDragging3D = false;
+    
+    const dx = e.clientX - mouseDownPos.x;
+    const dy = e.clientY - mouseDownPos.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    
+    if (dist < 6) {
+        handleThreeClick(e);
+    }
+}
+
+function handleThreeClick(e) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse3D.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse3D.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    
+    raycaster.setFromCamera(mouse3D, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    
+    if (intersects.length > 0) {
+        // 1. Check for handle click first
+        const handleHit = intersects.find(hit => hit.object.userData && hit.object.userData.isHandle);
+        if (handleHit) {
+            const handle = handleHit.object;
+            const item = handle.userData.ref;
+            const axis = handle.userData.axis;
+            const dir = handle.userData.dir;
+            const type = handle.userData.type;
+            
+            if (axis === 'x') {
+                item.length = Math.max(0.4, parseFloat((item.length + 0.2 * dir).toFixed(1)));
+            } else if (axis === 'y') {
+                item.width = Math.max(0.4, parseFloat((item.width + 0.2 * dir).toFixed(1)));
+            } else if (axis === 'z') {
+                item.height = Math.max(0.4, parseFloat((item.height + 0.2 * dir).toFixed(1)));
+            }
+            
+            if (type === 'room') {
+                item.w = item.length * 60;
+                item.h = item.width * 60;
+                calculateRoomResonance();
+            }
+            
+            calculateLedger();
+            selectItem(item, type);
+            return;
+        }
+        
+        // 2. Check for room or furniture click
+        const meshHit = intersects.find(hit => hit.object.userData && hit.object.userData.ref);
+        if (meshHit) {
+            const hitItem = meshHit.object.userData.ref;
+            const hitType = meshHit.object.userData.type;
+            selectItem(hitItem, hitType);
+        }
+    }
+}
+
+function drawAdjustmentHandles(item, type) {
+    const mx = item.x + (type === 'room' ? item.w/2 : 0) - 300;
+    const mz = item.y + (type === 'room' ? item.h/2 : 0) - 250;
+    
+    const fLength = (type === 'room' ? item.w : (item.length || 1.2) * 35);
+    const fWidth = (type === 'room' ? item.h : (item.width || 1.2) * 35);
+    const fHeight = (type === 'room' ? item.height * 30 : (item.height || 1.0) * 35);
+    
+    // Wireframe select bounding box
+    const boxGeom = new THREE.BoxGeometry(fLength + 4, fHeight + 4, fWidth + 4);
+    const boxMat = new THREE.MeshBasicMaterial({
+        color: 0xc88a75,
+        wireframe: true
+    });
+    const selectBox = new THREE.Mesh(boxGeom, boxMat);
+    selectBox.position.set(mx, fHeight / 2, mz);
+    scene.add(selectBox);
+    threeMeshes.push(selectBox);
+    
+    // Handle builder
+    function createHandle(axis, dir, color, px, py, pz) {
+        const sphereGeom = new THREE.SphereGeometry(6, 8, 8);
+        const sphereMat = new THREE.MeshPhongMaterial({
+            color: color,
+            emissive: color,
+            emissiveIntensity: 0.3
+        });
+        const sphere = new THREE.Mesh(sphereGeom, sphereMat);
+        sphere.position.set(px, py, pz);
+        sphere.userData = {
+            isHandle: true,
+            axis: axis,
+            dir: dir,
+            ref: item,
+            type: type
+        };
+        scene.add(sphere);
+        threeMeshes.push(sphere);
+    }
+    
+    // X-axis handles (Red): Length adjustment
+    createHandle('x', 1, 0xff3333, mx + fLength/2 + 20, fHeight/2, mz);
+    createHandle('x', -1, 0xaa2222, mx - fLength/2 - 20, fHeight/2, mz);
+    
+    // Y-axis handles (Green): Width adjustment
+    createHandle('y', 1, 0x33ff33, mx, fHeight/2, mz + fWidth/2 + 20);
+    createHandle('y', -1, 0x22aa22, mx, fHeight/2, mz - fWidth/2 - 20);
+    
+    // Z-axis handles (Blue): Height adjustment
+    createHandle('z', 1, 0x3333ff, mx, fHeight + 20, mz);
+    createHandle('z', -1, 0x2222aa, mx, Math.max(10, fHeight - 20), mz);
 }
 
 function syncThreeScene() {
     threeMeshes.forEach(mesh => scene.remove(mesh));
     threeMeshes = [];
     
+    // Draw rooms
     rooms.forEach(room => {
         const spec = MATERIALS[room.material] || MATERIALS.hemp;
         const roomW = room.w;
@@ -799,10 +915,11 @@ function syncThreeScene() {
         const mat = new THREE.MeshPhongMaterial({
             color: new THREE.Color(spec.border),
             transparent: true,
-            opacity: 0.35,
+            opacity: 0.3,
             side: THREE.DoubleSide
         });
         const mesh = new THREE.Mesh(geom, mat);
+        mesh.userData = { ref: room, type: 'room' };
         
         const mx = room.x + roomW / 2 - 300;
         const mz = room.y + roomH / 2 - 250;
@@ -811,22 +928,26 @@ function syncThreeScene() {
         scene.add(mesh);
         threeMeshes.push(mesh);
         
+        // Floor slab
         const floorGeom = new THREE.BoxGeometry(roomW, 3, roomH);
         const floorMat = new THREE.MeshPhongMaterial({
             color: new THREE.Color(spec.border),
-            opacity: 0.8,
+            opacity: 0.7,
             transparent: true
         });
         const floorMesh = new THREE.Mesh(floorGeom, floorMat);
+        floorMesh.userData = { ref: room, type: 'room' };
         floorMesh.position.set(mx, 1.5, mz);
         scene.add(floorMesh);
         threeMeshes.push(floorMesh);
     });
     
+    // Draw furniture
     furniture.forEach(item => {
         const mx = item.x - 300;
         const mz = item.y - 250;
         const group = new THREE.Group();
+        group.userData = { ref: item, type: 'furniture' };
         
         const fLength = (item.length || 1.2) * 35;
         const fWidth = (item.width || 1.2) * 35;
@@ -836,12 +957,14 @@ function syncThreeScene() {
             const mattressGeom = new THREE.BoxGeometry(fLength, fHeight * 0.7, fWidth);
             const mattressMat = new THREE.MeshPhongMaterial({ color: 0xdfd5c6 });
             const mattress = new THREE.Mesh(mattressGeom, mattressMat);
+            mattress.userData = { ref: item, type: 'furniture' };
             mattress.position.y = (fHeight * 0.7) / 2;
             group.add(mattress);
             
             const pillowGeom = new THREE.BoxGeometry(fLength * 0.25, fHeight * 0.15, fWidth * 0.8);
             const pillowMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
             const pillow = new THREE.Mesh(pillowGeom, pillowMat);
+            pillow.userData = { ref: item, type: 'furniture' };
             pillow.position.set(-fLength * 0.3, fHeight * 0.7 + (fHeight * 0.15)/2, 0);
             group.add(pillow);
         }
@@ -849,6 +972,7 @@ function syncThreeScene() {
             const desktopGeom = new THREE.BoxGeometry(fLength, 4, fWidth);
             const desktopMat = new THREE.MeshPhongMaterial({ color: 0x9c7454 });
             const desktop = new THREE.Mesh(desktopGeom, desktopMat);
+            desktop.userData = { ref: item, type: 'furniture' };
             desktop.position.y = fHeight - 2;
             group.add(desktop);
             
@@ -862,6 +986,7 @@ function syncThreeScene() {
             ];
             legPositions.forEach(pos => {
                 const leg = new THREE.Mesh(legGeom, legMat);
+                leg.userData = { ref: item, type: 'furniture' };
                 leg.position.set(pos[0], (fHeight - 4)/2, pos[1]);
                 group.add(leg);
             });
@@ -870,12 +995,14 @@ function syncThreeScene() {
             const potGeom = new THREE.CylinderGeometry(fLength*0.3, fLength*0.2, fHeight*0.4, 8);
             const potMat = new THREE.MeshPhongMaterial({ color: 0xc88a75 });
             const pot = new THREE.Mesh(potGeom, potMat);
+            pot.userData = { ref: item, type: 'furniture' };
             pot.position.y = (fHeight * 0.4) / 2;
             group.add(pot);
             
             const plantGeom = new THREE.SphereGeometry(fLength*0.45, 8, 8);
             const plantMat = new THREE.MeshPhongMaterial({ color: 0x5d8f6d });
             const foliage = new THREE.Mesh(plantGeom, plantMat);
+            foliage.userData = { ref: item, type: 'furniture' };
             foliage.position.y = fHeight*0.4 + fLength*0.3;
             group.add(foliage);
         }
@@ -883,12 +1010,14 @@ function syncThreeScene() {
             const basinGeom = new THREE.CylinderGeometry(fLength*0.4, fLength*0.4, fHeight*0.5, 12);
             const basinMat = new THREE.MeshPhongMaterial({ color: 0xa8a8aa });
             const basin = new THREE.Mesh(basinGeom, basinMat);
+            basin.userData = { ref: item, type: 'furniture' };
             basin.position.y = (fHeight*0.5) / 2;
             group.add(basin);
             
             const waterGeom = new THREE.CylinderGeometry(fLength*0.25, fLength*0.25, fHeight*0.6, 12);
             const waterMat = new THREE.MeshPhongMaterial({ color: 0x4c8fa6, transparent: true, opacity: 0.8 });
             const water = new THREE.Mesh(waterGeom, waterMat);
+            water.userData = { ref: item, type: 'furniture' };
             water.position.y = fHeight*0.5 + (fHeight*0.6)/2;
             group.add(water);
         }
@@ -896,10 +1025,12 @@ function syncThreeScene() {
             const shapeGeom = new THREE.ConeGeometry(fLength*0.35, fHeight, 4);
             const shapeMat = new THREE.MeshPhongMaterial({ color: 0x8a2be2, transparent: true, opacity: 0.75 });
             const crystalMesh1 = new THREE.Mesh(shapeGeom, shapeMat);
+            crystalMesh1.userData = { ref: item, type: 'furniture' };
             crystalMesh1.position.y = fHeight / 2;
             group.add(crystalMesh1);
             
             const crystalMesh2 = new THREE.Mesh(shapeGeom, shapeMat);
+            crystalMesh2.userData = { ref: item, type: 'furniture' };
             crystalMesh2.rotation.z = Math.PI;
             crystalMesh2.position.y = fHeight / 2;
             group.add(crystalMesh2);
@@ -908,6 +1039,7 @@ function syncThreeScene() {
             const slabGeom = new THREE.BoxGeometry(8, fHeight, fWidth);
             const slabMat = new THREE.MeshPhongMaterial({ color: 0x7c533c });
             const door = new THREE.Mesh(slabGeom, slabMat);
+            door.userData = { ref: item, type: 'furniture' };
             door.position.y = fHeight / 2;
             group.add(door);
         }
@@ -915,6 +1047,7 @@ function syncThreeScene() {
             const glassGeom = new THREE.BoxGeometry(4, fHeight, fWidth);
             const glassMat = new THREE.MeshPhongMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.6 });
             const glass = new THREE.Mesh(glassGeom, glassMat);
+            glass.userData = { ref: item, type: 'furniture' };
             glass.position.y = fHeight / 2;
             group.add(glass);
         }
@@ -923,6 +1056,11 @@ function syncThreeScene() {
         scene.add(group);
         threeMeshes.push(group);
     });
+    
+    // Add 3D sizing handles for the currently selected item
+    if (selectedItem) {
+        drawAdjustmentHandles(selectedItem, selectedType);
+    }
 }
 
 function animateThree() {

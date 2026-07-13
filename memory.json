@@ -250,6 +250,10 @@
     {
       "timestamp": "2026-07-14T04:10:00+12:00",
       "summary": "Upgraded Harmonic Home Designer with an interactive 3D WebGL preview viewport plane and Orbiting camera controls, customizable X/Y/Z item dimension inputs on an active inspector board, and customized 3D meshes (Beds, Desks, Fountains, Plants, Crystals) built via Three.js."
+    },
+    {
+      "timestamp": "2026-07-14T04:15:00+12:00",
+      "summary": "Implemented in-viewport 3D adjustment handles and click selectors inside the Three.js viewport to allow users to directly click and resize room or furniture models (Length, Width, Height) in the 3D plane."
     }
   ]
 }
