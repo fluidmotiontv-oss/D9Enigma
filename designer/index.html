@@ -200,11 +200,31 @@
                 <h3 class="section-title">Solar & Light Simulator</h3>
                 <div class="frequency-tuner" style="margin-bottom:15px; font-family:'Share Tech Mono', monospace; font-size:0.7rem; line-height:1.4;">
                     <div style="margin-bottom: 10px;">
+                        <label style="display:block; margin-bottom:4px; color:var(--text-muted);">LOCATION PRESET</label>
+                        <select id="solar-location" class="dim-input" style="width:100%; text-transform:uppercase; background: rgba(0,0,0,0.3); border: 1px solid var(--accent-sage);" onchange="updateSolarPreset()">
+                            <option value="-35.1" selected>Ahipara, NZ (Subtropical North)</option>
+                            <option value="-37.8">Raglan, NZ (West Coast Surf)</option>
+                            <option value="-45.9">Dunedin, NZ (Deep South)</option>
+                            <option value="0.0">Equator (Zenith Path)</option>
+                            <option value="37.8">San Francisco, US (North Lat)</option>
+                            <option value="custom">Custom Latitude...</option>
+                        </select>
+                    </div>
+                    <div id="custom-lat-container" style="margin-bottom: 10px; display: none;">
+                        <label style="display:block; margin-bottom:4px; color:var(--text-muted);">LATITUDE (°)</label>
+                        <input type="range" id="solar-latitude" min="-60" max="60" step="1" value="-35" style="width:100%; accent-color:var(--accent-clay); background:transparent;" oninput="updateSolarSimulation()">
+                        <div style="display:flex; justify-content:space-between; margin-top:2px;">
+                            <span>60°S (South)</span>
+                            <span id="solar-lat-label" style="color:var(--accent-sand); font-weight:bold;">35°S</span>
+                            <span>60°N (North)</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
                         <label style="display:block; margin-bottom:4px; color:var(--text-muted);">SEASON</label>
                         <select id="solar-season" class="dim-input" style="width:100%; text-transform:uppercase; background: rgba(0,0,0,0.3); border: 1px solid var(--accent-sage);" onchange="updateSolarSimulation()">
-                            <option value="summer">Summer Solstice (High North-Sun)</option>
-                            <option value="equinox" selected>Equinox (Mid-Sun)</option>
-                            <option value="winter">Winter Solstice (Low North-Sun)</option>
+                            <option value="summer">Summer Solstice</option>
+                            <option value="equinox" selected>Equinox</option>
+                            <option value="winter">Winter Solstice</option>
                         </select>
                     </div>
                     <div style="margin-bottom: 10px;">

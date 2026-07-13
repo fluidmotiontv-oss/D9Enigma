@@ -25,6 +25,9 @@ let draggingNode = null;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 
+// Solar sun coordinates tracker
+let currentSunPos = { x: 0, y: 350, z: -180 };
+
 // WebAudio variables for calibrating space clear frequency
 let audioCtx = null;
 let oscillator = null;
@@ -559,23 +562,26 @@ function runDiagnostics() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 2D Solar Angle & Rays Projection
-    const timeVal = parseFloat(document.getElementById('solar-time')?.value) || 12;
-    const angle = ((timeVal - 6) / 12) * Math.PI;
-    const dx = -Math.cos(angle);
-    let dz = 0.7; // default Southward slant (Sun in Northern Sky for NZ)
-    const season = document.getElementById('solar-season')?.value || 'equinox';
-    if (season === 'summer') dz = 0.35;
-    if (season === 'winter') dz = 1.35;
+    // 2D Solar Angle & Rays Projection from physical currentSunPos coordinates
+    const sx = currentSunPos.x;
+    const sy = currentSunPos.y;
+    const sz = currentSunPos.z;
+    const len = Math.sqrt(sx*sx + sy*sy + sz*sz);
     
-    const rayOffsetX = dx * 80;
-    const rayOffsetY = dz * 80;
+    const rx = -sx / len;
+    const ry = -sy / len;
+    const rz = -sz / len;
 
-    // Draw projected window light beams
-    if (Math.sin(angle) > 0.05) {
+    // Draw projected window light beams if sun is above horizon
+    if (sy > 5) {
+        const wy = 45; 
+        const t = -wy / ry;
+        const rayOffsetX = rx * t;
+        const rayOffsetY = rz * t;
+        
         furniture.forEach(item => {
             if (item.type === 'window') {
-                ctx.fillStyle = `rgba(255, 230, 128, ${0.18 * Math.sin(angle)})`;
+                ctx.fillStyle = `rgba(255, 230, 128, ${0.18 * (sy / 350)})`;
                 ctx.beginPath();
                 ctx.moveTo(item.x - 15, item.y);
                 ctx.lineTo(item.x + 15, item.y);
@@ -1181,24 +1187,16 @@ function syncThreeScene() {
             glass.position.y = fHeight / 2;
             group.add(glass);
             
-            // Volumetric Sunlight projection path math
-            const timeVal = parseFloat(document.getElementById('solar-time')?.value) || 12;
-            const angle = ((timeVal - 6) / 12) * Math.PI;
+            // Volumetric Sunlight projection path math derived from currentSunPos
+            const sx = currentSunPos.x;
+            const sy = currentSunPos.y;
+            const sz = currentSunPos.z;
             
-            if (Math.sin(angle) > 0.05) {
-                const season = document.getElementById('solar-season').value;
-                let sinZenith = 0.7;
-                let sunZ = -180;
-                if (season === 'summer') { sinZenith = 0.92; sunZ = -70; }
-                else if (season === 'winter') { sinZenith = 0.42; sunZ = -280; }
-                
-                const sunX = 350 * Math.cos(angle);
-                const sunY = 350 * Math.sin(angle) * sinZenith;
-                
-                const len = Math.sqrt(sunX*sunX + sunY*sunY + sunZ*sunZ);
-                const rx = -sunX / len;
-                const ry = -sunY / len;
-                const rz = -sunZ / len;
+            if (sy > 5) {
+                const len = Math.sqrt(sx*sx + sy*sy + sz*sz);
+                const rx = -sx / len;
+                const ry = -sy / len;
+                const rz = -sz / len;
                 
                 const wy = fHeight / 2;
                 const t = -wy / ry;
@@ -1211,7 +1209,7 @@ function syncThreeScene() {
                 const patchMat = new THREE.MeshBasicMaterial({
                     color: 0xffdf80,
                     transparent: true,
-                    opacity: 0.3 * Math.sin(angle),
+                    opacity: 0.3 * (sy / 350),
                     side: THREE.DoubleSide
                 });
                 const patch = new THREE.Mesh(patchGeom, patchMat);
@@ -1226,7 +1224,7 @@ function syncThreeScene() {
                 const beamMat = new THREE.MeshBasicMaterial({
                     color: 0xffe680,
                     transparent: true,
-                    opacity: 0.1 * Math.sin(angle),
+                    opacity: 0.1 * (sy / 350),
                     side: THREE.DoubleSide
                 });
                 const beam = new THREE.Mesh(beamGeom, beamMat);
@@ -1259,4 +1257,18 @@ function stopThree() {
         cancelAnimationFrame(animationFrameId);
     }
 }
+
+window.updateSolarPreset = function() {
+    const locVal = document.getElementById('solar-location').value;
+    const customContainer = document.getElementById('custom-lat-container');
+    const latInput = document.getElementById('solar-latitude');
+    
+    if (locVal === 'custom') {
+        customContainer.style.display = 'block';
+    } else {
+        customContainer.style.display = 'none';
+        latInput.value = parseFloat(locVal);
+    }
+    updateSolarSimulation();
+};
 
