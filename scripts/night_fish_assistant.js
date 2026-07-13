@@ -467,7 +467,16 @@ function speak(phrase) {
         if (charIdx < phrase.length) {
             speechEl.innerText += phrase.charAt(charIdx);
             charIdx++;
-            typingTfunction triggerBubbleStorm() {
+            typingTimeout = setTimeout(type, 30);
+        } else {
+            const chars = document.querySelectorAll('.night-fish-character');
+            chars.forEach(c => c.classList.remove('talking'));
+        }
+    }
+    type();
+}
+
+function triggerBubbleStorm() {
     const widget = document.getElementById('night-fish-widget');
     if (!widget) return;
     
@@ -764,9 +773,24 @@ function injectWidgetElements() {
     });
 
     holoOverlay.addEventListener('click', (e) => {
-        if (e.target === holoOverlay) {
+        // Close if click target is the close button or clicking outside the container
+        if (e.target.classList.contains('holo-close-btn') || e.target === holoOverlay) {
             holoOverlay.style.display = 'none';
             config.holoActive = false;
+            return;
+        }
+
+        // Summon random asset on click inside the holographic overlay
+        const assetName = AssetLibrary.getRandomAssetKey();
+        if (assetName) {
+            const x = e.clientX;
+            const y = e.clientY;
+            const behaviors = ['drift', 'orbit'];
+            const behavior = behaviors[Math.floor(Math.random() * behaviors.length)];
+            Spawner.spawn(assetName, x, y, behavior);
+
+            const speechName = assetName.substring(0, 15).replace(/_/g, ' ');
+            speak(`Summoning ${speechName.toUpperCase()} into the workspace...`);
         }
     });
 
@@ -779,19 +803,91 @@ function injectWidgetElements() {
         }
     });
 }
-        Spawner.spawn(assetName, x, y, behavior);
-        
-        // Truncate long generated asset names for speech
-        const speechName = assetName.substring(0, 15).replace(/_/g, ' ');
-        speak(`Summoning ${speechName.toUpperCase()} into the workspace...`);
-    });
 
-    holoOverlay.addEventListener('click', (e) => {
-        if (e.target === holoOverlay) {
-            holoOverlay.style.display = 'none';
-            config.holoActive = false;
+function cycleAssistantSpeech() {
+    const phrase = COGNITION_DATA[messageIndex][config.activeLang] || COGNITION_DATA[messageIndex]['EN'];
+    speak(phrase);
+    messageIndex = (messageIndex + 1) % COGNITION_DATA.length;
+}
+
+function playWelcomeAnimation() {
+    const widget = document.getElementById('night-fish-widget');
+    const chatPanel = document.getElementById('night-fish-chat-panel');
+    if (!widget) return;
+
+    // 1. Initial State: Position off-screen left and scale down
+    widget.style.position = 'fixed';
+    widget.style.transition = 'none';
+    widget.style.left = '-120px';
+    widget.style.top = '40%';
+    widget.style.bottom = 'auto';
+    widget.style.right = 'auto';
+    widget.style.transform = 'scale(0.1)';
+    widget.style.opacity = '0';
+
+    // 2. Short Delay to start
+    setTimeout(() => {
+        // Play a bubble burst trail at start coordinate
+        for (let i = 0; i < 15; i++) {
+            bubbles.push(new Bubble(true, 50, window.innerHeight * 0.4));
         }
-    });
+
+        // Swoop in across the screen
+        widget.style.transition = 'all 1.8s cubic-bezier(0.19, 1, 0.22, 1)';
+        widget.style.opacity = '1';
+        // Position in the center of the screen
+        widget.style.left = '50%';
+        widget.style.top = '50%';
+        widget.style.transform = 'translate(-50%, -50%) scale(2.0)';
+
+        // Emit continuous bubbles from the center
+        let bubbleInterval = setInterval(() => {
+            const rect = widget.getBoundingClientRect();
+            const bx = rect.left + rect.width / 2;
+            const by = rect.top + rect.height / 2;
+            bubbles.push(new Bubble(false, bx, by));
+        }, 80);
+
+        // Pause in center, spin, then swim to anchor
+        setTimeout(() => {
+            // Spin ring
+            widget.style.transition = 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+            widget.style.transform = 'translate(-50%, -50%) scale(2.2) rotate(360deg)';
+
+            setTimeout(() => {
+                clearInterval(bubbleInterval);
+
+                // Swim to permanent anchor (bottom right)
+                widget.style.transition = 'all 1.5s cubic-bezier(0.77, 0, 0.175, 1)';
+                widget.style.left = 'calc(100% - 91px)'; // 25px + 66px
+                widget.style.top = 'calc(100% - 161px)'; // 95px + 66px
+                widget.style.transform = 'scale(1.0) rotate(0deg)';
+
+                // Release another burst upon anchoring!
+                setTimeout(() => {
+                    // Reset inline styles completely to let stylesheet classes take over
+                    widget.style.transition = '';
+                    widget.style.left = '';
+                    widget.style.top = '';
+                    widget.style.bottom = '';
+                    widget.style.right = '';
+                    widget.style.transform = '';
+                    widget.style.opacity = '';
+
+                    triggerBubbleStorm();
+
+                    // Open the greeting speech panel
+                    if (chatPanel) {
+                        chatPanel.classList.add('open');
+                        speak("Kia ora! I am Te Ika o te Pō (Night Fish), your sovereign AI assistant. Tap me anytime to view catalog vaults, summon assets, or run utility modules!");
+                    }
+                }, 1500);
+
+            }, 1200);
+
+        }, 1800);
+
+    }, 800);
 }
 
 // Master Render loop updates
@@ -835,6 +931,9 @@ function init() {
     initInteractions();
     Spawner.init(); // Initialize the asset spawner
     loop();
+
+    // Play the swooping, bubbling welcome animation
+    playWelcomeAnimation();
 
     // Slowly cycle speech prompts occasionally when panel is visible
     setInterval(() => {
