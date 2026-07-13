@@ -230,6 +230,10 @@
     {
       "timestamp": "2026-07-14T02:35:00+12:00",
       "summary": "Resized and styled 'Start Blank Album Template' button inside the Album Builder (album.html) to be larger and higher visibility, and added a direct shortcut command inside the main funnel select dropdown menu at the top."
+    },
+    {
+      "timestamp": "2026-07-14T02:40:00+12:00",
+      "summary": "Added a dedicated, direct 'Create Blank Album' button on the main player header next to the funnel selection dropdown in album.html for immediate visibility."
     }
   ]
 }
