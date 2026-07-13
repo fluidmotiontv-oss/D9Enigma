@@ -1,4 +1,4 @@
-const cacheName = 'fluidmotion-v19';
+const cacheName = 'fluidmotion-v20';
 const staticAssets = [
   './',
   './index.html',
@@ -14,7 +14,11 @@ const staticAssets = [
   './icon-192.png',
   './icon-512.png',
   './tuner/index.html',
-  './tuner/script.js'
+  './tuner/script.js',
+  './designer/landing.html',
+  './designer/index.html',
+  './designer/style.css',
+  './designer/script.js'
 ];
 
 // Cache core assets on install

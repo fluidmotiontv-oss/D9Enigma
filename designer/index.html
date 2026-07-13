@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonic Home Designer | Workspace</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Outfit:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header navigation -->
+    <header>
+        <a href="landing.html" class="logo">🌿 <span>Harmonic Home</span></a>
+        <div class="nav-links">
+            <a href="landing.html" class="nav-btn">About Concept</a>
+            <a href="../creative.html" class="nav-btn">← Hub</a>
+        </div>
+    </header>
+
+    <!-- Main Workspace Dashboard Grid -->
+    <div class="dashboard-layout">
+        
+        <!-- Left Sidebar: Tools & Material Selection -->
+        <aside class="sidebar">
+            <div>
+                <h3 class="section-title">Design Palette</h3>
+                <div class="tool-grid">
+                    <button class="tool-card active" id="tool-room" onclick="setTool('room')">
+                        <span class="tool-icon">🏠</span>
+                        <span class="tool-label">Draw Room</span>
+                    </button>
+                    <button class="tool-card" id="tool-door" onclick="setTool('door')">
+                        <span class="tool-icon">🚪</span>
+                        <span class="tool-label">Add Door</span>
+                    </button>
+                    <button class="tool-card" id="tool-window" onclick="setTool('window')">
+                        <span class="tool-icon">🪟</span>
+                        <span class="tool-label">Add Window</span>
+                    </button>
+                    <button class="tool-card" id="tool-bed" onclick="setTool('bed')">
+                        <span class="tool-icon">🛏️</span>
+                        <span class="tool-label">Place Bed</span>
+                    </button>
+                    <button class="tool-card" id="tool-desk" onclick="setTool('desk')">
+                        <span class="tool-icon">💻</span>
+                        <span class="tool-label">Place Desk</span>
+                    </button>
+                    <button class="tool-card" id="tool-fountain" onclick="setTool('fountain')">
+                        <span class="tool-icon">⛲</span>
+                        <span class="tool-label">Fountain</span>
+                    </button>
+                    <button class="tool-card" id="tool-plant" onclick="setTool('plant')">
+                        <span class="tool-icon">🪴</span>
+                        <span class="tool-label">Plant</span>
+                    </button>
+                    <button class="tool-card" id="tool-crystal" onclick="setTool('crystal')">
+                        <span class="tool-icon">🔮</span>
+                        <span class="tool-label">Crystal</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="section-title">Material Selector</h3>
+                <div class="material-list">
+                    <div class="material-card active" id="mat-hemp" onclick="selectMaterial('hemp')">
+                        <div class="material-header">
+                            <span>Hempcrete Core</span>
+                            <span style="color: var(--success);">🌱 CO2-Neg</span>
+                        </div>
+                        <div class="material-stats">
+                            <span>CO2: -110kg/m³</span>
+                            <span>R-Value: R-3.5</span>
+                        </div>
+                    </div>
+                    <div class="material-card" id="mat-cob" onclick="selectMaterial('cob')">
+                        <div class="material-header">
+                            <span>Cob / Rammed Earth</span>
+                            <span style="color: var(--element-earth);">Earth Mass</span>
+                        </div>
+                        <div class="material-stats">
+                            <span>CO2: -15kg/m³</span>
+                            <span>R-Value: R-1.8</span>
+                        </div>
+                    </div>
+                    <div class="material-card" id="mat-wood" onclick="selectMaterial('wood')">
+                        <div class="material-header">
+                            <span>Untreated Timber</span>
+                            <span style="color: var(--accent-sand);">Local Wood</span>
+                        </div>
+                        <div class="material-stats">
+                            <span>CO2: -60kg/m³</span>
+                            <span>R-Value: R-2.4</span>
+                        </div>
+                    </div>
+                    <div class="material-card" id="mat-clay" onclick="selectMaterial('clay')">
+                        <div class="material-header">
+                            <span>Clay Plaster</span>
+                            <span style="color: var(--accent-clay);">Breathable</span>
+                        </div>
+                        <div class="material-stats">
+                            <span>CO2: -5kg/m³</span>
+                            <span>R-Value: R-0.8</span>
+                        </div>
+                    </div>
+                    <div class="material-card" id="mat-cork" onclick="selectMaterial('cork')">
+                        <div class="material-header">
+                            <span>Cork & Bamboo</span>
+                            <span style="color: var(--element-wood);">Fast-Grow</span>
+                        </div>
+                        <div class="material-stats">
+                            <span>CO2: -80kg/m³</span>
+                            <span>R-Value: R-3.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top:auto; font-family:'Share Tech Mono'; font-size:0.6rem; color:var(--text-muted);">
+                CO2 estimations represent lifecycle carbon offsets per cubic meter of installed wall volume.
+            </div>
+        </aside>
+
+        <!-- Center Workspace Canvas Layout -->
+        <main class="canvas-wrapper">
+            <canvas id="design-canvas" width="600" height="500"></canvas>
+            
+            <div class="canvas-controls">
+                <button class="ctrl-btn" onclick="toggleGrid()">Grid Lines</button>
+                <button class="ctrl-btn active" id="btn-bagua" onclick="toggleBagua()">Bagua Overlay</button>
+                <button class="ctrl-btn" onclick="clearCanvas()">Reset</button>
+                <button class="ctrl-btn" onclick="exportBlueprint()">Export JSON</button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Tuning & Feng Shui solver diagnostics -->
+        <aside class="sidebar right-sidebar">
+            <div>
+                <h3 class="section-title">Acoustic Resonance</h3>
+                <div class="frequency-tuner">
+                    <div class="room-dimensions">
+                        <div>
+                            <label style="font-size:0.65rem; color:var(--text-muted); display:block; text-align:center;">LENGTH (m)</label>
+                            <input type="number" step="0.1" class="dim-input" id="input-length" value="4.5" oninput="updateRoomDimensions()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.65rem; color:var(--text-muted); display:block; text-align:center;">WIDTH (m)</label>
+                            <input type="number" step="0.1" class="dim-input" id="input-width" value="3.6" oninput="updateRoomDimensions()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.65rem; color:var(--text-muted); display:block; text-align:center;">HEIGHT (m)</label>
+                            <input type="number" step="0.1" class="dim-input" id="input-height" value="2.8" oninput="updateRoomDimensions()">
+                        </div>
+                    </div>
+
+                    <div class="frequency-readout">
+                        <div class="freq-num" id="resonant-frequency">47.6</div>
+                        <div class="freq-unit">PRIMARY MODAL RESONANCE (Hz)</div>
+                    </div>
+
+                    <div style="font-size:0.72rem; color:var(--text-muted); line-height:1.4;">
+                        Target Solfeggio Scale match: <span id="solfeggio-match" style="color:var(--accent-clay); font-weight:bold;">NONE</span>
+                    </div>
+
+                    <button class="play-pulse-btn" id="btn-sound-clear" onclick="toggleSpaceClearTone()">
+                        🔊 PLAY TUNING TONE
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="section-title">Energy Diagnostics</h3>
+                <div class="checklist" id="diagnostic-checklist">
+                    <!-- Diagnostic warnings populated dynamically by js solver -->
+                    <div class="check-item success-item">
+                        <span class="check-icon">✓</span>
+                        <div class="check-text">Tai Chi central health node is balanced.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="section-title">Harmonics Ledger</h3>
+                <div style="background:rgba(0,0,0,0.2); padding:12px; border-radius:12px; font-family:'Share Tech Mono', monospace; font-size:0.68rem; line-height:1.5; color:var(--text-muted);">
+                    <div>SEQUESTERED CO₂: <span id="ledger-co2" style="color:var(--success);">0 kg</span></div>
+                    <div>THERMAL MASS: <span id="ledger-thermal" style="color:var(--accent-sand);">High</span></div>
+                    <div>WALL R-VALUE: <span id="ledger-rvalue" style="color:var(--accent-clay);">R-3.5</span></div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Main Logic Script -->
+    <script src="script.js" type="module"></script>
+</body>
+</html>
