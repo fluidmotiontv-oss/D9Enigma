@@ -290,6 +290,10 @@
     {
       "timestamp": "2026-07-14T10:09:00+12:00",
       "summary": "Implemented a '🤝 COLLABORATE' Facebook share & link sharing module inside the Album Builder (album.html), prefilled to invite Dawn Rainstar Milazzo (and other custom names) with a copy-to-clipboard invite text and automated Facebook redirect, plus custom onboarding welcome alert triggers for invited collaborators entering the URL via parameter."
+    },
+    {
+      "timestamp": "2026-07-14T10:45:00+12:00",
+      "summary": "Fixed album.html syntax error by adding a missing closing brace on the track renderer check. Improved template reset UX by automatically switching to the 'TRACKS & ONBOARD' tab (previously 'ARTIST ONBOARD') when starting a blank album template to immediately reveal the 'Add Track' inputs and buttons."
     }
   ]
 }
