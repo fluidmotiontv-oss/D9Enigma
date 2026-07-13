@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Synesthetic Pianola</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020205;
+            --panel-bg: rgba(10, 10, 18, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00e5ff;
+            --accent-gold: #d4af37;
+            --accent-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6b7280;
+            --key-white: rgba(255, 255, 255, 0.9);
+            --key-black: #0c0d12;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient animated blobs */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            animation: drift 25s infinite ease-in-out alternate;
+        }
+
+        .blob-cyan {
+            width: 50vw; height: 50vw;
+            background: linear-gradient(135deg, var(--accent-cyan), #002266);
+            top: -10%; left: -10%;
+        }
+
+        .blob-gold {
+            width: 45vw; height: 45vw;
+            background: linear-gradient(135deg, var(--accent-gold), #4a1d96);
+            bottom: -10%; right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(80px, -50px) scale(1.15) rotate(60deg); }
+        }
+
+        /* Scanline HUD mesh overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Header Navigation */
+        header {
+            width: 100%;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(5, 5, 10, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-area h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .logo-area h1 span {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo-area span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover, .nav-btn.active-tab {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Workspace Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            flex-grow: 1;
+            height: calc(100vh - 65px);
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 800px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+            .sidebar {
+                height: auto !important;
+            }
+            .pianola-container {
+                height: 500px !important;
+            }
+        }
+
+        /* Sidebar Settings */
+        .sidebar {
+            background: rgba(5, 5, 8, 0.7);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label span {
+            color: var(--accent-gold);
+        }
+
+        .select-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 6px;
+            outline: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .select-input:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .slider-input {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan);
+            transition: transform 0.2s;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* MIDI Monitor Status Box */
+        .midi-status-card {
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: auto;
+        }
+
+        .midi-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+            margin-bottom: 4px;
+        }
+
+        .midi-device {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Main Pianola Fretboard & Keybed Area */
+        .pianola-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Waterfall Scroll Canvas */
+        .waterfall-canvas-wrapper {
+            flex-grow: 1;
+            width: 100%;
+            position: relative;
+            background: rgba(0, 2, 8, 0.85);
+            border-bottom: 2px solid rgba(0, 229, 255, 0.25);
+            overflow: hidden;
+        }
+
+        #waterfallCanvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: block;
+        }
+
+        /* HUD overlay */
+        .waterfall-hud {
+            position: absolute;
+            top: 15px; left: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* Keyboard Keybed */
+        .keybed-wrapper {
+            height: 200px;
+            width: 100%;
+            position: relative;
+            background: #090a0f;
+            display: flex;
+            user-select: none;
+            padding: 0 10px;
+        }
+
+        .key {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: background 0.1s, box-shadow 0.1s, color 0.1s;
+        }
+
+        .key.white {
+            flex: 1;
+            height: 100%;
+            background: var(--key-white);
+            color: #555;
+            border: 1px solid #111;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            padding-bottom: 12px;
+            z-index: 2;
+        }
+
+        .key.white.active {
+            background: linear-gradient(180deg, var(--key-white), var(--accent-cyan));
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.8), inset 0 -10px 15px rgba(0, 229, 255, 0.5);
+            border-color: var(--accent-cyan);
+        }
+
+        .key.black {
+            width: 4.5%;
+            height: 60%;
+            background: var(--key-black);
+            color: #999;
+            border: 1px solid #222;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
+            z-index: 3;
+            margin-left: -2.25%;
+            margin-right: -2.25%;
+            padding-bottom: 8px;
+        }
+
+        .key.black.active {
+            background: linear-gradient(180deg, #111, var(--accent-purple));
+            color: #fff;
+            box-shadow: 0 0 20px rgba(175, 82, 222, 0.8), inset 0 -5px 10px rgba(175, 82, 222, 0.5);
+            border-color: var(--accent-purple);
+        }
+
+        .key-label {
+            pointer-events: none;
+            opacity: 0.65;
+            font-weight: bold;
+        }
+        
+        .key-note {
+            position: absolute;
+            top: 8px;
+            font-size: 0.55rem;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .key.white .key-note {
+            top: auto;
+            bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient drifting space backgrounds -->
+    <div class="ambient-bg">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-gold"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="logo-area">
+            <h1>🎹 SYNESTHETIC <span>PIANOLA</span></h1>
+            <span>Dragon 9 Synth Module // Node-Pianola v1.0</span>
+        </div>
+        <div class="nav-links">
+            <a href="../apps.html" class="nav-btn">🌌 APPS</a>
+            <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+            <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+            <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+            <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+            <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+            <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+            <a href="../radio/" class="nav-btn">📻 RADIO</a>
+        </div>
+    </header>
+
+    <!-- Workspace Layout -->
+    <main class="workspace">
+        
+        <!-- Left Control Panel -->
+        <section class="sidebar">
+            
+            <div class="control-group">
+                <h2 class="panel-title">🎛️ Oscillator</h2>
+                <label>Waveform</label>
+                <select id="synthWaveform" class="select-input">
+                    <option value="sine">SINE RESONANCE</option>
+                    <option value="triangle">TRIANGLE AMBIENT</option>
+                    <option value="sawtooth">SAWTOOTH PHASE</option>
+                    <option value="square">SQUARE DIGITAL</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <h2 class="panel-title">📈 Envelope (ADSR)</h2>
+                <label>Attack <span id="attackVal">0.05s</span></label>
+                <input type="range" id="synthAttack" class="slider-input" min="0" max="2" step="0.01" value="0.05">
+                
+                <label>Decay <span id="decayVal">0.15s</span></label>
+                <input type="range" id="synthDecay" class="slider-input" min="0" max="2" step="0.01" value="0.15">
+                
+                <label>Sustain <span id="sustainVal">0.7</span></label>
+                <input type="range" id="synthSustain" class="slider-input" min="0" max="1" step="0.01" value="0.7">
+                
+                <label>Release <span id="releaseVal">0.5s</span></label>
+                <input type="range" id="synthRelease" class="slider-input" min="0" max="5" step="0.05" value="0.5">
+            </div>
+
+            <div class="control-group">
+                <h2 class="panel-title">🛡️ Lowpass Filter</h2>
+                <label>Cutoff <span id="filterCutoffVal">2000Hz</span></label>
+                <input type="range" id="filterCutoff" class="slider-input" min="50" max="20000" step="50" value="2000">
+                
+                <label>Resonance (Q) <span id="filterQVal">1.0</span></label>
+                <input type="range" id="filterQ" class="slider-input" min="0" max="20" step="0.1" value="1.0">
+            </div>
+
+            <div class="control-group">
+                <h2 class="panel-title">🌌 Space Delay</h2>
+                <label>Delay Time <span id="delayTimeVal">0.3s</span></label>
+                <input type="range" id="delayTime" class="slider-input" min="0.05" max="1" step="0.01" value="0.3">
+                
+                <label>Feedback <span id="delayFeedbackVal">0.3</span></label>
+                <input type="range" id="delayFeedback" class="slider-input" min="0" max="0.95" step="0.01" value="0.3">
+                
+                <label>Wet Mix <span id="delayMixVal">0.2</span></label>
+                <input type="range" id="delayMix" class="slider-input" min="0" max="1" step="0.01" value="0.2">
+            </div>
+
+            <!-- MIDI Module status card -->
+            <div class="midi-status-card">
+                <div class="midi-title">📡 WEB MIDI DEVICE</div>
+                <div id="midiDeviceLabel" class="midi-device">Scanning for MIDI controller...</div>
+            </div>
+
+        </section>
+
+        <!-- Right Waterfall & Keyboard Area -->
+        <section class="pianola-container">
+            
+            <div class="waterfall-canvas-wrapper">
+                <div class="waterfall-hud">
+                    <div>RENDER: 2D SCROLL</div>
+                    <div>FPS: 60 / TIME RES.</div>
+                    <div id="activeNotesLabel">ACTIVE VOICES: 0</div>
+                </div>
+                <canvas id="waterfallCanvas"></canvas>
+            </div>
+
+            <div class="keybed-wrapper" id="keyboard">
+                <!-- Keys will be dynamically generated by JS to establish keyboard listeners and waterfall alignments -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- App Script -->
+    <script src="script.js"></script>
+
+</body>
+</html>

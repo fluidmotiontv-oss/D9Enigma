@@ -69,6 +69,18 @@
     "resonance_shop": {
       "file": "shop.html",
       "description": "A replicated 3D cybernetic portal showing the Lunar Calendar grid, acting as a portal for supporting app development via tips and Koha."
+    },
+    "synesthetic_pianola": {
+      "file": "pianola/index.html",
+      "logic": "pianola/script.js",
+      "landing": "pianola/landing.html",
+      "description": "A synthesized digital pianola and MIDI keyboard featuring multi-waveform ADSR envelopes, lowpass resonance filters, space delay, and plug-and-play USB MIDI support."
+    },
+    "ukulele_instructor": {
+      "file": "ukulele/index.html",
+      "logic": "ukulele/script.js",
+      "landing": "ukulele/landing.html",
+      "description": "An interactive ukulele fretboard visualizer and rhythm progression guide with synthesized string modeling plucks/strums and tempo-metronome synchronization."
     }
   },
   "recorded_efforts": [
@@ -123,6 +135,10 @@
     {
       "timestamp": "2026-07-13T18:05:00+12:00",
       "summary": "Replicated the main 3D home portal into a dedicated shop interface (shop.html), mapping the 3D rotating app nodes to their respective Koha/landing pages, and integrated SHOP and HOME nav buttons."
+    },
+    {
+      "timestamp": "2026-07-13T18:30:00+12:00",
+      "summary": "Built the brand new Synesthetic Pianola (synthesizer keyboard with player piano roll and Web MIDI USB sync) and Sovereign Ukulele Instructor (fretboard finger positions, pluck/strum simulator, metronome tempo sync, and progression tutorial guides), and integrated them across the App Store, 3D home portal, shop portal, and horizontal nav headers."
     }
   ]
 }

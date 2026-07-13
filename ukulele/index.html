@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Sovereign Ukulele Instructor</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020205;
+            --panel-bg: rgba(10, 10, 18, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00e5ff;
+            --accent-gold: #d4af37;
+            --accent-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6b7280;
+            --wood-color: #2b1d0c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient background drifting blobs */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            animation: drift 25s infinite ease-in-out alternate;
+        }
+
+        .blob-cyan {
+            width: 50vw; height: 50vw;
+            background: linear-gradient(135deg, var(--accent-cyan), #002266);
+            top: -10%; left: -10%;
+        }
+
+        .blob-gold {
+            width: 45vw; height: 45vw;
+            background: linear-gradient(135deg, var(--accent-gold), #4a1d96);
+            bottom: -10%; right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(80px, -50px) scale(1.15) rotate(60deg); }
+        }
+
+        /* Cybernetic grid overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Header Navigation */
+        header {
+            width: 100%;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(5, 5, 10, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-area h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .logo-area h1 span {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo-area span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Workspace layout grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            flex-grow: 1;
+            height: calc(100vh - 65px);
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 1000px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+            .sidebar, .chord-panel {
+                height: auto !important;
+            }
+            .instructor-area {
+                height: 400px !important;
+            }
+        }
+
+        /* Sidebar Panels */
+        .sidebar, .chord-panel {
+            background: rgba(5, 5, 8, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .sidebar {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .chord-panel {
+            border-left: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label span {
+            color: var(--accent-gold);
+        }
+
+        .slider-input {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan);
+            transition: transform 0.2s;
+        }
+
+        .select-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 6px;
+            outline: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 10px;
+            border: 1px solid var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.05);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .action-btn.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* Chord Library Grid */
+        .chord-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .chord-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 900;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .chord-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.03);
+            transform: scale(1.05);
+        }
+
+        .chord-btn.active {
+            background: var(--accent-cyan);
+            color: #000;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Central Fretboard Fret Visual */
+        .instructor-area {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            gap: 30px;
+            height: 100%;
+            overflow-y: auto;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fretboard-hud {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            text-align: center;
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .fretboard-hud span {
+            color: var(--accent-cyan);
+        }
+
+        /* Visual Fretboard Node */
+        .fretboard-neck-wrapper {
+            width: 100%;
+            max-width: 750px;
+            background: linear-gradient(90deg, #1f140a, #422815, #1f140a);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border-radius: 6px;
+            position: relative;
+            padding: 20px 40px 20px 20px;
+            user-select: none;
+        }
+
+        /* Fretboard SVG */
+        #fretboardSvg {
+            width: 100%;
+            height: 150px;
+            display: block;
+            overflow: visible;
+        }
+
+        /* Rhythms guide visual */
+        .rhythm-guide {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(5,5,10,0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+        }
+
+        .timeline-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            width: 0%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+            transition: width 0.1s linear;
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .active-step-indicator {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 5px var(--accent-cyan);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient moving backdrop blobs -->
+    <div class="ambient-bg">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-gold"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo-area">
+            <h1>🎸 SOVEREIGN <span>UKULELE</span></h1>
+            <span>Dragon 9 Instructor Module // Node-Uke v1.0</span>
+        </div>
+        <div class="nav-links">
+            <a href="../apps.html" class="nav-btn">🌌 APPS</a>
+            <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+            <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+            <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+            <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+            <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+            <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+            <a href="../radio/" class="nav-btn">📻 RADIO</a>
+        </div>
+    </header>
+
+    <!-- Workspace Grid -->
+    <main class="workspace">
+
+        <!-- Left Controls Sidebar -->
+        <section class="sidebar">
+            
+            <div class="control-group">
+                <h2 class="panel-title">⏱️ Metronome</h2>
+                <label>Tempo <span id="metronomeBpmVal">100 BPM</span></label>
+                <input type="range" id="metronomeBpm" class="slider-input" min="40" max="220" step="1" value="100">
+                
+                <button id="metronomeToggle" class="action-btn">🔊 Start Metronome</button>
+            </div>
+
+            <div class="control-group">
+                <h2 class="panel-title">🎼 Progression Guide</h2>
+                <label>Active Progression</label>
+                <select id="progressionSelect" class="select-input">
+                    <option value="none">OFF (FREE PLAY)</option>
+                    <option value="island">ISLAND SHIFT (C - G - Am - F)</option>
+                    <option value="reggae">REGGAE RAMP (Am - Dm - G - C)</option>
+                    <option value="jazzy">JAZZ RESIDUE (Cmaj7 - Fmaj7 - G7 - C)</option>
+                    <option value="classic">SOVEREIGN VIBE (C - Am - F - G)</option>
+                </select>
+                <button id="progressionToggle" class="action-btn" style="margin-top: 6px; border-color: var(--accent-gold); background: rgba(212,175,55,0.05);">⚡ Practice Progression</button>
+            </div>
+
+            <div class="control-group" style="margin-top: auto;">
+                <h2 class="panel-title">🎛️ Audio Controls</h2>
+                <button id="strumChordBtn" class="action-btn" style="border-color: #fff; background: rgba(255,255,255,0.03);">🎶 Strum Active Chord</button>
+            </div>
+
+        </section>
+
+        <!-- Center Instructor Fretboard -->
+        <section class="instructor-area">
+            
+            <div class="fretboard-hud" id="activeChordTitle">
+                CHORD: <span>FREE PLAY</span>
+            </div>
+
+            <div class="fretboard-neck-wrapper">
+                <!-- SVG Fretboard Graphic -->
+                <svg id="fretboardSvg" viewBox="0 0 600 150">
+                    <!-- Strings and frets will be updated/rendered dynamically by script.js -->
+                </svg>
+            </div>
+
+            <!-- Progression Practice Rhythm bar -->
+            <div class="rhythm-guide" id="rhythmGuidePanel" style="opacity: 0.5;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px;">
+                    <span id="currentChordPrompt" style="color: var(--accent-cyan); font-weight: bold;">SELECT PROGRESSION</span>
+                    <span id="nextChordPrompt" style="color: var(--text-muted);">NEXT: --</span>
+                </div>
+                <div class="timeline-bar">
+                    <div class="timeline-progress" id="timelineBar"></div>
+                </div>
+                <div class="timeline-steps">
+                    <span id="beatStep-1">BEAT 1</span>
+                    <span id="beatStep-2">BEAT 2</span>
+                    <span id="beatStep-3">BEAT 3</span>
+                    <span id="beatStep-4">BEAT 4</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Chord Panel -->
+        <section class="chord-panel">
+            <h2 class="panel-title">📚 Chord Library</h2>
+            <div class="chord-grid" id="chordGrid">
+                <!-- Chords buttons injected dynamically by script.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JS Logic -->
+    <script src="script.js"></script>
+
+</body>
+</html>
