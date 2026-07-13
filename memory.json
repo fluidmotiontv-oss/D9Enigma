@@ -100,6 +100,10 @@
       "file": "sitemap.html",
       "pdf": "sitemap.pdf",
       "description": "A print-friendly accessible layout map of the entire Dragon 9 directory hierarchy and sub-applications structure."
+    },
+    "sovereign_accountant": {
+      "file": "accountant/index.html",
+      "description": "An offline-first double-entry ledger balancing Cash Reserves, Barter Swaps, and Harmony Note credits timed to the 54-minute hour model."
     }
   },
   "recorded_efforts": [
@@ -190,6 +194,10 @@
     {
       "timestamp": "2026-07-14T01:10:00+12:00",
       "summary": "Designed a customizable Lotus Garden & Tree Service business plan template (lotus_garden_tree_service_business_plan.md), integrating it as an interactive Enterprise tab inside the garden app."
+    },
+    {
+      "timestamp": "2026-07-14T01:25:00+12:00",
+      "summary": "Built the brand-new Sovereign Accountant app (accountant/index.html) enabling offline double-entry bookkeeping (fiat, barter shares, and work timecard logging), protected by systems auth gate, and registered it in sitemap and systems console."
     }
   ]
 }
