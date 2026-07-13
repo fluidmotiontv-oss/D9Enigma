@@ -138,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Run initial diagnostics & ledger summaries
     calculateLedger();
     calculateRoomResonance();
+    updateSolarSimulation();
     draw();
 });
 
@@ -558,6 +559,43 @@ function runDiagnostics() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // 2D Solar Angle & Rays Projection
+    const timeVal = parseFloat(document.getElementById('solar-time')?.value) || 12;
+    const angle = ((timeVal - 6) / 12) * Math.PI;
+    const dx = -Math.cos(angle);
+    let dz = 0.7; // default Southward slant (Sun in Northern Sky for NZ)
+    const season = document.getElementById('solar-season')?.value || 'equinox';
+    if (season === 'summer') dz = 0.35;
+    if (season === 'winter') dz = 1.35;
+    
+    const rayOffsetX = dx * 80;
+    const rayOffsetY = dz * 80;
+
+    // Draw projected window light beams
+    if (Math.sin(angle) > 0.05) {
+        furniture.forEach(item => {
+            if (item.type === 'window') {
+                ctx.fillStyle = `rgba(255, 230, 128, ${0.18 * Math.sin(angle)})`;
+                ctx.beginPath();
+                ctx.moveTo(item.x - 15, item.y);
+                ctx.lineTo(item.x + 15, item.y);
+                ctx.lineTo(item.x + 15 + rayOffsetX, item.y + rayOffsetY);
+                ctx.lineTo(item.x - 15 + rayOffsetX, item.y + rayOffsetY);
+                ctx.closePath();
+                ctx.fill();
+            }
+        });
+    }
+
+    // Cardinal Direction Guidelines (NZ Sun orientation: North is Up/Top of screen)
+    ctx.font = "bold 9px 'Share Tech Mono', monospace";
+    ctx.fillStyle = "rgba(141, 163, 146, 0.45)";
+    ctx.textAlign = "center";
+    ctx.fillText("▲ N (NORTH SKY tilt)", canvas.width / 2, 18);
+    ctx.fillText("▼ S (SOUTH)", canvas.width / 2, canvas.height - 10);
+    ctx.fillText("E ▶", canvas.width - 25, canvas.height / 2);
+    ctx.fillText("◀ W", 25, canvas.height / 2);
+
     if (showGrid) {
         ctx.strokeStyle = "rgba(141, 163, 146, 0.05)";
         ctx.lineWidth = 1;
@@ -699,6 +737,11 @@ let prevMouse3D = { x: 0, y: 0 };
 let threeMeshes = [];
 let mouseDownPos = { x: 0, y: 0 };
 
+let dirLight = null;
+let ambientLight = null;
+let solarPlayInterval = null;
+let isSolarPlaying = false;
+
 const raycaster = new THREE.Raycaster();
 const mouse3D = new THREE.Vector2();
 
@@ -736,16 +779,19 @@ function initThree() {
     renderer.setSize(600, 500);
     container.appendChild(renderer.domElement);
     
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
     scene.add(ambientLight);
     
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
     dirLight.position.set(250, 450, 200);
     scene.add(dirLight);
     
     const gridHelper = new THREE.GridHelper(600, 20, 0x8da392, 0x1f2621);
     gridHelper.position.y = -0.5;
     scene.add(gridHelper);
+    
+    // Calibrate solar lights immediately
+    updateSolarSimulation();
     
     syncThreeScene();
     
@@ -809,7 +855,6 @@ function handleThreeClick(e) {
     const intersects = raycaster.intersectObjects(scene.children, true);
     
     if (intersects.length > 0) {
-        // 1. Check for handle click first
         const handleHit = intersects.find(hit => hit.object.userData && hit.object.userData.isHandle);
         if (handleHit) {
             const handle = handleHit.object;
@@ -837,7 +882,6 @@ function handleThreeClick(e) {
             return;
         }
         
-        // 2. Check for room or furniture click
         const meshHit = intersects.find(hit => hit.object.userData && hit.object.userData.ref);
         if (meshHit) {
             const hitItem = meshHit.object.userData.ref;
@@ -855,7 +899,6 @@ function drawAdjustmentHandles(item, type) {
     const fWidth = (type === 'room' ? item.h : (item.width || 1.2) * 35);
     const fHeight = (type === 'room' ? item.height * 30 : (item.height || 1.0) * 35);
     
-    // Wireframe select bounding box
     const boxGeom = new THREE.BoxGeometry(fLength + 4, fHeight + 4, fWidth + 4);
     const boxMat = new THREE.MeshBasicMaterial({
         color: 0xc88a75,
@@ -866,7 +909,6 @@ function drawAdjustmentHandles(item, type) {
     scene.add(selectBox);
     threeMeshes.push(selectBox);
     
-    // Handle builder
     function createHandle(axis, dir, color, px, py, pz) {
         const sphereGeom = new THREE.SphereGeometry(6, 8, 8);
         const sphereMat = new THREE.MeshPhongMaterial({
@@ -887,22 +929,111 @@ function drawAdjustmentHandles(item, type) {
         threeMeshes.push(sphere);
     }
     
-    // X-axis handles (Red): Length adjustment
     createHandle('x', 1, 0xff3333, mx + fLength/2 + 20, fHeight/2, mz);
     createHandle('x', -1, 0xaa2222, mx - fLength/2 - 20, fHeight/2, mz);
     
-    // Y-axis handles (Green): Width adjustment
     createHandle('y', 1, 0x33ff33, mx, fHeight/2, mz + fWidth/2 + 20);
     createHandle('y', -1, 0x22aa22, mx, fHeight/2, mz - fWidth/2 - 20);
     
-    // Z-axis handles (Blue): Height adjustment
     createHandle('z', 1, 0x3333ff, mx, fHeight + 20, mz);
     createHandle('z', -1, 0x2222aa, mx, Math.max(10, fHeight - 20), mz);
 }
 
+window.updateSolarSimulation = function() {
+    const season = document.getElementById('solar-season').value;
+    const timeVal = parseFloat(document.getElementById('solar-time').value);
+    
+    const hours = Math.floor(timeVal);
+    const mins = (timeVal % 1 === 0) ? "00" : "30";
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const dispHours = hours > 12 ? hours - 12 : hours;
+    document.getElementById('solar-time-label').innerText = `${dispHours}:${mins} ${ampm}`;
+    
+    const angle = ((timeVal - 6) / 12) * Math.PI;
+    const sunX = 350 * Math.cos(angle);
+    
+    let sinZenith = 0.7;
+    let sunZ = -180;
+    if (season === 'summer') {
+        sinZenith = 0.92;
+        sunZ = -70;
+    } else if (season === 'winter') {
+        sinZenith = 0.42;
+        sunZ = -280;
+    }
+    
+    const sunY = 350 * Math.sin(angle) * sinZenith;
+    
+    if (dirLight && ambientLight) {
+        dirLight.position.set(sunX, sunY, sunZ);
+        
+        const dayScale = Math.sin(angle);
+        dirLight.intensity = 0.15 + 0.9 * dayScale;
+        ambientLight.intensity = 0.1 + 0.35 * dayScale;
+        
+        const rColor = 1.0;
+        const gColor = 0.75 + 0.25 * dayScale;
+        const bColor = 0.5 + 0.5 * dayScale;
+        dirLight.color.setRGB(rColor, gColor, bColor);
+    }
+    
+    draw();
+    if (show3D && scene) {
+        syncThreeScene();
+    }
+};
+
+window.toggleSolarAnimation = function() {
+    isSolarPlaying = !isSolarPlaying;
+    const btn = document.getElementById('btn-solar-play');
+    if (isSolarPlaying) {
+        btn.innerText = "⏸ PAUSE CYCLE";
+        btn.classList.add('playing');
+        solarPlayInterval = setInterval(() => {
+            const slider = document.getElementById('solar-time');
+            let nextVal = parseFloat(slider.value) + 0.25;
+            if (nextVal > 18) nextVal = 6;
+            slider.value = nextVal;
+            updateSolarSimulation();
+        }, 150);
+    } else {
+        btn.innerText = "▶ PLAY DAY CYCLE";
+        btn.classList.remove('playing');
+        if (solarPlayInterval) {
+            clearInterval(solarPlayInterval);
+            solarPlayInterval = null;
+        }
+    }
+};
+
 function syncThreeScene() {
     threeMeshes.forEach(mesh => scene.remove(mesh));
     threeMeshes = [];
+    
+    // Compass Billboard Labels
+    function createCompassLabel(text, px, pz) {
+        const canvasLabel = document.createElement('canvas');
+        canvasLabel.width = 64;
+        canvasLabel.height = 64;
+        const ctxLabel = canvasLabel.getContext('2d');
+        ctxLabel.font = "bold 28px 'Share Tech Mono', monospace";
+        ctxLabel.fillStyle = "#8da392";
+        ctxLabel.textAlign = "center";
+        ctxLabel.fillText(text, 32, 40);
+        
+        const texture = new THREE.CanvasTexture(canvasLabel);
+        const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+        const sprite = new THREE.Sprite(mat);
+        sprite.position.set(px, 15, pz);
+        sprite.scale.set(40, 40, 1);
+        scene.add(sprite);
+        threeMeshes.push(sprite);
+    }
+    
+    createCompassLabel("N", 0, -280);
+    createCompassLabel("S", 0, 280);
+    createCompassLabel("E", 280, 0);
+    createCompassLabel("W", -280, 0);
     
     // Draw rooms
     rooms.forEach(room => {
@@ -928,7 +1059,6 @@ function syncThreeScene() {
         scene.add(mesh);
         threeMeshes.push(mesh);
         
-        // Floor slab
         const floorGeom = new THREE.BoxGeometry(roomW, 3, roomH);
         const floorMat = new THREE.MeshPhongMaterial({
             color: new THREE.Color(spec.border),
@@ -942,7 +1072,7 @@ function syncThreeScene() {
         threeMeshes.push(floorMesh);
     });
     
-    // Draw furniture
+    // Draw furniture & Volumetric Window lights
     furniture.forEach(item => {
         const mx = item.x - 300;
         const mz = item.y - 250;
@@ -1050,6 +1180,61 @@ function syncThreeScene() {
             glass.userData = { ref: item, type: 'furniture' };
             glass.position.y = fHeight / 2;
             group.add(glass);
+            
+            // Volumetric Sunlight projection path math
+            const timeVal = parseFloat(document.getElementById('solar-time')?.value) || 12;
+            const angle = ((timeVal - 6) / 12) * Math.PI;
+            
+            if (Math.sin(angle) > 0.05) {
+                const season = document.getElementById('solar-season').value;
+                let sinZenith = 0.7;
+                let sunZ = -180;
+                if (season === 'summer') { sinZenith = 0.92; sunZ = -70; }
+                else if (season === 'winter') { sinZenith = 0.42; sunZ = -280; }
+                
+                const sunX = 350 * Math.cos(angle);
+                const sunY = 350 * Math.sin(angle) * sinZenith;
+                
+                const len = Math.sqrt(sunX*sunX + sunY*sunY + sunZ*sunZ);
+                const rx = -sunX / len;
+                const ry = -sunY / len;
+                const rz = -sunZ / len;
+                
+                const wy = fHeight / 2;
+                const t = -wy / ry;
+                
+                const px = mx + rx * t;
+                const pz = mz + rz * t;
+                
+                // Floor patch mesh
+                const patchGeom = new THREE.PlaneGeometry(fWidth, fWidth * 1.5);
+                const patchMat = new THREE.MeshBasicMaterial({
+                    color: 0xffdf80,
+                    transparent: true,
+                    opacity: 0.3 * Math.sin(angle),
+                    side: THREE.DoubleSide
+                });
+                const patch = new THREE.Mesh(patchGeom, patchMat);
+                patch.rotation.x = -Math.PI / 2;
+                patch.position.set(px, 0.6, pz);
+                scene.add(patch);
+                threeMeshes.push(patch);
+                
+                // Volumetric beam box mesh
+                const beamDist = Math.sqrt((px - mx)**2 + (pz - mz)**2 + wy**2);
+                const beamGeom = new THREE.BoxGeometry(4, fWidth, beamDist);
+                const beamMat = new THREE.MeshBasicMaterial({
+                    color: 0xffe680,
+                    transparent: true,
+                    opacity: 0.1 * Math.sin(angle),
+                    side: THREE.DoubleSide
+                });
+                const beam = new THREE.Mesh(beamGeom, beamMat);
+                beam.position.set((mx + px)/2, wy/2, (mz + pz)/2);
+                beam.lookAt(px, 0.5, pz);
+                scene.add(beam);
+                threeMeshes.push(beam);
+            }
         }
         
         group.position.set(mx, 0, mz);
@@ -1057,7 +1242,6 @@ function syncThreeScene() {
         threeMeshes.push(group);
     });
     
-    // Add 3D sizing handles for the currently selected item
     if (selectedItem) {
         drawAdjustmentHandles(selectedItem, selectedType);
     }

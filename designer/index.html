@@ -197,6 +197,34 @@
             </div>
 
             <div>
+                <h3 class="section-title">Solar & Light Simulator</h3>
+                <div class="frequency-tuner" style="margin-bottom:15px; font-family:'Share Tech Mono', monospace; font-size:0.7rem; line-height:1.4;">
+                    <div style="margin-bottom: 10px;">
+                        <label style="display:block; margin-bottom:4px; color:var(--text-muted);">SEASON</label>
+                        <select id="solar-season" class="dim-input" style="width:100%; text-transform:uppercase; background: rgba(0,0,0,0.3); border: 1px solid var(--accent-sage);" onchange="updateSolarSimulation()">
+                            <option value="summer">Summer Solstice (High North-Sun)</option>
+                            <option value="equinox" selected>Equinox (Mid-Sun)</option>
+                            <option value="winter">Winter Solstice (Low North-Sun)</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display:block; margin-bottom:4px; color:var(--text-muted);">TIME OF DAY</label>
+                        <input type="range" id="solar-time" min="6" max="18" step="0.25" value="12" style="width:100%; accent-color:var(--accent-clay); background:transparent;" oninput="updateSolarSimulation()">
+                        <div style="display:flex; justify-content:space-between; margin-top:2px;">
+                            <span>6 AM (East)</span>
+                            <span id="solar-time-label" style="color:var(--accent-sand); font-weight:bold;">12:00 PM</span>
+                            <span>6 PM (West)</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="play-pulse-btn" id="btn-solar-play" onclick="toggleSolarAnimation()" style="flex:1; margin-top:5px; padding:6px 0;">
+                            ▶ PLAY DAY CYCLE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
                 <h3 class="section-title">Energy Diagnostics</h3>
                 <div class="checklist" id="diagnostic-checklist">
                     <!-- Diagnostic warnings populated dynamically by js solver -->

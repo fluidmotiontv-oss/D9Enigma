@@ -254,6 +254,10 @@
     {
       "timestamp": "2026-07-14T04:15:00+12:00",
       "summary": "Implemented in-viewport 3D adjustment handles and click selectors inside the Three.js viewport to allow users to directly click and resize room or furniture models (Length, Width, Height) in the 3D plane."
+    },
+    {
+      "timestamp": "2026-07-14T04:22:00+12:00",
+      "summary": "Added a complete Solar and Light Simulator to Harmonic Home Designer, projecting 2D sunbeam angles from windows, creating volumetric 3D light cylinders and floor patches with warm sunrise/sunset color shifts, and rendering cardinal direction guides (North, South, East, West) with billboard sprites."
     }
   ]
 }
