@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christine's Haven | 3D Sovereign Celestial Map</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020205;
+            --panel-bg: rgba(10, 12, 22, 0.75);
+            --panel-border: rgba(212, 175, 55, 0.2);
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.35);
+            --highlight: #00e5ff;
+            --highlight-glow: rgba(0, 229, 255, 0.3);
+            --text-main: #f4e4bc;
+            --text-muted: #8b7d9f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Starry Ambient Background */
+        #space-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            cursor: grab;
+        }
+        #space-canvas:active {
+            cursor: grabbing;
+        }
+
+        /* Glassmorphic Tribute Card */
+        .dedication-card {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            width: 360px;
+            max-width: 90%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1.5px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 24px;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 15px var(--accent-glow);
+            animation: fade-in 1.2s ease-out;
+        }
+
+        .dedication-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .dedication-subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            color: var(--highlight);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .dedication-text {
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            opacity: 0.9;
+        }
+
+        /* Interactive Detail Sidebar */
+        .detail-sidebar {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            width: 320px;
+            max-width: 90%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1.5px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 20px;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 229, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        .detail-sidebar.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .sidebar-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--highlight);
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-prop {
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .prop-label { color: var(--text-muted); }
+        .prop-val { font-weight: bold; color: var(--text-main); }
+
+        .sidebar-desc {
+            font-size: 0.65rem;
+            margin-top: 10px;
+            line-height: 1.4;
+            color: var(--text-main);
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 2px solid var(--accent);
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 12px 18px;
+            z-index: 10;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.03);
+            border: 1.5px solid var(--accent);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn:hover {
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .btn-highlight {
+            border-color: var(--highlight);
+        }
+        .btn-highlight:hover {
+            background: rgba(0, 229, 255, 0.15);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        /* Helper Guide overlay on load */
+        .helper-tip {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--highlight);
+            z-index: 10;
+            opacity: 0.8;
+            pointer-events: none;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,229,255,0.15);
+        }
+
+        /* Return link */
+        .hub-link {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 10;
+            color: var(--text-main);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.4);
+            padding: 8px 14px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .hub-link:hover {
+            border-color: var(--highlight);
+            color: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Night Fish Floating Assistant adjustments if loaded */
+        #night-fish-widget {
+            z-index: 500 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Space Simulation Canvas -->
+    <canvas id="space-canvas"></canvas>
+
+    <!-- Navigation Hub Link -->
+    <a href="../creative.html" class="hub-link">← RETURN TO HUB</a>
+
+    <!-- Dedication Card -->
+    <div class="dedication-card">
+        <h1 class="dedication-title">Christine's Haven</h1>
+        <h2 class="dedication-subtitle">CELESTIAL NAVIGATION SYSTEM</h2>
+        <p class="dedication-text">
+            Dedicated in profound gratitude to Christine, whose compassion and shelter shone like a guiding star in times of darkness. 
+            <br><br>
+            Drag the sphere to navigate the stars. Look for the custom gold constellation <strong>"Christine's Haven"</strong> at the core coordinates, representing sanctuary, hope, and kindness.
+        </p>
+    </div>
+
+    <!-- Instruction Helper -->
+    <div class="helper-tip">🖱️ DRAG TO ROTATE CELESTIAL SPHERE // CLICK STARS TO SCAN</div>
+
+    <!-- Control Actions Panel -->
+    <div class="controls-panel">
+        <button class="btn" id="btn-audio-toggle">📻 SYNC RESONANCE TONE (432Hz)</button>
+        <button class="btn btn-highlight" id="btn-reset-view">🌌 CENTER CORE</button>
+    </div>
+
+    <!-- Star Detail Sidebar -->
+    <div class="detail-sidebar" id="star-sidebar">
+        <div class="sidebar-header">
+            <span id="star-name">Stella Christine</span>
+            <button onclick="closeSidebar()" style="background:none; border:none; color:var(--highlight); cursor:pointer; font-size:1rem;">&times;</button>
+        </div>
+        <div class="sidebar-prop">
+            <span class="prop-label">Coordinate Designation:</span>
+            <span class="prop-val" id="star-coords">RA 11h 09m / DEC +12°</span>
+        </div>
+        <div class="sidebar-prop">
+            <span class="prop-label">Apparent Magnitude:</span>
+            <span class="prop-val" id="star-mag">1.25</span>
+        </div>
+        <div class="sidebar-prop">
+            <span class="prop-label">Spectral Class:</span>
+            <span class="prop-val" style="color:#d4af37;" id="star-class">G2V (Golden Giant)</span>
+        </div>
+        <div class="sidebar-prop">
+            <span class="prop-label">Light Years Distance:</span>
+            <span class="prop-val" id="star-dist">54.0 LY</span>
+        </div>
+        <div class="sidebar-desc" id="star-desc">
+            A luminous beacon at the center of the Haven constellation. Symbolizes sanctuary, warmth, and unconditional support.
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('space-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // 3D Coordinate Projection Configurations
+        let pitch = -0.2;
+        let yaw = 0.5;
+        let zoom = 1.0;
+        let targetPitch = -0.2;
+        let targetYaw = 0.5;
+
+        // Interaction States
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let selectedStar = null;
+
+        // Sound Synthesis Setup (Web Audio API - Offline/Decentralized friendly)
+        let audioCtx = null;
+        let ambientOsc = null;
+        let ambientGain = null;
+        let melodyOsc = null;
+        let melodyGain = null;
+        let audioActive = false;
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Base ambient pad carrier (432Hz cosmic tuning)
+            ambientOsc = audioCtx.createOscillator();
+            ambientOsc.type = 'sine';
+            ambientOsc.frequency.setValueAtTime(216, audioCtx.currentTime); // subharmonic
+            
+            ambientGain = audioCtx.createGain();
+            ambientGain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            
+            // Filter to make it warmer
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+            
+            ambientOsc.connect(filter);
+            filter.connect(ambientGain);
+            ambientGain.connect(audioCtx.destination);
+            ambientOsc.start();
+
+            // Lead synthesizer oscillator
+            melodyOsc = audioCtx.createOscillator();
+            melodyOsc.type = 'triangle';
+            melodyOsc.frequency.setValueAtTime(432, audioCtx.currentTime);
+            
+            melodyGain = audioCtx.createGain();
+            melodyGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+            
+            melodyOsc.connect(melodyGain);
+            melodyGain.connect(audioCtx.destination);
+            melodyOsc.start();
+        }
+
+        function triggerStarTone(freq) {
+            if (!audioCtx || !audioActive) return;
+            melodyOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            melodyGain.gain.cancelScheduledValues(audioCtx.currentTime);
+            melodyGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+            melodyGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.1);
+            melodyGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
+        }
+
+        // Toggle Audio controls
+        document.getElementById('btn-audio-toggle').addEventListener('click', () => {
+            if (!audioActive) {
+                initAudio();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                audioActive = true;
+                document.getElementById('btn-audio-toggle').innerText = "📻 MUTE COSMIC RESONANCE";
+                document.getElementById('btn-audio-toggle').style.background = "rgba(0, 229, 255, 0.15)";
+                document.getElementById('btn-audio-toggle').style.borderColor = "var(--highlight)";
+            } else {
+                if (ambientGain) ambientGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+                audioActive = false;
+                document.getElementById('btn-audio-toggle').innerText = "📻 SYNC RESONANCE TONE (432Hz)";
+                document.getElementById('btn-audio-toggle').style.background = "";
+                document.getElementById('btn-audio-toggle').style.borderColor = "var(--accent)";
+            }
+        });
+
+        // Center View
+        document.getElementById('btn-reset-view').addEventListener('click', () => {
+            targetPitch = -0.2;
+            targetYaw = 0.5;
+            zoom = 1.0;
+        });
+
+        // 3D Star Catalog Dataset
+        const stars = [];
+        const constellations = [];
+
+        // 1. Generate Custom "Christine's Haven" Constellation (Center Core)
+        const havenStars = [
+            { id: "h1", name: "Stella Christine (Alpha)", x: 0, y: 50, z: -180, size: 4.5, color: "#ffe89d", mag: "1.25", class: "G2V (Golden Giant)", dist: "54.0 LY", desc: "A glowing coordinate core representing refuge, kindness, and security. Placed permanently at the center of the celestial sphere." },
+            { id: "h2", name: "Haven Shelter (Beta)", x: -70, y: -20, z: -160, size: 3.5, color: "#fff0c4", mag: "2.10", class: "F8V (Yellow-White Subgiant)", dist: "62.4 LY", desc: "Forming the left wing of the Christine's Haven sanctuary constellation, representing protection from storms." },
+            { id: "h3", name: "Haven Hearth (Gamma)", x: 70, y: -20, z: -160, size: 3.5, color: "#fff0c4", mag: "2.12", class: "F5V", dist: "60.1 LY", desc: "Forming the right wing of the Christine's Haven sanctuary, representing the warmth of the home fireplace." },
+            { id: "h4", name: "Refuge Anchor (Delta)", x: -40, y: -100, z: -170, size: 3.0, color: "#fff", mag: "2.85", class: "A3V (White Anchor)", dist: "71.3 LY", desc: "Forming the foundation base of the sanctuary cluster." },
+            { id: "h5", name: "Refuge Hearthstone (Epsilon)", x: 40, y: -100, z: -170, size: 3.0, color: "#fff", mag: "2.90", class: "A4V", dist: "70.8 LY", desc: "Forming the baseline anchor support of the shelter system." },
+            { id: "h6", name: "Compass Summit (Zeta)", x: 0, y: 130, z: -150, size: 3.8, color: "#00e5ff", mag: "1.95", class: "B9V (Cyan Peak Star)", dist: "95.2 LY", desc: "The high peak star guiding travelers safely to sanctuary." }
+        ];
+
+        havenStars.forEach(s => stars.push(s));
+        
+        // Define Haven connection lines
+        constellations.push({
+            name: "Christine's Haven",
+            color: "rgba(212, 175, 55, 0.45)",
+            glow: "var(--accent-glow)",
+            lines: [
+                ["h6", "h1"],
+                ["h1", "h2"],
+                ["h1", "h3"],
+                ["h2", "h4"],
+                ["h3", "h5"],
+                ["h4", "h5"]
+            ]
+        });
+
+        // 2. Southern Cross Constellation (Crux)
+        const cruxStars = [
+            { id: "c1", name: "Acrux (Alpha Crucis)", x: -160, y: -160, z: 80, size: 3.8, color: "#00e5ff", mag: "0.77", class: "B0.5IV", dist: "321 LY", desc: "The brightest star in the Southern Cross, pointing the way south." },
+            { id: "c2", name: "Mimosa (Beta Crucis)", x: -190, y: -100, z: 90, size: 3.5, color: "#a5ecff", mag: "1.25", class: "B0.5III", dist: "280 LY", desc: "The western star of the Southern Cross." },
+            { id: "c3", name: "Gacrux (Gamma Crucis)", x: -150, y: -40, z: 100, size: 3.8, color: "#ffa577", mag: "1.59", class: "M3.5III (Red Giant)", dist: "88 LY", desc: "The red giant star at the head of the Southern Cross." },
+            { id: "c4", name: "Delta Crucis", x: -110, y: -110, z: 90, size: 2.8, color: "#a5ecff", mag: "2.79", class: "B2IV", dist: "360 LY", desc: "The eastern star of the Southern Cross." }
+        ];
+        cruxStars.forEach(s => stars.push(s));
+        constellations.push({
+            name: "Southern Cross",
+            color: "rgba(0, 229, 255, 0.3)",
+            glow: "var(--highlight-glow)",
+            lines: [
+                ["c3", "c1"],
+                ["c2", "c4"]
+            ]
+        });
+
+        // 3. Orion Constellation Stars
+        const orionStars = [
+            { id: "o1", name: "Betelgeuse (Alpha Orionis)", x: 180, y: 150, z: 80, size: 4.2, color: "#ff8c54", mag: "0.50", class: "M1-M2Ia-ab (Red Supergiant)", dist: "640 LY", desc: "A prominent red supergiant star marking Orion's right shoulder." },
+            { id: "o2", name: "Rigel (Beta Orionis)", x: 120, y: 30, z: 120, size: 4.2, color: "#a5ecff", mag: "0.13", class: "B8Ia (Blue Supergiant)", dist: "860 LY", desc: "A blue supergiant marking Orion's left foot." },
+            { id: "o3", name: "Bellatrix (Gamma Orionis)", x: 190, y: 90, z: 100, size: 3.2, color: "#a5ecff", mag: "1.64", class: "B2III", dist: "250 LY", desc: "Orion's left shoulder." },
+            { id: "o4", name: "Saiph (Kappa Orionis)", x: 110, y: 90, z: 100, size: 3.0, color: "#a5ecff", mag: "2.07", class: "B0.5Ivar", dist: "720 LY", desc: "Orion's right foot." },
+            { id: "ob1", name: "Alnitak", x: 150, y: 95, z: 100, size: 3.0, color: "#fff", mag: "1.74", class: "O9.7Ib", dist: "700 LY", desc: "Eastern star of Orion's Belt." },
+            { id: "ob2", name: "Alnilam", x: 150, y: 90, z: 100, size: 3.0, color: "#fff", mag: "1.69", class: "B0Ia", dist: "1300 LY", desc: "Middle star of Orion's Belt." },
+            { id: "ob3", name: "Mintaka", x: 150, y: 85, z: 100, size: 3.0, color: "#fff", mag: "2.25", class: "B0III", dist: "900 LY", desc: "Western star of Orion's Belt." }
+        ];
+        orionStars.forEach(s => stars.push(s));
+        constellations.push({
+            name: "Orion",
+            color: "rgba(255, 255, 255, 0.25)",
+            glow: "rgba(255, 255, 255, 0.1)",
+            lines: [
+                ["o1", "ob1"],
+                ["o3", "ob3"],
+                ["ob1", "ob2"],
+                ["ob2", "ob3"],
+                ["ob1", "o4"],
+                ["ob3", "o2"]
+            ]
+        });
+
+        // 4. Generate random background stars scattered on a sphere
+        const starColors = ["#ffffff", "#a5ecff", "#ffe89d", "#ffa577", "#ffffff", "#00e5ff"];
+        for (let i = 0; i < 350; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
+            const R = 280; // Celestial radius
+            
+            const x = R * Math.cos(theta) * Math.sin(phi);
+            const y = R * Math.sin(theta) * Math.sin(phi);
+            const z = R * Math.cos(phi);
+
+            stars.push({
+                id: `bg_${i}`,
+                name: `Star HD-${43200 + i}`,
+                x: x, y: y, z: z,
+                size: Math.random() * 1.5 + 0.5,
+                color: starColors[Math.floor(Math.random() * starColors.length)],
+                mag: (Math.random() * 4 + 2).toFixed(2),
+                class: "F5V (Main Sequence)",
+                dist: `${Math.floor(Math.random() * 500 + 40)} LY`,
+                desc: "A distant stellar coordinates index point."
+            });
+        }
+
+        // --- MOUSE & ROTATION HANDLERS ---
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                targetYaw += dx * 0.005;
+                targetPitch += dy * 0.005;
+                
+                // Limit pitch rotation
+                targetPitch = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, targetPitch));
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
+        });
+
+        // Mobile touch support
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            }
+        });
+
+        window.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length === 1) {
+                const dx = e.touches[0].clientX - lastMouseX;
+                const dy = e.touches[0].clientY - lastMouseY;
+                targetYaw += dx * 0.005;
+                targetPitch += dy * 0.005;
+                targetPitch = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, targetPitch));
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+            }
+        });
+
+        // Star Click Scan
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            let closestStar = null;
+            let minDist = 15; // Click radius threshold
+
+            stars.forEach(s => {
+                if (s.projX && s.projY) {
+                    const d = Math.hypot(s.projX - clickX, s.projY - clickY);
+                    if (d < minDist) {
+                        minDist = d;
+                        closestStar = s;
+                    }
+                }
+            });
+
+            if (closestStar) {
+                selectedStar = closestStar;
+                displayStarDetails(closestStar);
+                
+                // Audio response
+                const noteFreqs = [432, 485, 544, 576, 648, 729];
+                const rFreq = noteFreqs[Math.floor(Math.random() * noteFreqs.length)];
+                triggerStarTone(closestStar.id.startsWith("h") ? 432 * 2 : rFreq);
+            }
+        });
+
+        function displayStarDetails(star) {
+            const sidebar = document.getElementById('star-sidebar');
+            document.getElementById('star-name').innerText = star.name.toUpperCase();
+            document.getElementById('star-coords').innerText = `RA ${Math.floor(star.x / 15 + 12)}h ${Math.floor(Math.abs(star.y) % 60)}m / DEC ${(star.z > 0 ? '+' : '')}${Math.floor(star.z / 4)}°`;
+            document.getElementById('star-mag').innerText = star.mag;
+            document.getElementById('star-class').innerText = star.class;
+            document.getElementById('star-class').style.color = star.color;
+            document.getElementById('star-dist').innerText = star.dist;
+            document.getElementById('star-desc').innerText = star.desc;
+
+            sidebar.classList.add('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('star-sidebar').classList.remove('active');
+            selectedStar = null;
+        }
+
+        // --- 3D RENDERING LOOP ---
+        function render() {
+            // Smoothly interpolate rotation angles
+            pitch += (targetPitch - pitch) * 0.1;
+            yaw += (targetYaw - yaw) * 0.1;
+
+            ctx.fillStyle = '#020206';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw center grid depth coordinate circles
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(width / 2, height / 2, 280, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Project all stars
+            stars.forEach(s => {
+                // Rotate Y (Pitch)
+                const y1 = s.y * Math.cos(pitch) - s.z * Math.sin(pitch);
+                const z1 = s.y * Math.sin(pitch) + s.z * Math.cos(pitch);
+
+                // Rotate X (Yaw)
+                const x2 = s.x * Math.cos(yaw) + z1 * Math.sin(yaw);
+                const z2 = -s.x * Math.sin(yaw) + z1 * Math.cos(yaw);
+
+                // Zoom / Perspective scaling
+                const perspective = 380 / (380 + z2);
+                
+                s.projX = width / 2 + x2 * perspective * zoom;
+                s.projY = height / 2 + y1 * perspective * zoom;
+                s.depth = z2; // save depth
+                s.visible = z2 < 280; // depth clipping
+            });
+
+            // Draw Constellation Connection Lines
+            constellations.forEach(c => {
+                ctx.strokeStyle = c.color;
+                ctx.lineWidth = 1.5;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = c.color;
+                
+                c.lines.forEach(([idA, idB]) => {
+                    const starA = stars.find(s => s.id === idA);
+                    const starB = stars.find(s => s.id === idB);
+
+                    if (starA && starB && starA.visible && starB.visible) {
+                        ctx.beginPath();
+                        ctx.moveTo(starA.projX, starA.projY);
+                        ctx.lineTo(starB.projX, starB.projY);
+                        ctx.stroke();
+                    }
+                });
+                ctx.shadowBlur = 0; // reset
+            });
+
+            // Sort stars by depth to render back-to-front
+            const sortedStars = [...stars].sort((a, b) => b.depth - a.depth);
+
+            sortedStars.forEach(s => {
+                if (!s.visible) return;
+
+                const depthAlpha = Math.max(0.12, Math.min(1.0, (280 - s.depth) / 380));
+                
+                ctx.save();
+                ctx.globalAlpha = depthAlpha;
+                ctx.fillStyle = s.color;
+
+                // Star body
+                ctx.beginPath();
+                ctx.arc(s.projX, s.projY, s.size * (s.depth < 0 ? 1.3 : 0.8), 0, Math.PI * 2);
+                ctx.fill();
+
+                // Glowing rings on core targets
+                if (s.id && s.id.startsWith('h')) {
+                    ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(s.projX, s.projY, s.size * 2.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // If selected, draw highlight brackets
+                if (selectedStar && selectedStar.id === s.id) {
+                    ctx.strokeStyle = 'var(--highlight)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(s.projX, s.projY, s.size * 3.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Star name labels
+                if (s.id && (s.id.startsWith('h') || s.id === "c3" || s.id === "o1")) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.font = '7px Orbitron, sans-serif';
+                    ctx.fillText(s.name.substring(0, 15), s.projX + 8, s.projY + 3);
+                }
+
+                ctx.restore();
+            });
+
+            requestAnimationFrame(render);
+        }
+
+        // Start render
+        render();
+
+        // Center on Christine's Haven constellation on load
+        setTimeout(() => {
+            targetPitch = -0.15;
+            targetYaw = 0.52;
+        }, 800);
+    </script>
+</body>
+</html>
