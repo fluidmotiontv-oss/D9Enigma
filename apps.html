@@ -596,16 +596,27 @@
             const donateBtn = document.getElementById('paypal-donate-btn');
             if (donateBtn) {
                 if (PAYPAL_USERNAME.includes('@')) {
-                    donateBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_USERNAME)}&item_name=Support%20Dragon%209%20Development&currency_code=USD`;
                     const hintEl = document.querySelector('.donation-setup-hint');
                     if (hintEl) {
-                        hintEl.textContent = `Donations linked to: ${PAYPAL_USERNAME}`;
+                        hintEl.textContent = `Koha/Donation linked to: ${PAYPAL_USERNAME}`;
                     }
+                    donateBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const amountStr = prompt("Thank you for supporting Dragon 9!\n\nEnter Koha/donation amount (USD):", "10.00");
+                        if (amountStr === null) return;
+                        const amount = parseFloat(amountStr);
+                        if (isNaN(amount) || amount <= 0) {
+                            alert("Please enter a valid amount.");
+                            return;
+                        }
+                        const url = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_USERNAME)}&item_name=Koha%20for%20Dragon%209%20Development&currency_code=USD&amount=${amount.toFixed(2)}`;
+                        window.open(url, '_blank');
+                    });
                 } else {
                     donateBtn.href = `https://www.paypal.me/${PAYPAL_USERNAME}`;
                     const hintEl = document.querySelector('.donation-setup-hint');
                     if (hintEl) {
-                        hintEl.textContent = `Donations linked to: paypal.me/${PAYPAL_USERNAME}`;
+                        hintEl.textContent = `Koha/Donation linked to: paypal.me/${PAYPAL_USERNAME}`;
                     }
                 }
             }

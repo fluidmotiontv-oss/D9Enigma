@@ -662,7 +662,7 @@
         <header>
             <a href="index.html" class="nav-back">← LANDING PAGE</a>
             <h1>LOTUS <span>NEXUS</span></h1>
-            <button class="btn-upgrade-pro" id="btn-header-pro">★ UPGRADE TO PRO</button>
+            <button class="btn-upgrade-pro" id="btn-header-pro">★ KOHA / DONATE</button>
         </header>
 
         <!-- Left Sidebar - Settings -->
@@ -895,13 +895,13 @@
         </div>
     </div>
 
-    <!-- PRO Upgrade Modal -->
+    <!-- Koha / Donate Modal -->
     <div id="pro-modal" class="pro-modal">
         <div class="pro-modal-content">
             <span class="pro-close" id="pro-close-btn">&times;</span>
-            <h2>🌸 LOTUS <span>NEXUS PRO</span></h2>
+            <h2>🌸 SUPPORT VIA <span>KOHA / DONATION</span></h2>
             <p style="margin: 15px 0; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #94a3b8; line-height: 1.6;">
-                Unlock professional tools to capture, export, and synthesize advanced soundscapes with the fluid motion of the future.
+                Unlock extra features to capture, export, and synthesize advanced soundscapes as a thank you for your support.
             </p>
             <ul style="text-align: left; margin: 20px auto; max-width: 380px; color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 0.85rem; display: flex; flex-direction: column; gap: 10px; list-style-type: none;">
                 <li style="display: flex; gap: 10px; align-items: center;">✨ <span><strong>Export Master Audio</strong>: Save your loops as high-quality audio files.</span></li>
@@ -910,8 +910,8 @@
                 <li style="display: flex; gap: 10px; align-items: center;">🌀 <span><strong>Custom Vibes</strong>: Explore Void Resonance and custom 3D petal shapes.</span></li>
             </ul>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                <a href="https://paypal.me/dragon9" target="_blank" class="pro-upgrade-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #0070ba; color: #fff; box-shadow: 0 0 15px rgba(0, 112, 186, 0.4);" onmouseover="this.style.background='#007ed6'" onmouseout="this.style.background='#0070ba'">SUPPORT VIA PAYPAL DONATION</a>
-                <button class="pro-upgrade-btn" id="pro-upgrade-action-btn" style="background: rgba(255,255,255,0.05); color: var(--accent); border: 1px solid var(--border-color); box-shadow: none;">UNLOCK FREE / DONATOR SESSION</button>
+                <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9!\n\nEnter Koha/donation amount (USD):', '10.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Dragon%209%20Development&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="pro-upgrade-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #0070ba; color: #fff; box-shadow: 0 0 15px rgba(0, 112, 186, 0.4);" onmouseover="this.style.background='#007ed6'" onmouseout="this.style.background='#0070ba'">SUPPORT VIA PAYPAL KOHA</a>
+                <button class="pro-upgrade-btn" id="pro-upgrade-action-btn" style="background: rgba(255,255,255,0.05); color: var(--accent); border: 1px solid var(--border-color); box-shadow: none;">ACTIVATE SESSION FOR FREE / DONATOR</button>
             </div>
         </div>
     </div>
@@ -2909,7 +2909,7 @@
         
         document.getElementById('pro-upgrade-action-btn').addEventListener('click', () => {
             closeProModal();
-            showNotification("PRO VERSION ACTIVATED (DEMO MODE)", "var(--cyan-glow)");
+            showNotification("SESSION ACTIVATED! THANK YOU FOR YOUR KOHA", "var(--cyan-glow)");
             
             // Unlock all PRO elements for demo mode!
             document.querySelectorAll('.locked').forEach(el => {

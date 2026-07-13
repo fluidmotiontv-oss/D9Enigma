@@ -6,6 +6,17 @@
         "artist": "corey",
         "price": 10,
         "payment": "",
+        "timestamp": 0,
+        "status": "rejected"
+    },
+    {
+        "title": "Ambient Meditation",
+        "src": "assets/music/ambient_meditation.mp3",
+        "desc": "Solfeggio frequencies at 432Hz.",
+        "artist": "Timothy Dwen",
+        "price": 8,
+        "payment": "",
+        "status": "approved",
         "timestamp": 0
     }
 ]

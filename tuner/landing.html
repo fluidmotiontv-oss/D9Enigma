@@ -453,6 +453,8 @@
                 <div class="cta-buttons">
                     <a href="index.html" class="btn btn-primary">Launch App ⚡</a>
                     <a href="index.html" download="solfeggio_tuner.html" class="btn btn-secondary">Download Standalone 📥</a>
+                
+                    <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9!\n\nEnter Koha/donation amount (USD):', '10.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Dragon%209%20Development&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="btn btn-secondary" style="border-color: rgba(0, 112, 186, 0.4); color: #fff; background: rgba(0, 112, 186, 0.08);">Support Koha ☕</a>
                 </div>
             </div>
             

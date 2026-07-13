@@ -444,6 +444,7 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                         "artist": artist,
                         "price": price,
                         "payment": payment,
+                        "status": params.get('status', 'pending'),
                         "timestamp": int(params.get('timestamp', 0))
                     })
                     with open(filepath, 'w') as f:
@@ -452,6 +453,47 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_success_response({"status": "success", "message": "Track submitted successfully."})
             except Exception as e:
                 self.send_error_response(f"Submission failed: {str(e)}")
+                
+        elif self.path == '/api/triage-radio-track':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                params = json.loads(post_data.decode('utf-8'))
+                url = params.get('src', '').strip()
+                status = params.get('status', '').strip()
+                
+                if not url or not status:
+                    self.send_error_response("Track src and status are required.")
+                    return
+                
+                filepath = os.path.join(DIRECTORY, 'radio_submissions.json')
+                if not os.path.exists(filepath):
+                    self.send_error_response("Submissions file not found.")
+                    return
+                
+                with open(filepath, 'r') as f:
+                    data = json.load(f)
+                
+                updated = False
+                new_data = []
+                for t in data:
+                    if t.get('src') == url:
+                        updated = True
+                        if status == 'deleted':
+                            # Remove track from list
+                            continue
+                        else:
+                            t['status'] = status
+                    new_data.append(t)
+                
+                if updated:
+                    with open(filepath, 'w') as f:
+                        json.dump(new_data, f, indent=4)
+                    self.send_success_response({"status": "success", "message": f"Track status updated to {status}."})
+                else:
+                    self.send_error_response("Track not found in submissions.")
+            except Exception as e:
+                self.send_error_response(f"Triage update failed: {str(e)}")
                 
         elif self.path == '/api/record-purchase':
             content_length = int(self.headers['Content-Length'])

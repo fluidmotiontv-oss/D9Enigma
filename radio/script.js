@@ -122,16 +122,20 @@ async function loadRadioSubmissions() {
     try {
         const response = await fetch('/api/get-radio-submissions');
         if (response.ok) {
-            const submissions = await response.json();
+            const res = await response.json();
+            const submissions = Array.isArray(res) ? res : (res.tracks || []);
             if (Array.isArray(submissions)) {
                 submissions.forEach(t => {
-                    const relativeSrc = t.src.startsWith('assets/') ? '../' + t.src : t.src;
-                    if (!radioTracks.some(rt => rt.src === relativeSrc)) {
-                        radioTracks.push({
-                            name: `${t.title} (${t.artist.toUpperCase()})`,
-                            src: relativeSrc,
-                            artist: t.artist
-                        });
+                    // Only load tracks that are approved or legacy untagged tracks
+                    if (t.status === undefined || t.status === 'approved') {
+                        const relativeSrc = t.src.startsWith('assets/') ? '../' + t.src : t.src;
+                        if (!radioTracks.some(rt => rt.src === relativeSrc)) {
+                            radioTracks.push({
+                                name: `${t.title} (${t.artist.toUpperCase()})`,
+                                src: relativeSrc,
+                                artist: t.artist
+                            });
+                        }
                     }
                 });
             }

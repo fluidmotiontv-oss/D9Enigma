@@ -586,13 +586,13 @@
     <!-- WebGL Canvas -->
     <div id="canvas-container"></div>
 
-    <!-- PRO Upgrade Modal -->
+    <!-- Koha / Donate Modal -->
     <div id="pro-modal" class="pro-modal">
         <div class="pro-modal-content">
             <span class="pro-close" id="pro-close-btn">&times;</span>
-            <h2>🎆 PYRO-<span>DRUMMER PRO</span></h2>
+            <h2>🎆 SUPPORT VIA <span>KOHA / DONATION</span></h2>
             <p style="margin: 15px 0; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
-                Unlock professional tools to load custom samples, shape fireworks, and control master effects.
+                Unlock extra features to load custom samples, shape fireworks, and control master effects as a thank you for your support.
             </p>
             <ul style="text-align: left; margin: 15px auto; max-width: 380px; color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 0.8rem; display: flex; flex-direction: column; gap: 10px; list-style-type: none; padding-left: 0;">
                 <li style="display: flex; gap: 10px; align-items: center;">📂 <span><strong>Custom Sample Loading</strong>: Load your own .wav/.mp3 beats into any pad.</span></li>
@@ -600,8 +600,8 @@
                 <li style="display: flex; gap: 10px; align-items: center;">🎛️ <span><strong>High-Pass & Resonant Filters</strong>: Shape sweeps with advanced bandpass engines.</span></li>
             </ul>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                <a href="https://paypal.me/dragon9" target="_blank" class="pro-upgrade-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #0070ba; color: #fff; box-shadow: 0 0 15px rgba(0, 112, 186, 0.4);" onmouseover="this.style.background='#007ed6'" onmouseout="this.style.background='#0070ba'">SUPPORT VIA PAYPAL DONATION</a>
-                <button class="pro-upgrade-btn" id="pro-upgrade-action-btn" style="background: rgba(255,255,255,0.05); color: var(--gold-accent); border: 1px solid rgba(255,255,255,0.1); box-shadow: none;">UNLOCK FREE / DONATOR SESSION</button>
+                <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9!\n\nEnter Koha/donation amount (USD):', '10.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Dragon%209%20Development&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="pro-upgrade-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #0070ba; color: #fff; box-shadow: 0 0 15px rgba(0, 112, 186, 0.4);" onmouseover="this.style.background='#007ed6'" onmouseout="this.style.background='#0070ba'">SUPPORT VIA PAYPAL KOHA</a>
+                <button class="pro-upgrade-btn" id="pro-upgrade-action-btn" style="background: rgba(255,255,255,0.05); color: var(--gold-accent); border: 1px solid rgba(255,255,255,0.1); box-shadow: none;">ACTIVATE SESSION FOR FREE / DONATOR</button>
             </div>
         </div>
     </div>
@@ -621,9 +621,9 @@
                 <button id="btn-radio-toggle" class="btn-nav" style="border-color: rgba(0, 229, 255, 0.3); color: var(--cyan-glow); padding: 6px 12px; font-size: 0.65rem;" title="Listen to Dragon 9 Live Resonance Radio">
                     📻 RADIO <span id="radio-on-air-indicator" style="display:inline-block; width: 6px; height: 6px; background: #64748b; border-radius: 50%; margin-left: 5px; transition: background 0.3s, box-shadow 0.3s;"></span>
                 </button>
-                <!-- PRO Upgrade Button -->
-                <button id="btn-upgrade-pro" class="btn-nav" style="border-color: rgba(212, 175, 55, 0.4); color: var(--gold-accent); padding: 6px 12px; font-size: 0.65rem;" title="Upgrade to PRO Version">
-                    ★ UPGRADE TO PRO
+                <!-- KOHA / DONATE Button -->
+                <button id="btn-upgrade-pro" class="btn-nav" style="border-color: rgba(212, 175, 55, 0.4); color: var(--gold-accent); padding: 6px 12px; font-size: 0.65rem;" title="Support via Koha / Donation">
+                    ★ KOHA / DONATE
                 </button>
             </div>
         </header>
@@ -1960,8 +1960,10 @@
 
         // Update Customizer UI elements to reflect selected pad settings
         function updateCustomizerUI() {
-            const padData = getSelectedPad();
-            if (!padData) return;
+            const padId = dropdownSelectPad.value;
+            const padMesh = padMeshes.find(p => p.userData.id === padId);
+            if (!padMesh) return;
+            const padData = padMesh.userData;
 
             // Update Pitch Slider
             sliderPadPitch.value = Math.round(padData.pitchVal * 100);
@@ -2115,12 +2117,12 @@
         document.getElementById('btn-upgrade-pro').addEventListener('click', openProModal);
         document.getElementById('pro-upgrade-action-btn').addEventListener('click', () => {
             isProUser = true;
-            document.getElementById('btn-upgrade-pro').innerText = "★ PRO ACTIVE";
+            document.getElementById('btn-upgrade-pro').innerText = "★ DONOR SESSION";
             document.getElementById('btn-upgrade-pro').style.borderColor = "var(--green-glow)";
             document.getElementById('btn-upgrade-pro').style.color = "var(--green-glow)";
             
-            showNotification("PRO UPGRADE SUCCESSFUL!", "var(--green-glow)");
             closeProModal();
+            showNotification("SESSION ACTIVATED! THANK YOU FOR YOUR KOHA", "var(--green-glow)");
         });
 
         // --- SEQUENCE SHARING LOGIC (DOM-BASED) ---

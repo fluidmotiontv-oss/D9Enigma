@@ -99,6 +99,22 @@
     {
       "timestamp": "2026-07-13T13:00:00+12:00",
       "summary": "Anonymized the operator name to Timothy Dwen, configured the business PayPal email address (fluidmotion.tv@gmail.com) in apps.html, and removed the summon asset button from the Night Fish cognition panel."
+    },
+    {
+      "timestamp": "2026-07-13T15:05:00+12:00",
+      "summary": "Updated PayPal donation flows: switched apps.html to use the official cmd=_donations command instead of cmd=_xclick, and unified the hardcoded links in pyro-drummer/index.html and landing-page/lotus-spinner.html to target fluidmotion.tv@gmail.com."
+    },
+    {
+      "timestamp": "2026-07-13T15:43:00+12:00",
+      "summary": "Resolved nonprofit restriction issue on PayPal links by switching from cmd=_donations to cmd=_xclick. Added a custom prompt dialog on click to let users enter a Koha/donation amount (USD) before redirecting to PayPal."
+    },
+    {
+      "timestamp": "2026-07-13T15:46:00+12:00",
+      "summary": "Added the custom Support Koha button to all 13 app landing pages inside the .cta-buttons wrapper, enabling direct and easy supporting/tipping across the entire site ecosystem."
+    },
+    {
+      "timestamp": "2026-07-13T16:05:00+12:00",
+      "summary": "Replaced 'Upgrade to PRO' elements with 'Koha / Donate' labels in pyro-drummer/index.html and landing-page/lotus-spinner.html. Renamed header buttons, modal titles, and unlock success notification banners to refer to Donor Sessions and Koha instead of commercial upgrades."
     }
   ]
 }
