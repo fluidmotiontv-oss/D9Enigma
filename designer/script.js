@@ -258,6 +258,71 @@ window.toggleSpaceClearTone = function() {
     }
 };
 
+import * as THREE from '../three.module.min.js';
+
+let selectedItem = null;
+let selectedType = null;
+
+function selectItem(item, type) {
+    selectedItem = item;
+    selectedType = type;
+    
+    const nameEl = document.getElementById('inspector-name');
+    const lengthInput = document.getElementById('inspect-length');
+    const widthInput = document.getElementById('inspect-width');
+    const heightInput = document.getElementById('inspect-height');
+    
+    if (!item) {
+        nameEl.innerText = 'Select an item to inspect';
+        return;
+    }
+    
+    if (type === 'room') {
+        nameEl.innerText = item.label;
+        lengthInput.value = item.length;
+        widthInput.value = item.width;
+        heightInput.value = item.height;
+    } else {
+        nameEl.innerText = item.label || item.type.toUpperCase();
+        if (!item.length) item.length = 1.0;
+        if (!item.width) item.width = 1.0;
+        if (!item.height) item.height = 1.0;
+        
+        lengthInput.value = item.length;
+        widthInput.value = item.width;
+        heightInput.value = item.height;
+    }
+    
+    draw();
+    if (show3D) {
+        syncThreeScene();
+    }
+}
+
+window.updateInspectDimensions = function() {
+    if (!selectedItem) return;
+    
+    const length = parseFloat(document.getElementById('inspect-length').value) || 1.0;
+    const width = parseFloat(document.getElementById('inspect-width').value) || 1.0;
+    const height = parseFloat(document.getElementById('inspect-height').value) || 1.0;
+    
+    selectedItem.length = length;
+    selectedItem.width = width;
+    selectedItem.height = height;
+    
+    if (selectedType === 'room') {
+        selectedItem.w = length * 60;
+        selectedItem.h = width * 60;
+        calculateRoomResonance();
+    }
+    
+    calculateLedger();
+    draw();
+    if (show3D) {
+        syncThreeScene();
+    }
+};
+
 // Canvas drawing events
 function handleMouseDown(e) {
     const rect = canvas.getBoundingClientRect();
@@ -269,9 +334,19 @@ function handleMouseDown(e) {
         const dx = clickX - f.x;
         const dy = clickY - f.y;
         if (Math.sqrt(dx*dx + dy*dy) < 25) {
+            selectItem(f, 'furniture');
             draggingNode = f;
             dragOffsetX = dx;
             dragOffsetY = dy;
+            return;
+        }
+    }
+
+    // Check if clicking inside a room to select it
+    for (let room of rooms) {
+        if (clickX >= room.x && clickX <= room.x + room.w &&
+            clickY >= room.y && clickY <= room.y + room.h) {
+            selectItem(room, 'room');
             return;
         }
     }
@@ -292,13 +367,18 @@ function handleMouseDown(e) {
         else if (activeTool === 'plant') { placedEmoji = '🪴'; placedLabel = 'Air Cleansing Fern'; }
         else if (activeTool === 'crystal') { placedEmoji = '🔮'; placedLabel = 'Amethyst Protection Crystal'; }
 
-        furniture.push({
+        const newNode = {
             type: activeTool,
             x: clickX,
             y: clickY,
             emoji: placedEmoji,
-            label: placedLabel
-        });
+            label: placedLabel,
+            length: 1.2,
+            width: 1.2,
+            height: 1.0
+        };
+        furniture.push(newNode);
+        selectItem(newNode, 'furniture');
         
         runDiagnostics();
         draw();
@@ -334,11 +414,10 @@ function handleMouseUp(e) {
             const rx = Math.min(drawStartX, endX);
             const ry = Math.min(drawStartY, endY);
             
-            // Calculate meters based on pixel size ratio (60 pixels = 1 meter)
             const length = w / 60;
             const width = h / 60;
             
-            rooms.push({
+            const newRoom = {
                 id: Date.now(),
                 x: rx,
                 y: ry,
@@ -349,9 +428,10 @@ function handleMouseUp(e) {
                 width: parseFloat(width.toFixed(1)),
                 height: 2.8,
                 material: activeMaterial
-            });
+            };
+            rooms.push(newRoom);
+            selectItem(newRoom, 'room');
             
-            // Sync side values to newest room dimensions
             document.getElementById('input-length').value = length.toFixed(1);
             document.getElementById('input-width').value = width.toFixed(1);
             
@@ -377,9 +457,8 @@ function calculateLedger() {
         const volume = room.length * room.width * room.height;
         totalVolume += volume;
         
-        // Wall area calculations approx (perimeter * height)
         const wallPerimeter = 2 * (room.length + room.width);
-        const wallVolume = wallPerimeter * 0.3 * room.height; // assuming 30cm thick walls
+        const wallVolume = wallPerimeter * 0.3 * room.height;
         
         const spec = MATERIALS[room.material] || MATERIALS.hemp;
         totalCO2 += wallVolume * spec.co2;
@@ -401,28 +480,22 @@ function runDiagnostics() {
     let alerts = [];
     let successes = [];
 
-    // Locate doors, windows, beds and desks
     const doors = furniture.filter(f => f.type === 'door');
     const windows = furniture.filter(f => f.type === 'window');
     const beds = furniture.filter(f => f.type === 'bed');
     const desks = furniture.filter(f => f.type === 'desk');
     const fountains = furniture.filter(f => f.type === 'fountain');
     const plants = furniture.filter(f => f.type === 'plant');
-    const crystals = furniture.filter(f => f.type === 'crystal');
 
-    // 1. Bed Directly opposite door checks ("Coffin Position")
     beds.forEach(bed => {
         doors.forEach(door => {
             const dx = Math.abs(bed.x - door.x);
-            const dy = Math.abs(bed.y - door.y);
-            // Check direct linear projection block within 40 pixels width
             if (dx < 40 && bed.y > door.y) {
                 alerts.push("⚠️ Coffin Alignment Warning: Bed directly opposite a Door node. Move bed out of straight path of entry to prevent draining vital Chi.");
             }
         });
     });
 
-    // 2. Desk Command Position Check (Back facing Door)
     desks.forEach(desk => {
         let backedByDoor = false;
         doors.forEach(door => {
@@ -437,8 +510,6 @@ function runDiagnostics() {
         }
     });
 
-    // 3. Elements and Bagua checks
-    // Wealth Sector is Top-Left (x < 200, y < 170)
     fountains.forEach(fountain => {
         if (fountain.x < 200 && fountain.y < 170) {
             successes.push("✓ Prosperity Flow: Water Fountain placed in Wealth & Abundance sector (Southeast).");
@@ -446,13 +517,11 @@ function runDiagnostics() {
     });
 
     plants.forEach(plant => {
-        // East Sector (Family & Health) is Mid-Left (x < 200, y >= 170 && y <= 330)
         if (plant.x < 200 && plant.y >= 170 && plant.y <= 330) {
             successes.push("✓ Vitality: Wood Element plant placed in Family & Health sector (East) to boost grounding.");
         }
     });
 
-    // Mirror or direct alignment window-to-door (piercing Chi flow)
     doors.forEach(door => {
         windows.forEach(win => {
             const dx = Math.abs(door.x - win.x);
@@ -462,7 +531,6 @@ function runDiagnostics() {
         });
     });
 
-    // Build diagnostic readout HTML
     if (alerts.length === 0 && successes.length === 0) {
         listEl.innerHTML = `<div class="check-item success-item">
             <span class="check-icon">✓</span>
@@ -490,7 +558,6 @@ function runDiagnostics() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Draw grid background lines
     if (showGrid) {
         ctx.strokeStyle = "rgba(141, 163, 146, 0.05)";
         ctx.lineWidth = 1;
@@ -508,7 +575,6 @@ function draw() {
         }
     }
 
-    // 2. Draw Bagua Sectors Overlay
     if (showBagua) {
         const segW = canvas.width / 3;
         const segH = canvas.height / 3;
@@ -517,23 +583,19 @@ function draw() {
         ctx.lineWidth = 2.0;
         ctx.setLineDash([6, 6]);
 
-        // Draw 3x3 sectors
         for (let i = 1; i <= 2; i++) {
-            // vertical grid line
             ctx.beginPath();
             ctx.moveTo(segW * i, 0);
             ctx.lineTo(segW * i, canvas.height);
             ctx.stroke();
             
-            // horizontal line
             ctx.beginPath();
             ctx.moveTo(0, segH * i);
             ctx.lineTo(canvas.width, segH * i);
             ctx.stroke();
         }
-        ctx.setLineDash([]); // Reset line dash style
+        ctx.setLineDash([]);
 
-        // Draw text labels for 9 sectors
         const sectors = [
             { name: "WEALTH (SE)", x: segW*0.5, y: segH*0.15 },
             { name: "FAME (S)", x: segW*1.5, y: segH*0.15 },
@@ -554,7 +616,6 @@ function draw() {
         });
     }
 
-    // 3. Draw Rooms
     rooms.forEach(room => {
         const spec = MATERIALS[room.material] || MATERIALS.hemp;
         ctx.fillStyle = spec.color;
@@ -564,19 +625,23 @@ function draw() {
         ctx.lineWidth = 3;
         ctx.strokeRect(room.x, room.y, room.w, room.h);
 
-        // Room labels
+        // Selection highlight
+        if (selectedItem === room) {
+            ctx.strokeStyle = "var(--accent-clay)";
+            ctx.lineWidth = 4;
+            ctx.strokeRect(room.x - 2, room.y - 2, room.w + 4, room.h + 4);
+        }
+
         ctx.fillStyle = "var(--text-main)";
         ctx.font = "11px 'Comfortaa', sans-serif";
         ctx.textAlign = "left";
         ctx.fillText(room.label, room.x + 12, room.y + 24);
 
-        // Dimension indicators
         ctx.fillStyle = "var(--text-muted)";
         ctx.font = "9px 'Share Tech Mono', monospace";
         ctx.fillText(`${room.length}m x ${room.width}m`, room.x + 12, room.y + 40);
     });
 
-    // 4. Draw preview of drawn room during drawing gesture
     if (isDrawingRoom) {
         ctx.fillStyle = "rgba(141, 163, 146, 0.25)";
         ctx.fillRect(drawStartX, drawStartY, currentMouseX - drawStartX, currentMouseY - drawStartY);
@@ -587,29 +652,289 @@ function draw() {
         ctx.setLineDash([]);
     }
 
-    // 5. Draw Furniture/Nodes
     furniture.forEach(item => {
-        // Draw selection circle glow for clarity
-        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-        ctx.beginPath();
-        ctx.arc(item.x, item.y, 16, 0, Math.PI * 2);
-        ctx.fill();
+        // Selection highlight ring
+        if (selectedItem === item) {
+            ctx.fillStyle = "rgba(200, 138, 117, 0.15)";
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, 22, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = "var(--accent-clay)";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, 22, 0, Math.PI * 2);
+            ctx.stroke();
+        } else {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, 16, 0, Math.PI * 2);
+            ctx.fill();
 
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(item.x, item.y, 16, 0, Math.PI * 2);
-        ctx.stroke();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(item.x, item.y, 16, 0, Math.PI * 2);
+            ctx.stroke();
+        }
 
-        // Draw node emoji
         ctx.font = "20px 'Outfit', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(item.emoji, item.x, item.y);
 
-        // Draw small label text below emoji
         ctx.font = "8px 'Share Tech Mono', monospace";
         ctx.fillStyle = "var(--text-muted)";
         ctx.fillText(item.type.toUpperCase(), item.x, item.y + 25);
     });
 }
+
+// Three.js 3D Viewport Setup
+let show3D = false;
+let scene, camera, renderer;
+let animationFrameId = null;
+let cameraRotation = { theta: Math.PI / 4, phi: Math.PI / 6, radius: 550 };
+let isDragging3D = false;
+let prevMouse3D = { x: 0, y: 0 };
+let threeMeshes = [];
+
+window.toggle3DView = function() {
+    show3D = !show3D;
+    const canvasEl = document.getElementById('design-canvas');
+    const container3D = document.getElementById('three-container');
+    const btn = document.getElementById('btn-3d-toggle');
+    
+    if (show3D) {
+        canvasEl.style.display = 'none';
+        container3D.style.display = 'block';
+        btn.classList.add('active');
+        initThree();
+    } else {
+        canvasEl.style.display = 'block';
+        container3D.style.display = 'none';
+        btn.classList.remove('active');
+        stopThree();
+        draw();
+    }
+};
+
+function initThree() {
+    const container = document.getElementById('three-container');
+    container.innerHTML = '';
+    
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0c100d);
+    
+    camera = new THREE.PerspectiveCamera(40, 600 / 500, 1, 2000);
+    updateCameraPosition();
+    
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(600, 500);
+    container.appendChild(renderer.domElement);
+    
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+    scene.add(ambientLight);
+    
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+    dirLight.position.set(250, 450, 200);
+    scene.add(dirLight);
+    
+    const gridHelper = new THREE.GridHelper(600, 20, 0x8da392, 0x1f2621);
+    gridHelper.position.y = -0.5;
+    scene.add(gridHelper);
+    
+    syncThreeScene();
+    
+    container.addEventListener('mousedown', handleThreeMouseDown);
+    container.addEventListener('mousemove', handleThreeMouseMove);
+    container.addEventListener('mouseup', handleThreeMouseUp);
+    container.addEventListener('mouseleave', handleThreeMouseUp);
+    
+    animateThree();
+}
+
+function updateCameraPosition() {
+    camera.position.x = cameraRotation.radius * Math.sin(cameraRotation.theta) * Math.cos(cameraRotation.phi);
+    camera.position.y = cameraRotation.radius * Math.sin(cameraRotation.phi);
+    camera.position.z = cameraRotation.radius * Math.cos(cameraRotation.theta) * Math.cos(cameraRotation.phi);
+    camera.lookAt(0, 0, 0);
+}
+
+function handleThreeMouseDown(e) {
+    isDragging3D = true;
+    prevMouse3D.x = e.clientX;
+    prevMouse3D.y = e.clientY;
+}
+
+function handleThreeMouseMove(e) {
+    if (!isDragging3D) return;
+    const deltaX = e.clientX - prevMouse3D.x;
+    const deltaY = e.clientY - prevMouse3D.y;
+    
+    cameraRotation.theta -= deltaX * 0.007;
+    cameraRotation.phi += deltaY * 0.007;
+    cameraRotation.phi = Math.max(0.05, Math.min(Math.PI / 2.05, cameraRotation.phi));
+    
+    prevMouse3D.x = e.clientX;
+    prevMouse3D.y = e.clientY;
+    
+    updateCameraPosition();
+}
+
+function handleThreeMouseUp() {
+    isDragging3D = false;
+}
+
+function syncThreeScene() {
+    threeMeshes.forEach(mesh => scene.remove(mesh));
+    threeMeshes = [];
+    
+    rooms.forEach(room => {
+        const spec = MATERIALS[room.material] || MATERIALS.hemp;
+        const roomW = room.w;
+        const roomH = room.h;
+        const roomZ = room.height * 30;
+        
+        const geom = new THREE.BoxGeometry(roomW, roomZ, roomH);
+        const mat = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(spec.border),
+            transparent: true,
+            opacity: 0.35,
+            side: THREE.DoubleSide
+        });
+        const mesh = new THREE.Mesh(geom, mat);
+        
+        const mx = room.x + roomW / 2 - 300;
+        const mz = room.y + roomH / 2 - 250;
+        mesh.position.set(mx, roomZ / 2, mz);
+        
+        scene.add(mesh);
+        threeMeshes.push(mesh);
+        
+        const floorGeom = new THREE.BoxGeometry(roomW, 3, roomH);
+        const floorMat = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(spec.border),
+            opacity: 0.8,
+            transparent: true
+        });
+        const floorMesh = new THREE.Mesh(floorGeom, floorMat);
+        floorMesh.position.set(mx, 1.5, mz);
+        scene.add(floorMesh);
+        threeMeshes.push(floorMesh);
+    });
+    
+    furniture.forEach(item => {
+        const mx = item.x - 300;
+        const mz = item.y - 250;
+        const group = new THREE.Group();
+        
+        const fLength = (item.length || 1.2) * 35;
+        const fWidth = (item.width || 1.2) * 35;
+        const fHeight = (item.height || 1.0) * 35;
+        
+        if (item.type === 'bed') {
+            const mattressGeom = new THREE.BoxGeometry(fLength, fHeight * 0.7, fWidth);
+            const mattressMat = new THREE.MeshPhongMaterial({ color: 0xdfd5c6 });
+            const mattress = new THREE.Mesh(mattressGeom, mattressMat);
+            mattress.position.y = (fHeight * 0.7) / 2;
+            group.add(mattress);
+            
+            const pillowGeom = new THREE.BoxGeometry(fLength * 0.25, fHeight * 0.15, fWidth * 0.8);
+            const pillowMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const pillow = new THREE.Mesh(pillowGeom, pillowMat);
+            pillow.position.set(-fLength * 0.3, fHeight * 0.7 + (fHeight * 0.15)/2, 0);
+            group.add(pillow);
+        }
+        else if (item.type === 'desk') {
+            const desktopGeom = new THREE.BoxGeometry(fLength, 4, fWidth);
+            const desktopMat = new THREE.MeshPhongMaterial({ color: 0x9c7454 });
+            const desktop = new THREE.Mesh(desktopGeom, desktopMat);
+            desktop.position.y = fHeight - 2;
+            group.add(desktop);
+            
+            const legGeom = new THREE.BoxGeometry(3, fHeight - 4, 3);
+            const legMat = new THREE.MeshPhongMaterial({ color: 0x3a2e2b });
+            const legPositions = [
+                [-fLength/2 + 3, -fWidth/2 + 3],
+                [fLength/2 - 3, -fWidth/2 + 3],
+                [-fLength/2 + 3, fWidth/2 - 3],
+                [fLength/2 - 3, fWidth/2 - 3]
+            ];
+            legPositions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeom, legMat);
+                leg.position.set(pos[0], (fHeight - 4)/2, pos[1]);
+                group.add(leg);
+            });
+        }
+        else if (item.type === 'plant') {
+            const potGeom = new THREE.CylinderGeometry(fLength*0.3, fLength*0.2, fHeight*0.4, 8);
+            const potMat = new THREE.MeshPhongMaterial({ color: 0xc88a75 });
+            const pot = new THREE.Mesh(potGeom, potMat);
+            pot.position.y = (fHeight * 0.4) / 2;
+            group.add(pot);
+            
+            const plantGeom = new THREE.SphereGeometry(fLength*0.45, 8, 8);
+            const plantMat = new THREE.MeshPhongMaterial({ color: 0x5d8f6d });
+            const foliage = new THREE.Mesh(plantGeom, plantMat);
+            foliage.position.y = fHeight*0.4 + fLength*0.3;
+            group.add(foliage);
+        }
+        else if (item.type === 'fountain') {
+            const basinGeom = new THREE.CylinderGeometry(fLength*0.4, fLength*0.4, fHeight*0.5, 12);
+            const basinMat = new THREE.MeshPhongMaterial({ color: 0xa8a8aa });
+            const basin = new THREE.Mesh(basinGeom, basinMat);
+            basin.position.y = (fHeight*0.5) / 2;
+            group.add(basin);
+            
+            const waterGeom = new THREE.CylinderGeometry(fLength*0.25, fLength*0.25, fHeight*0.6, 12);
+            const waterMat = new THREE.MeshPhongMaterial({ color: 0x4c8fa6, transparent: true, opacity: 0.8 });
+            const water = new THREE.Mesh(waterGeom, waterMat);
+            water.position.y = fHeight*0.5 + (fHeight*0.6)/2;
+            group.add(water);
+        }
+        else if (item.type === 'crystal') {
+            const shapeGeom = new THREE.ConeGeometry(fLength*0.35, fHeight, 4);
+            const shapeMat = new THREE.MeshPhongMaterial({ color: 0x8a2be2, transparent: true, opacity: 0.75 });
+            const crystalMesh1 = new THREE.Mesh(shapeGeom, shapeMat);
+            crystalMesh1.position.y = fHeight / 2;
+            group.add(crystalMesh1);
+            
+            const crystalMesh2 = new THREE.Mesh(shapeGeom, shapeMat);
+            crystalMesh2.rotation.z = Math.PI;
+            crystalMesh2.position.y = fHeight / 2;
+            group.add(crystalMesh2);
+        }
+        else if (item.type === 'door') {
+            const slabGeom = new THREE.BoxGeometry(8, fHeight, fWidth);
+            const slabMat = new THREE.MeshPhongMaterial({ color: 0x7c533c });
+            const door = new THREE.Mesh(slabGeom, slabMat);
+            door.position.y = fHeight / 2;
+            group.add(door);
+        }
+        else if (item.type === 'window') {
+            const glassGeom = new THREE.BoxGeometry(4, fHeight, fWidth);
+            const glassMat = new THREE.MeshPhongMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.6 });
+            const glass = new THREE.Mesh(glassGeom, glassMat);
+            glass.position.y = fHeight / 2;
+            group.add(glass);
+        }
+        
+        group.position.set(mx, 0, mz);
+        scene.add(group);
+        threeMeshes.push(group);
+    });
+}
+
+function animateThree() {
+    if (!show3D) return;
+    animationFrameId = requestAnimationFrame(animateThree);
+    renderer.render(scene, camera);
+}
+
+function stopThree() {
+    show3D = false;
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+}
+
