@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonance Sound Portal | Dragon 9 Music Suite</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020205;
+            --card-bg: rgba(10, 10, 16, 0.55);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00e5ff;
+            --accent-purple: #af52de;
+            --accent-gold: #d4af37;
+            --text-main: #f4e4bc;
+            --text-muted: #8c85a3;
+            --glow-light: rgba(0, 229, 255, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Blobs */
+        .ambient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: float-blob 25s infinite ease-in-out alternate;
+        }
+
+        .blob-1 {
+            width: 50vw;
+            height: 50vw;
+            background: linear-gradient(135deg, var(--accent-cyan), #002266);
+            top: -10%;
+            left: -10%;
+        }
+
+        .blob-2 {
+            width: 45vw;
+            height: 45vw;
+            background: linear-gradient(135deg, var(--accent-purple), #2a0845);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float-blob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(80px, -50px) scale(1.15); }
+        }
+
+        /* Cybernetic grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 24px;
+            z-index: 10;
+            position: relative;
+        }
+
+        header {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo span {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+
+        .hub-link {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .hub-link:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            padding: 60px 0;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        /* Support Banner */
+        .donation-banner {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr;
+            gap: 30px;
+            align-items: center;
+            background: rgba(212, 175, 55, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1.5px solid var(--accent-gold);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .donation-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .donation-desc {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #d1c1a5;
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: #000;
+            border: 1px solid var(--accent-cyan);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-main);
+            transform: translateY(-2px);
+        }
+
+        .btn-koha {
+            border-color: rgba(212, 175, 55, 0.4);
+            color: #fff;
+            background: rgba(212, 175, 55, 0.08);
+            width: 100%;
+        }
+
+        .btn-koha:hover {
+            background: var(--accent-gold);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Products Grid */
+        .products-section {
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .products-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .product-row {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .product-row {
+                grid-template-columns: 1fr;
+                padding: 30px;
+            }
+            .donation-banner {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .product-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-title-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-icon {
+            font-size: 2.2rem;
+        }
+
+        .product-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .product-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <a href="#" class="logo">🔊 <span>Sovereign Sound Portal</span></a>
+            <a href="creative.html" class="hub-link">← Return to Hub</a>
+        </header>
+
+        <section class="hero">
+            <div>
+                <h1 class="hero-title">Resonance & Audio</h1>
+                <p class="hero-subtitle">Sovereign Sound Suite</p>
+                <p class="hero-desc">
+                    An offline suite of instruments, multi-track step compilers, Solfeggio resonators, and wave generators. Customize ADSR parameters, test string scales on visual fretboards, and export custom loops as WAV files locally.
+                </p>
+            </div>
+            
+            <div class="hero-preview">
+                <div class="preview-header">
+                    <span>SYSTEM: RESONANCE ENGINE</span>
+                    <span>SOUND DSP MONITOR</span>
+                </div>
+                <div class="preview-screen">
+                    <div class="hud-scanline"></div>
+                    <div class="shield-icon">🔊</div>
+                </div>
+                <div class="preview-status">Solfeggio Matrices Active // Ready</div>
+                <div class="preview-stats">
+                    <div class="stat-box">MODULES: 7</div>
+                    <div class="stat-box">FORMAT: WAV</div>
+                    <div class="stat-box">HOST: LOCAL</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Koha Tipping -->
+        <section class="donation-banner">
+            <div class="donation-content">
+                <h2 class="donation-title">Support Sound Development</h2>
+                <p class="donation-desc">Dragon 9 Sound Suite is built by an independent creator. If these offline instruments, recorders, and tuners assist your craft, consider tipping via Koha to support future acoustic developments.</p>
+            </div>
+            <div class="donation-action">
+                <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9 Sound Suite!\n\nEnter Koha/donation amount (USD):', '10.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Dragon%209%20Sound%20Suite&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="btn btn-koha">☕ Support Koha</a>
+            </div>
+        </section>
+
+        <!-- Product list -->
+        <section class="products-section">
+            <div class="products-grid">
+                
+                <!-- 1. Pianola -->
+                <div class="product-row" id="pianola">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🎹</span>
+                            <div>
+                                <h2 class="product-title">Synesthetic Pianola</h2>
+                                <span class="product-status">Node Pianola v1.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">Synthesized digital pianola and MIDI keyboard. Tweak ADSR envelope shapes, waveform frequencies, and lowpass cutoff parameters. Complete plug-and-play USB MIDI support.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="pianola/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="pianola/index.html" download="synesthetic_pianola.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 2. Ukulele -->
+                <div class="product-row" id="ukulele">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🎸</span>
+                            <div>
+                                <h2 class="product-title">Sovereign Ukulele</h2>
+                                <span class="product-status">Node Uke v1.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">Interactive ukulele visualizer and rhythm trainer. Practice fingerings for core chord patterns on a digital fretboard and simulate strum loops using sequential Audio synthesis.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="ukulele/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="ukulele/index.html" download="ukulele_instructor.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 3. Sequencer -->
+                <div class="product-row" id="sequencer">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🎛️</span>
+                            <div>
+                                <h2 class="product-title">Sovereign Sequencer</h2>
+                                <span class="product-status">Node Sequencer v1.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">Offline multi-track sequencer and song compiler. Arrange drums, synths, ukulele chords, and meditations on a 16-step grid and export high-quality mix WAVs locally.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="sequencer/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="sequencer/index.html" download="sovereign_sequencer.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 4. Tuner -->
+                <div class="product-row" id="tuner">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🎸</span>
+                            <div>
+                                <h2 class="product-title">Solfeggio Tuner</h2>
+                                <span class="product-status">Resonance Instrument v1.2</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">Pure Solfeggio frequency generator and microtonal string tuner. Generate sine waves, track pitch deviations, and inspect FFT real-time audio graphs completely offline.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="tuner/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="tuner/index.html" download="solfeggio_tuner.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 5. Healer -->
+                <div class="product-row" id="healer">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🧘</span>
+                            <div>
+                                <h2 class="product-title">Frequency Healer</h2>
+                                <span class="product-status">Resonance Matrix v1.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">Sovereign sound generator and meditation resonator. Supports pure Solfeggio frequencies, customizable binaural beats with brainwave presets, natural ambient synthesizers, and sleep timers.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="healer/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="healer/index.html" download="frequency_healer.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 6. Pyro Drummer -->
+                <div class="product-row" id="pyro">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🎆</span>
+                            <div>
+                                <h2 class="product-title">Pyro Drummer</h2>
+                                <span class="product-status">Kinetic Visualizer v1.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">3D kinetic drum machine and audio-reactive particle visualizer. Trigger neon light explosions, particle ribbons, and ambient layers synced directly to keystrokes and sound feeds.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="pyro-drummer/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="pyro-drummer/index.html" download="pyro_drummer.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 7. Lotus Nexus -->
+                <div class="product-row" id="lotus">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🌸</span>
+                            <div>
+                                <h2 class="product-title">Lotus Nexus</h2>
+                                <span class="product-status">3D Synthesizer v3.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">Procedural 3D musical spinner and 4-track looper. Custom audio/image petal sampler, real-time audio-visualizer, and connected network node triad sync gateway.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="lotus-spinner.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="lotus-spinner.html" download="lotus_nexus.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 8. Stem Crate -->
+                <div class="product-row" id="stemcrate">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">🎵</span>
+                            <div>
+                                <h2 class="product-title">Stem Crate</h2>
+                                <span class="product-status">Multitrack Downmix v2.1</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">High-end multitrack stems downloader, mixer, and audio track combiner. Perfect for downloading master loops, split stems, and compiling creative music reels on-demand.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="stemcrate.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="stemcrate.html" download="stemcrate.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+                <!-- 9. Album Builder -->
+                <div class="product-row" id="album">
+                    <div class="product-meta">
+                        <div class="product-title-bar">
+                            <span class="product-icon">💿</span>
+                            <div>
+                                <h2 class="product-title">Fluid Crate Album</h2>
+                                <span class="product-status">Vault Builder v2.0</span>
+                            </div>
+                        </div>
+                        <p class="product-desc">The sovereign White-Label digital album builder. Gathers audio tracks, playlist media, and custom passcodes, compiling everything into a fully portable, password-secured standalone vault.</p>
+                    </div>
+                    <div class="product-actions">
+                        <a href="album-builder/index.html" class="btn btn-primary">⚡ Launch App</a>
+                        <a href="album.html" download="album_app.html" class="btn btn-secondary">📥 Download Standalone</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <footer>
+            DRAGON 9 TEMPORAL ENIGMA // OFF-GRID SOUND SUITE
+        </footer>
+    </div>
+
+</body>
+</html>

@@ -73,13 +73,13 @@
     "synesthetic_pianola": {
       "file": "pianola/index.html",
       "logic": "pianola/script.js",
-      "landing": "pianola/landing.html",
+      "landing": "sound.html#pianola",
       "description": "A synthesized digital pianola and MIDI keyboard featuring multi-waveform ADSR envelopes, lowpass resonance filters, space delay, and plug-and-play USB MIDI support."
     },
     "ukulele_instructor": {
       "file": "ukulele/index.html",
       "logic": "ukulele/script.js",
-      "landing": "ukulele/landing.html",
+      "landing": "sound.html#ukulele",
       "description": "An interactive ukulele fretboard visualizer and rhythm progression guide with synthesized string modeling plucks/strums and tempo-metronome synchronization."
     },
     "creative_hub": {
@@ -93,7 +93,7 @@
     "sovereign_sequencer": {
       "file": "sequencer/index.html",
       "logic": "sequencer/script.js",
-      "landing": "sequencer/landing.html",
+      "landing": "sound.html#sequencer",
       "description": "An offline multi-track song compiler and step sequencer with pre-synthesized creative loops, custom audio loading, individual track mutes/solos/volume mixing, and client-side WAV export."
     }
   },
@@ -161,6 +161,10 @@
     {
       "timestamp": "2026-07-13T19:05:00+12:00",
       "summary": "Built the brand new Sovereign Sequencer (multi-track step sequencer & offline song compiler with WAV downloader), integrated it into creative.html app store, rotating carousels, and updated horizontal header menus across all sub-apps."
+    },
+    {
+      "timestamp": "2026-07-13T19:25:00+12:00",
+      "summary": "Restructured creative suite into synesthetic sensory themes (Sound, Vision, Senses/Nature). Consolidated 9 individual landing pages into unified sensory portals (sound.html, vision.html, nature.html) with PayPal Koha prompts, updating creative.html and carousel nodes."
     }
   ]
 }

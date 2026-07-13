@@ -238,6 +238,20 @@
             opacity: 0.25;
         }
 
+        .suite-section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--highlight);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 50px 0 20px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .app-header {
             display: flex;
             align-items: center;
@@ -426,6 +440,8 @@
             </div>
         </section>
 
+        <!-- Section: Sound Suite -->
+        <h2 class="suite-section-title">🔊 Sound Suite</h2>
         <main class="app-grid">
             
             <!-- App 1: Synesthetic Pianola -->
@@ -442,7 +458,7 @@
                 </div>
                 <div class="app-actions">
                     <a href="pianola/index.html" class="btn btn-primary">⚡ Launch Pianola</a>
-                    <a href="pianola/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#pianola" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="pianola/index.html" download="synesthetic_pianola.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
@@ -461,12 +477,31 @@
                 </div>
                 <div class="app-actions">
                     <a href="ukulele/index.html" class="btn btn-primary">⚡ Launch Instructor</a>
-                    <a href="ukulele/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#ukulele" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="ukulele/index.html" download="ukulele_instructor.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
-            <!-- App 3: Solfeggio Tuner -->
+            <!-- App 3: Sovereign Sequencer -->
+            <div class="app-card" id="app-sequencer">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎛️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Sovereign Sequencer</h2>
+                            <span class="app-status">NODE SEQUENCER v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Offline multi-track sequencer and song compiler. Arrange drums, synths, ukulele chords, and meditations on a 16-step grid and export high-quality mix WAVs locally.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="sequencer/index.html" class="btn btn-primary">⚡ Launch Sequencer</a>
+                    <a href="sound.html#sequencer" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sequencer/index.html" download="sovereign_sequencer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 4: Solfeggio Tuner -->
             <div class="app-card" id="app-tuner">
                 <div>
                     <div class="app-header">
@@ -480,12 +515,12 @@
                 </div>
                 <div class="app-actions">
                     <a href="tuner/index.html" class="btn btn-primary">⚡ Launch Solfeggio Tuner</a>
-                    <a href="tuner/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#tuner" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="tuner/index.html" download="solfeggio_tuner.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
-            <!-- App 4: Frequency Healer -->
+            <!-- App 5: Frequency Healer -->
             <div class="app-card" id="app-healer">
                 <div>
                     <div class="app-header">
@@ -499,69 +534,12 @@
                 </div>
                 <div class="app-actions">
                     <a href="healer/index.html" class="btn btn-primary">⚡ Launch Frequency Healer</a>
-                    <a href="healer/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#healer" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="healer/index.html" download="frequency_healer.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
-            <!-- App 5: Fluid Crate Album -->
-            <div class="app-card" id="app-album">
-                <div>
-                    <div class="app-header">
-                        <span class="app-icon">💿</span>
-                        <div class="app-meta">
-                            <h2 class="app-title">Fluid Crate Album</h2>
-                            <span class="app-status">VAULT BUILDER v2.0</span>
-                        </div>
-                    </div>
-                    <p class="app-desc">The sovereign White-Label digital album builder. Gathers audio tracks, playlist media, and custom passcodes, compiling everything into a fully portable, password-secured standalone vault.</p>
-                </div>
-                <div class="app-actions">
-                    <a href="album-builder/index.html" class="btn btn-primary">⚡ Launch Album Builder</a>
-                    <a href="album-builder/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
-                    <a href="album.html" download="album_app.html" class="btn btn-secondary">📥 Standalone HTML</a>
-                </div>
-            </div>
-
-            <!-- App 6: Holographic Art Gallery -->
-            <div class="app-card" id="app-exhibition">
-                <div>
-                    <div class="app-header">
-                        <span class="app-icon">🎨</span>
-                        <div class="app-meta">
-                            <h2 class="app-title">Holo Art Gallery</h2>
-                            <span class="app-status">3D EXHIBITION v1.0</span>
-                        </div>
-                    </div>
-                    <p class="app-desc">Interactive 3D spatial exhibit. Drag and spin crystalline pedestals, customize neon spotlight parameters, and compile art catalog vaults inside secure sandbox canvases.</p>
-                </div>
-                <div class="app-actions">
-                    <a href="exhibition/index.html" class="btn btn-primary">⚡ Launch Holo Gallery</a>
-                    <a href="exhibition/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
-                    <a href="exhibition/index.html" download="holographic_art_gallery.html" class="btn btn-secondary">📥 Standalone HTML</a>
-                </div>
-            </div>
-
-            <!-- App 7: Lotus Permaculture Garden -->
-            <div class="app-card" id="app-garden">
-                <div>
-                    <div class="app-header">
-                        <span class="app-icon">🌱</span>
-                        <div class="app-meta">
-                            <h2 class="app-title">Lotus Permaculture Garden</h2>
-                            <span class="app-status">BOTANICAL MATH v1.0</span>
-                        </div>
-                    </div>
-                    <p class="app-desc">Permaculture simulation mapping plant growth along Fibonacci spirals. Tweak light levels, sound resonance factors, and soil variables to balance the ecosystem.</p>
-                </div>
-                <div class="app-actions">
-                    <a href="garden/index.html" class="btn btn-primary">⚡ Launch Lotus Garden</a>
-                    <a href="garden/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
-                    <a href="garden/index.html" download="lotus_permaculture_garden.html" class="btn btn-secondary">📥 Standalone HTML</a>
-                </div>
-            </div>
-
-            <!-- App 8: Pyro Drummer Visualizer -->
+            <!-- App 6: Pyro Drummer Visualizer -->
             <div class="app-card" id="app-pyro">
                 <div>
                     <div class="app-header">
@@ -575,12 +553,12 @@
                 </div>
                 <div class="app-actions">
                     <a href="pyro-drummer/index.html" class="btn btn-primary">⚡ Launch Pyro Drummer</a>
-                    <a href="pyro-drummer/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#pyro" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="pyro-drummer/index.html" download="pyro_drummer.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
-            <!-- App 9: Lotus Nexus Sampler -->
+            <!-- App 7: Lotus Nexus Sampler -->
             <div class="app-card" id="app-lotus">
                 <div>
                     <div class="app-header">
@@ -594,12 +572,12 @@
                 </div>
                 <div class="app-actions">
                     <a href="lotus-spinner.html" class="btn btn-primary">⚡ Launch Lotus Nexus</a>
-                    <a href="landing-page/index.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#lotus" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="lotus-spinner.html" download="lotus_nexus.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
-            <!-- App 10: Stem Crate Downloader -->
+            <!-- App 8: Stem Crate Downloader -->
             <div class="app-card" id="app-stemcrate">
                 <div>
                     <div class="app-header">
@@ -613,8 +591,52 @@
                 </div>
                 <div class="app-actions">
                     <a href="stemcrate.html" class="btn btn-primary">⚡ Launch Stem Crate</a>
-                    <a href="stemcrate_landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sound.html#stemcrate" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="stemcrate.html" download="stemcrate.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 9: Fluid Crate Album -->
+            <div class="app-card" id="app-album">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">💿</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Fluid Crate Album</h2>
+                            <span class="app-status">VAULT BUILDER v2.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">The sovereign White-Label digital album builder. Gathers audio tracks, playlist media, and custom passcodes, compiling everything into a fully portable, password-secured standalone vault.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="album-builder/index.html" class="btn btn-primary">⚡ Launch Album Builder</a>
+                    <a href="sound.html#album" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="album.html" download="album_app.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Section: Vision Suite -->
+        <h2 class="suite-section-title">👁️ Vision Suite</h2>
+        <main class="app-grid">
+
+            <!-- App 10: Holo Art Gallery -->
+            <div class="app-card" id="app-exhibition">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎨</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Holo Art Gallery</h2>
+                            <span class="app-status">3D EXHIBITION v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Interactive 3D spatial exhibit. Drag and spin crystalline pedestals, customize neon spotlight parameters, and compile art catalog vaults inside secure sandbox canvases.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="exhibition/index.html" class="btn btn-primary">⚡ Launch Holo Gallery</a>
+                    <a href="vision.html#exhibition" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="exhibition/index.html" download="holographic_art_gallery.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
@@ -632,27 +654,33 @@
                 </div>
                 <div class="app-actions">
                     <a href="artist-gallery/index.html" class="btn btn-primary">⚡ Launch Artist Ledger</a>
-                    <a href="artist-gallery/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="vision.html#artist" class="btn btn-secondary">ℹ️ Share & Info Page</a>
                     <a href="artist-gallery/index.html" download="artist_ledger_gallery.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
-            <!-- App 12: Sovereign Sequencer -->
-            <div class="app-card" id="app-sequencer">
+        </main>
+
+        <!-- Section: Senses & Nature -->
+        <h2 class="suite-section-title">🌱 Senses & Nature</h2>
+        <main class="app-grid">
+
+            <!-- App 12: Lotus Permaculture Garden -->
+            <div class="app-card" id="app-garden">
                 <div>
                     <div class="app-header">
-                        <span class="app-icon">🎛️</span>
+                        <span class="app-icon">🌱</span>
                         <div class="app-meta">
-                            <h2 class="app-title">Sovereign Sequencer</h2>
-                            <span class="app-status">NODE SEQUENCER v1.0</span>
+                            <h2 class="app-title">Lotus Permaculture Garden</h2>
+                            <span class="app-status">BOTANICAL MATH v1.0</span>
                         </div>
                     </div>
-                    <p class="app-desc">Offline multi-track sequencer and song compiler. Arrange drums, synths, ukulele chords, and meditations on a 16-step grid and export high-quality mix WAVs locally.</p>
+                    <p class="app-desc">Permaculture simulation mapping plant growth along Fibonacci spirals. Tweak light levels, sound resonance factors, and soil variables to balance the ecosystem.</p>
                 </div>
                 <div class="app-actions">
-                    <a href="sequencer/index.html" class="btn btn-primary">⚡ Launch Sequencer</a>
-                    <a href="sequencer/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
-                    <a href="sequencer/index.html" download="sovereign_sequencer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                    <a href="garden/index.html" class="btn btn-primary">⚡ Launch Lotus Garden</a>
+                    <a href="nature.html#garden" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="garden/index.html" download="lotus_permaculture_garden.html" class="btn btn-secondary">📥 Standalone HTML</a>
                 </div>
             </div>
 
