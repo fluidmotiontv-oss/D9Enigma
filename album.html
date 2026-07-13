@@ -634,6 +634,15 @@
                     <option value="#00ff41">Matrix Green (#00ff41)</option>
                 </select>
             </div>
+            <div class="admin-row" style="margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
+                <label style="font-family:'Orbitron'; font-size:0.6rem; color:var(--accent); display:flex; align-items:center; gap:6px; cursor:pointer; margin-bottom: 6px;">
+                    <input type="checkbox" id="admin-list-in-shop" onchange="toggleShopUrlInput(this.checked)"> Publish to Cooperative Shop
+                </label>
+                <div id="shop-url-container" style="display: none;">
+                    <label class="admin-label">Cloud-Hosted Album URL (Independent GCS/GitHub Pages link)</label>
+                    <input type="text" id="admin-cloud-url" class="admin-input" placeholder="e.g. https://my-bucket.storage.googleapis.com/album.html">
+                </div>
+            </div>
             
             <!-- Node Fabric Architecture Tip -->
             <div style="border: 1px solid var(--accent); background: rgba(212,175,55,0.05); padding: 10px; border-radius: 8px; margin-top: 15px; font-family:'Share Tech Mono'; font-size:0.6rem; color:var(--text-main); line-height: 1.3;">
@@ -1322,6 +1331,10 @@
 
                 switchAdminTab('config');
 
+                document.getElementById('admin-list-in-shop').checked = tempSettings.listInShop || false;
+                document.getElementById('admin-cloud-url').value = tempSettings.cloudUrl || "";
+                toggleShopUrlInput(tempSettings.listInShop || false);
+
                 // Trigger asset scan for the initial artist
                 if (tempSettings.artistName) {
                     fetchCrewAssets(tempSettings.artistName.toLowerCase().trim());
@@ -1342,6 +1355,8 @@
                     accentColor: "#d4af37",
                     artistName: "Independent Artist",
                     artistBio: "Decentralized audio-visual artisan.",
+                    listInShop: false,
+                    cloudUrl: "",
                     tracks: []
                 };
                 
@@ -1352,6 +1367,9 @@
                 document.getElementById('admin-price').value = tempSettings.price;
                 document.getElementById('artist-name').value = tempSettings.artistName;
                 document.getElementById('artist-bio').value = tempSettings.artistBio;
+                document.getElementById('admin-list-in-shop').checked = false;
+                document.getElementById('admin-cloud-url').value = "";
+                toggleShopUrlInput(false);
 
                 // Sync current settings too so rendering updates
                 currentSettings = JSON.parse(JSON.stringify(tempSettings));
@@ -1372,6 +1390,13 @@
             tempSettings.vaultKey = document.getElementById('admin-vault-key').value.trim() || "D9_LOVE";
             tempSettings.price = document.getElementById('admin-price').value.trim() || "$19.99 USD";
             tempSettings.accentColor = document.getElementById('admin-color-select').value;
+            tempSettings.listInShop = document.getElementById('admin-list-in-shop').checked;
+            tempSettings.cloudUrl = document.getElementById('admin-cloud-url').value.trim();
+
+            if (tempSettings.listInShop && !tempSettings.cloudUrl) {
+                alert("⚠️ Please specify a Cloud-Hosted Album URL to publish to the Cooperative Shop!");
+                return;
+            }
 
             // Read Tab 2 Onboard
             tempSettings.artistName = document.getElementById('artist-name').value.trim() || "Corey";
@@ -1384,7 +1409,37 @@
             renderAlbumTracks();
             toggleAdminPanel();
 
+            if (currentSettings.listInShop) {
+                registerAlbumInShopCatalog(currentSettings);
+            }
+
             alert(`[MINT SUCCESS] Encrypted Vault Minted!\n\nArtist Profile registered: ${currentSettings.artistName.toUpperCase()}\nAssets registered to the Fluid Motion of the Future Network for future Pathfinder synthesis.`);
+        }
+
+        function toggleShopUrlInput(checked) {
+            const container = document.getElementById('shop-url-container');
+            if (container) {
+                container.style.display = checked ? 'block' : 'none';
+            }
+        }
+
+        async function registerAlbumInShopCatalog(settings) {
+            try {
+                await fetch('/api/register-shop-album', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: settings.brandName,
+                        artist: settings.artistName,
+                        url: settings.cloudUrl,
+                        price: settings.price,
+                        payment: settings.vaultKey,
+                        description: settings.artistBio
+                    })
+                });
+            } catch (err) {
+                console.log("Offline shop registration simulated.");
+            }
         }
 
         async function getBase64FromUrl(url) {

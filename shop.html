@@ -899,6 +899,7 @@
         <div id="location-tag" style="font-size: 0.55rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">SUPPORT COOPERATIVE CREATION</div>
     </div>
     <div style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; opacity: 0.8; text-align: right; display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+        <button id="toggle-catalog-btn" onclick="toggleShopCatalogModal()" style="font-size: 0.55rem; background: rgba(0, 229, 255, 0.08); color: var(--highlight); border: 1px solid var(--highlight); border-radius: 4px; padding: 2px 6px; font-family: 'Orbitron', sans-serif; font-weight: bold; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(0, 229, 255, 0.2)';" onmouseout="this.style.background='rgba(0, 229, 255, 0.08)';">💿 CO-OP CATALOG</button>
         <a href="index.html" style="font-size: 0.55rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 6px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(214,175,55,0.15)'; this.style.boxShadow='0 0 8px var(--accent-glow)'" onmouseout="this.style.background='transparent'; this.style.boxShadow='none'">🌌 NEXUS</a>
         <div id="gh-sync-indicator" style="font-size: 0.5rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 6px; cursor: pointer; transition: all 0.3s ease; opacity: 0.75;" title="Click to manually sync with GitHub server clock" onclick="window.triggerGithubTimeSync()">GH-SYNC: CONNECTING</div>
         <span id="header-standard-clock">00:00:00 UTC</span>
@@ -1050,6 +1051,69 @@
         <div style="display: flex; gap: 8px;">
             <button id="sorter-run-btn" class="action-btn" onclick="runPortalSorter()" style="flex: 2; margin-top: 0; background: rgba(0, 229, 255, 0.15); border-color: var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer;">⚡ RUN AUTO-SORTER</button>
             <button class="action-btn" onclick="toggleSorterModal()" style="flex: 1; margin-top: 0; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: var(--text-muted); cursor: pointer;">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cooperative Shop Catalog Modal -->
+<div id="catalog-modal" class="quest-modal">
+    <div class="quest-modal-content" style="max-width: 600px; text-align: left; border-color: var(--accent); box-shadow: 0 0 35px var(--accent-glow);">
+        <div class="reward-badge" style="text-align: center;">💿</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent); margin-bottom: 12px; font-weight: 900; text-align: center;">COOPERATIVE SHOP CATALOG</h2>
+        <p style="font-size: 0.8rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 15px; text-align: center;">
+            Explore independent albums hosted entirely in the cloud by artists. Supports 99% payout directly to musicians with a 1% platform commission to route through the Dragon 9 cooperative node array.
+        </p>
+        
+        <div id="catalog-list" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 12px; max-height: 180px; overflow-y: auto; margin-bottom: 15px;">
+            <!-- Dynamic Album Entries -->
+        </div>
+
+        <!-- Manual Catalog Registration Bridge -->
+        <div style="border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; margin-top: 10px;">
+            <h3 style="font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--highlight); margin-bottom: 8px;">📢 Register Cloud Album Link</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <input type="text" id="reg-album-title" placeholder="Album Title" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; font-size: 0.7rem; color: #fff; font-family: 'Share Tech Mono';">
+                <input type="text" id="reg-album-artist" placeholder="Artist Name" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; font-size: 0.7rem; color: #fff; font-family: 'Share Tech Mono';">
+            </div>
+            <div style="margin-bottom: 8px;">
+                <input type="text" id="reg-album-url" placeholder="Cloud URL (Google Cloud, Dropbox, GitHub Pages standalone HTML file)" style="width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; font-size: 0.7rem; color: #fff; font-family: 'Share Tech Mono';">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <input type="text" id="reg-album-price" placeholder="Price (e.g. $10.00 USD or 50 H-Notes)" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; font-size: 0.7rem; color: #fff; font-family: 'Share Tech Mono';">
+                <input type="text" id="reg-album-payment" placeholder="PayPal or Venmo handle (e.g. corey@paypal)" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; font-size: 0.7rem; color: #fff; font-family: 'Share Tech Mono';">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <input type="text" id="reg-album-desc" placeholder="Brief album bio/notes" style="width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px; font-size: 0.7rem; color: #fff; font-family: 'Share Tech Mono';">
+            </div>
+            <button onclick="registerCatalogAlbumDirect()" class="action-btn" style="width: 100%; margin-top: 0; padding: 8px; font-size: 0.65rem; background: rgba(0, 229, 255, 0.15); border-color: var(--highlight); color: #fff; cursor: pointer;">🚀 REGISTER ALBUM WITH COOPERATIVE</button>
+        </div>
+        
+        <div style="display: flex; gap: 8px; margin-top: 15px;">
+            <button class="action-btn" onclick="toggleShopCatalogModal()" style="flex: 1; margin-top: 0; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: var(--text-muted); cursor: pointer; padding: 10px; text-align: center;">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Purchase Split Modal Confirmation -->
+<div id="checkout-split-modal" class="quest-modal" style="z-index: 100001;">
+    <div class="quest-modal-content" style="max-width: 420px; border-color: var(--accent); box-shadow: 0 0 35px var(--accent-glow);">
+        <div class="reward-badge">🤝</div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent); margin-bottom: 12px; font-weight: 900; text-align: center;">COOPERATIVE SPLIT CHECKOUT</h2>
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; text-align: left; margin-bottom: 20px; line-height: 1.6;">
+            <div>🛒 ITEM: <span id="split-item-name" style="color: #fff; font-weight: bold;">-</span></div>
+            <div>🧑‍🎨 ARTIST: <span id="split-item-artist" style="color: #fff; font-weight: bold;">-</span></div>
+            <div>💰 LISTED PRICE: <span id="split-item-price" style="color: var(--highlight); font-weight: bold;">-</span></div>
+            <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 10px; padding-top: 10px;">
+                <div style="color: var(--matrix-green); font-weight: bold;">99% Direct support to Artist: <span id="split-artist-amount">-</span></div>
+                <div style="color: var(--accent); font-weight: bold;">1% Co-op Commission to Dragon 9: <span id="split-platform-amount">-</span></div>
+            </div>
+            <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 10px; line-height: 1.3;">
+                By completing this purchase, you support off-grid local nodes directly while routing 1% to the platform node framework for offline PWA operations.
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+            <button class="action-btn" id="btn-complete-split-purchase" style="margin-top: 0; background: rgba(0, 229, 255, 0.15); border-color: var(--highlight); color: #fff; font-family: 'Orbitron', sans-serif; cursor: pointer; text-align: center; width: 100%;">💳 INITIATE SPLIT PAYMENTS</button>
+            <button class="action-btn" onclick="closeCheckoutSplitModal()" style="margin-top: 0; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: var(--text-muted); cursor: pointer; text-align: center; width: 100%;">CANCEL</button>
         </div>
     </div>
 </div>
@@ -1228,6 +1292,204 @@
         .catch(err => console.error('ServiceWorker registration failed: ', err));
     });
   }
+</script>
+
+<script>
+    let registeredAlbums = [];
+    let selectedCatalogAlbum = null;
+
+    function toggleShopCatalogModal() {
+        const modal = document.getElementById('catalog-modal');
+        if (modal) {
+            const isVisible = modal.style.display === 'flex';
+            modal.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) {
+                loadShopCatalog();
+            }
+        }
+    }
+
+    async function loadShopCatalog() {
+        const container = document.getElementById('catalog-list');
+        if (!container) return;
+        container.innerHTML = '<div style="color: var(--text-muted); font-family: \'Share Tech Mono\'; font-size: 0.7rem; text-align: center; padding: 15px;">Retrieving registered vault nodes...</div>';
+
+        try {
+            const response = await fetch('/api/get-shop-albums');
+            if (response.ok) {
+                const res = await response.json();
+                registeredAlbums = res.albums || [];
+                renderShopCatalog();
+            } else {
+                container.innerHTML = '<div style="color: var(--alert); font-family: \'Share Tech Mono\'; font-size: 0.7rem; text-align: center; padding: 15px;">Failed to retrieve cooperative registry.</div>';
+            }
+        } catch (err) {
+            const localList = JSON.parse(localStorage.getItem('d9_local_registered_albums') || '[]');
+            registeredAlbums = localList;
+            renderShopCatalog();
+        }
+    }
+
+    function renderShopCatalog() {
+        const container = document.getElementById('catalog-list');
+        if (!container) return;
+
+        if (registeredAlbums.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-muted); font-family: \'Share Tech Mono\'; font-size: 0.7rem; text-align: center; padding: 15px;">No independent albums registered yet.</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        registeredAlbums.forEach((album, idx) => {
+            const item = document.createElement('div');
+            item.style.padding = '8px';
+            item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+            item.style.gap = '10px';
+
+            const info = document.createElement('div');
+            info.style.flexGrow = '1';
+            info.style.fontFamily = "'Share Tech Mono', monospace";
+            info.style.fontSize = '0.7rem';
+            info.innerHTML = `
+                <div style="color: #fff; font-weight: bold; font-family: 'Orbitron'; font-size: 0.75rem;">${album.title.toUpperCase()}</div>
+                <div style="color: var(--accent);">Artist: ${album.artist} | Listed Price: ${album.price}</div>
+                <div style="color: var(--text-muted); font-size: 0.6rem; margin-top: 2px;">${album.description || ''}</div>
+            `;
+
+            const btn = document.createElement('button');
+            btn.innerText = 'BUY VAULT';
+            btn.style.fontFamily = "'Orbitron', sans-serif";
+            btn.style.fontSize = '0.55rem';
+            btn.style.padding = '4px 8px';
+            btn.style.border = '1px solid var(--highlight)';
+            btn.style.borderRadius = '4px';
+            btn.style.color = '#fff';
+            btn.style.background = 'rgba(0, 229, 255, 0.15)';
+            btn.style.cursor = 'pointer';
+            btn.onclick = () => openCheckoutSplit(idx);
+
+            item.appendChild(info);
+            item.appendChild(btn);
+            container.appendChild(item);
+        });
+    }
+
+    async function registerCatalogAlbumDirect() {
+        const title = document.getElementById('reg-album-title').value.trim();
+        const artist = document.getElementById('reg-album-artist').value.trim();
+        const url = document.getElementById('reg-album-url').value.trim();
+        const price = document.getElementById('reg-album-price').value.trim() || '$10.00 USD';
+        const payment = document.getElementById('reg-album-payment').value.trim() || 'D9_LOVE';
+        const description = document.getElementById('reg-album-desc').value.trim() || 'Sovereign cloud-hosted portfolio release.';
+
+        if (!title || !artist || !url) {
+            alert('⚠️ Please fill in Title, Artist, and Cloud URL!');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/register-shop-album', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, artist, url, price, payment, description })
+            });
+
+            if (response.ok) {
+                alert('🚀 Album successfully registered to Dragon 9 Cooperative Shop Catalog!');
+                document.getElementById('reg-album-title').value = '';
+                document.getElementById('reg-album-artist').value = '';
+                document.getElementById('reg-album-url').value = '';
+                document.getElementById('reg-album-price').value = '';
+                document.getElementById('reg-album-payment').value = '';
+                document.getElementById('reg-album-desc').value = '';
+                loadShopCatalog();
+            } else {
+                const err = await response.json();
+                alert('⚠️ Failed to register album: ' + err.message);
+            }
+        } catch (err) {
+            const localList = JSON.parse(localStorage.getItem('d9_local_registered_albums') || '[]');
+            if (!localList.some(a => a.url === url)) {
+                localList.push({ title, artist, url, price, payment, description, timestamp: Math.floor(Date.now() / 1000) });
+                localStorage.setItem('d9_local_registered_albums', JSON.stringify(localList));
+                alert('🚀 Registered local test album (offline simulation mode).');
+                loadShopCatalog();
+            } else {
+                alert('⚠️ Duplicate URL registered locally.');
+            }
+        }
+    }
+
+    function openCheckoutSplit(idx) {
+        selectedCatalogAlbum = registeredAlbums[idx];
+        if (!selectedCatalogAlbum) return;
+
+        document.getElementById('split-item-name').innerText = selectedCatalogAlbum.title;
+        document.getElementById('split-item-artist').innerText = selectedCatalogAlbum.artist;
+        document.getElementById('split-item-price').innerText = selectedCatalogAlbum.price;
+
+        let numVal = 10.0;
+        let isHNotes = false;
+        let unit = 'USD';
+
+        if (selectedCatalogAlbum.price.toLowerCase().includes('h-notes')) {
+            numVal = parseFloat(selectedCatalogAlbum.price) || 10;
+            isHNotes = true;
+            unit = 'H-Notes';
+        } else {
+            const matches = selectedCatalogAlbum.price.match(/[\d.]+/);
+            if (matches) {
+                numVal = parseFloat(matches[0]);
+            }
+        }
+
+        const platformCut = numVal * 0.01;
+        const artistCut = numVal * 0.99;
+
+        if (isHNotes) {
+            document.getElementById('split-artist-amount').innerText = `${artistCut.toFixed(2)} H-Notes`;
+            document.getElementById('split-platform-amount').innerText = `${platformCut.toFixed(2)} H-Notes`;
+        } else {
+            document.getElementById('split-artist-amount').innerText = `$${artistCut.toFixed(2)} USD`;
+            document.getElementById('split-platform-amount').innerText = `$${platformCut.toFixed(2)} USD`;
+        }
+
+        const completeBtn = document.getElementById('btn-complete-split-purchase');
+        completeBtn.onclick = () => executeSplitPurchase(isHNotes, artistCut, platformCut);
+
+        const modal = document.getElementById('checkout-split-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeCheckoutSplitModal() {
+        const modal = document.getElementById('checkout-split-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function executeSplitPurchase(isHNotes, artistCut, platformCut) {
+        if (!selectedCatalogAlbum) return;
+
+        if (isHNotes) {
+            alert(`💳 Double-Entry Ledger Transaction:\n\nRouted ${artistCut.toFixed(2)} H-Notes to artist wallet address: ${selectedCatalogAlbum.payment || 'D9_LOVE'}.\nRouted ${platformCut.toFixed(2)} H-Notes (1% Platform fee) to Dragon 9 Co-op.`);
+        } else {
+            const paypalArtist = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(selectedCatalogAlbum.payment || 'fluidmotion.tv@gmail.com')}&item_name=Artist+Payout+for+${encodeURIComponent(selectedCatalogAlbum.title)}&amount=${artistCut.toFixed(2)}&currency_code=USD`;
+            const paypalCoop = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Platform+Commission+for+${encodeURIComponent(selectedCatalogAlbum.title)}&amount=${platformCut.toFixed(2)}&currency_code=USD`;
+
+            alert(`🔗 Open PayPal Checkout Split:\n\nFirst transaction: $${artistCut.toFixed(2)} USD goes to the artist.\nSecond transaction: $${platformCut.toFixed(2)} USD (1% platform fee) supports Dragon 9 platform maintenance.\n\nPress OK to open the artist transaction.`);
+            window.open(paypalArtist, '_blank');
+            setTimeout(() => {
+                window.open(paypalCoop, '_blank');
+            }, 1000);
+        }
+
+        alert(`🎉 Purchase completed successfully!\n\nOpen Cloud Hosted Album: ${selectedCatalogAlbum.url}`);
+        window.open(selectedCatalogAlbum.url, '_blank');
+        closeCheckoutSplitModal();
+        toggleShopCatalogModal();
+    }
 </script>
 </body>
 </html>

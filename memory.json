@@ -222,6 +222,10 @@
     {
       "timestamp": "2026-07-14T02:15:00+12:00",
       "summary": "Added a 'Start Blank Album Template' slate cleaner action inside Album Builder (album.html) to clear demo settings, and integrated a promotion/launch bridge inside the Radio Triage queue panel (triage.html)."
+    },
+    {
+      "timestamp": "2026-07-14T02:25:00+12:00",
+      "summary": "Integrated cooperative cloud-hosted album listing features into Album Builder (album.html) and Shop Portal (shop.html), enabling direct 99% / 1% payment splits and cloud URL registry endpoints in vdo_backend.py."
     }
   ]
 }

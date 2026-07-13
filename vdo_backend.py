@@ -5,6 +5,7 @@ import http.server
 import json
 import subprocess
 import os
+import time
 
 PORT = 8000
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -88,6 +89,19 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
             self.send_success_response({"status": "success", "tracks": []})
             return
             
+        elif self.path.startswith('/api/get-shop-albums'):
+            filepath = os.path.join(DIRECTORY, 'registered_albums.json')
+            if os.path.exists(filepath):
+                try:
+                    with open(filepath, 'r') as f:
+                        data = json.load(f)
+                    self.send_success_response({"status": "success", "albums": data})
+                    return
+                except:
+                    pass
+            self.send_success_response({"status": "success", "albums": []})
+            return
+
         elif self.path.startswith('/api/get-artist-earnings'):
             from urllib.parse import urlparse, parse_qs
             parsed_url = urlparse(self.path)
@@ -561,6 +575,49 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_success_response({"status": "success", "balance": ledger[artist]["earnings"] - ledger[artist]["withdrawals"]})
             except Exception as e:
                 self.send_error_response(f"Withdrawal failed: {str(e)}")
+        elif self.path == '/api/register-shop-album':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                params = json.loads(post_data.decode('utf-8'))
+                title = params.get('title', '').strip()
+                artist = params.get('artist', '').strip()
+                url = params.get('url', '').strip()
+                price = params.get('price', '').strip()
+                payment = params.get('payment', '').strip()
+                description = params.get('description', '').strip()
+                
+                if not title or not url or not artist:
+                    self.send_error_response("Title, Artist, and Cloud URL are required.")
+                    return
+                    
+                filepath = os.path.join(DIRECTORY, 'registered_albums.json')
+                data = []
+                if os.path.exists(filepath):
+                    try:
+                        with open(filepath, 'r') as f:
+                            data = json.load(f)
+                    except:
+                        pass
+                
+                # Check for duplicate URLs
+                if not any(a.get('url') == url for a in data):
+                    data.append({
+                        "title": title,
+                        "artist": artist,
+                        "url": url,
+                        "price": price,
+                        "payment": payment,
+                        "description": description,
+                        "timestamp": int(time.time())
+                    })
+                    with open(filepath, 'w') as f:
+                        json.dump(data, f, indent=4)
+                    self.send_success_response({"status": "success", "message": "Album registered successfully to the shop catalog."})
+                else:
+                    self.send_error_response("This album URL is already registered.")
+            except Exception as e:
+                self.send_error_response(f"Registration failed: {str(e)}")
         else:
             self.send_response(404)
             self.end_headers()
