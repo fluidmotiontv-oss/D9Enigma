@@ -89,6 +89,12 @@
     "systems_hub": {
       "file": "systems.html",
       "description": "A separate tech console showing operational tools (bridges, torrent exchange, video forensics, and shell modules) for developers."
+    },
+    "sovereign_sequencer": {
+      "file": "sequencer/index.html",
+      "logic": "sequencer/script.js",
+      "landing": "sequencer/landing.html",
+      "description": "An offline multi-track song compiler and step sequencer with pre-synthesized creative loops, custom audio loading, individual track mutes/solos/volume mixing, and client-side WAV export."
     }
   },
   "recorded_efforts": [
@@ -151,6 +157,10 @@
     {
       "timestamp": "2026-07-13T18:45:00+12:00",
       "summary": "Split the main app dashboard into two separate curated portfolios: creative.html (Creative Suite for public artists/musicians) and systems.html (Systems Suite for developers/operators). Overwrote apps.html to act as a futuristic Portal Gateway selector, and updated navigation cross-links in all 12 sub-apps."
+    },
+    {
+      "timestamp": "2026-07-13T19:05:00+12:00",
+      "summary": "Built the brand new Sovereign Sequencer (multi-track step sequencer & offline song compiler with WAV downloader), integrated it into creative.html app store, rotating carousels, and updated horizontal header menus across all sub-apps."
     }
   ]
 }

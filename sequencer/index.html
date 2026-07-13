@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Sovereign Sequencer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020205;
+            --panel-bg: rgba(10, 10, 18, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00e5ff;
+            --accent-gold: #d4af37;
+            --accent-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6b7280;
+            --active-step: #00ff66;
+            --active-step-glow: rgba(0, 255, 102, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient drifting backgrounds */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            animation: drift 25s infinite ease-in-out alternate;
+        }
+
+        .blob-cyan {
+            width: 50vw; height: 50vw;
+            background: linear-gradient(135deg, var(--accent-cyan), #002266);
+            top: -10%; left: -10%;
+        }
+
+        .blob-gold {
+            width: 45vw; height: 45vw;
+            background: linear-gradient(135deg, var(--accent-gold), #4a1d96);
+            bottom: -10%; right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(80px, -50px) scale(1.15) rotate(60deg); }
+        }
+
+        /* Cybernetic grid */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Header Navigation */
+        header {
+            width: 100%;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(5, 5, 10, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-area h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .logo-area h1 span {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo-area span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Workspace Grid */
+        .workspace {
+            max-width: 1200px;
+            margin: 30px auto;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Global Control Bar */
+        .control-bar {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-label span {
+            color: var(--accent-gold);
+        }
+
+        .action-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-play {
+            background: var(--accent-cyan);
+            color: #000;
+            border: 1px solid var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .btn-play:hover {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-stop {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #fff;
+        }
+
+        .btn-stop:hover {
+            border-color: #fff;
+        }
+
+        .btn-export {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1.5px solid var(--accent-gold);
+            color: #fff;
+            margin-left: auto;
+        }
+
+        .btn-export:hover {
+            background: var(--accent-gold);
+            color: #000;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .slider-input {
+            width: 140px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        /* Sequencer Tracks Table */
+        .sequencer-table {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            overflow-x: auto;
+        }
+
+        .track-row {
+            display: grid;
+            grid-template-columns: 200px 100px 1fr;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 15px;
+            min-width: 850px;
+        }
+
+        .track-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .track-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .track-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .track-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .custom-file-btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--accent-cyan);
+            cursor: pointer;
+            text-transform: uppercase;
+            border: 1px dashed rgba(0, 229, 255, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0, 229, 255, 0.02);
+            transition: all 0.2s;
+        }
+
+        .custom-file-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            border-style: solid;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
+        .track-fx {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fx-toggle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fx-toggle:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .fx-toggle.active-mute {
+            border-color: #ff0055;
+            color: #ff0055;
+            background: rgba(255, 0, 85, 0.05);
+        }
+
+        .fx-toggle.active-solo {
+            border-color: #00ff66;
+            color: #00ff66;
+            background: rgba(0, 255, 102, 0.05);
+        }
+
+        /* Step Grid Wrapper */
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 8px;
+        }
+
+        .step-block {
+            aspect-ratio: 1;
+            border: 1.5px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .step-block:hover {
+            border-color: rgba(255,255,255,0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Highlight every 4th step (beat) */
+        .step-block:nth-child(4n+1) {
+            border-color: rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .step-block.selected {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .step-block.selected:nth-child(4n+1) {
+            background: var(--accent-cyan);
+        }
+
+        .step-block.playing-head::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 2px solid var(--active-step);
+            border-radius: 4px;
+            box-shadow: 0 0 8px var(--active-step-glow);
+            pointer-events: none;
+        }
+
+        /* Status monitor card */
+        .status-monitor {
+            background: rgba(0, 229, 255, 0.03);
+            border: 1px dashed rgba(0, 229, 255, 0.15);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .status-message {
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .compiling-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .compiling-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 229, 255, 0.1);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient background animations -->
+    <div class="ambient-bg">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-gold"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="logo-area">
+            <h1>🎛️ SOVEREIGN <span>SEQUENCER</span></h1>
+            <span>Dragon 9 Studio Module // Node-Sequencer v1.0</span>
+        </div>
+        <div class="nav-links">
+            <a href="../creative.html" class="nav-btn">🌌 APPS</a>
+            <a href="../universalbridge/" class="nav-btn">🌉 BRIDGE</a>
+            <a href="../harmonyexchange/" class="nav-btn">🎼 EXCHANGE</a>
+            <a href="../exhibition/" class="nav-btn">🎨 GALLERY</a>
+            <a href="../kiterider/" class="nav-btn">🛡️ SHIELD</a>
+            <a href="../nodefabric/" class="nav-btn">🕸️ FABRIC</a>
+            <a href="../vdo4n6/" class="nav-btn">📹 VDO4N6</a>
+            <a href="../radio/" class="nav-btn">📻 RADIO</a>
+            <a href="../pianola/" class="nav-btn">🎹 PIANOLA</a>
+            <a href="../ukulele/" class="nav-btn">🎸 UKULELE</a>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+        
+        <!-- Controls Console Bar -->
+        <section class="control-bar">
+            
+            <div class="control-group">
+                <button id="playBtn" class="action-btn btn-play">▶️ Play</button>
+                <button id="stopBtn" class="action-btn btn-stop">⏹️ Stop</button>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Tempo: <span id="bpmVal">120 BPM</span></label>
+                <input type="range" id="bpmSlider" class="slider-input" min="40" max="220" value="120">
+            </div>
+
+            <div class="control-group">
+                <button id="metronomeBtn" class="fx-toggle">🔔 Click Off</button>
+                <button id="loopBtn" class="fx-toggle active-solo">🔄 Loop On</button>
+            </div>
+
+            <button id="compileBtn" class="action-btn btn-export">📥 Compile & Export WAV</button>
+
+        </section>
+
+        <!-- Tracks Panel -->
+        <section class="sequencer-table">
+            
+            <!-- Track 1: Pyro Drums -->
+            <div class="track-row" data-track="0">
+                <div class="track-meta">
+                    <div class="track-title-bar">
+                        <span class="track-title">🥁 PYRO DRUMS</span>
+                        <label class="custom-file-btn" for="fileInput-0">Load File</label>
+                        <input type="file" id="fileInput-0" class="hidden-file-input" accept="audio/*">
+                    </div>
+                    <label class="control-label">Vol: <span class="track-vol-val">80%</span></label>
+                    <input type="range" class="slider-input track-volume" min="0" max="100" value="80" style="width: 100%;">
+                </div>
+                <div class="track-fx">
+                    <button class="fx-toggle btn-mute">MUTE</button>
+                    <button class="fx-toggle btn-solo">SOLO</button>
+                </div>
+                <div class="step-grid" data-track="0">
+                    <!-- 16 steps injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Track 2: Pianola Synth -->
+            <div class="track-row" data-track="1">
+                <div class="track-meta">
+                    <div class="track-title-bar">
+                        <span class="track-title">🎹 PIANOLA SYNTH</span>
+                        <label class="custom-file-btn" for="fileInput-1">Load File</label>
+                        <input type="file" id="fileInput-1" class="hidden-file-input" accept="audio/*">
+                    </div>
+                    <label class="control-label">Vol: <span class="track-vol-val">70%</span></label>
+                    <input type="range" class="slider-input track-volume" min="0" max="100" value="70" style="width: 100%;">
+                </div>
+                <div class="track-fx">
+                    <button class="fx-toggle btn-mute">MUTE</button>
+                    <button class="fx-toggle btn-solo">SOLO</button>
+                </div>
+                <div class="step-grid" data-track="1">
+                    <!-- 16 steps injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Track 3: Ukulele Strum -->
+            <div class="track-row" data-track="2">
+                <div class="track-meta">
+                    <div class="track-title-bar">
+                        <span class="track-title">🎸 UKULELE CHORD</span>
+                        <label class="custom-file-btn" for="fileInput-2">Load File</label>
+                        <input type="file" id="fileInput-2" class="hidden-file-input" accept="audio/*">
+                    </div>
+                    <label class="control-label">Vol: <span class="track-vol-val">70%</span></label>
+                    <input type="range" class="slider-input track-volume" min="0" max="100" value="70" style="width: 100%;">
+                </div>
+                <div class="track-fx">
+                    <button class="fx-toggle btn-mute">MUTE</button>
+                    <button class="fx-toggle btn-solo">SOLO</button>
+                </div>
+                <div class="step-grid" data-track="2">
+                    <!-- 16 steps injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Track 4: Healer Ambient Pad -->
+            <div class="track-row" data-track="3">
+                <div class="track-meta">
+                    <div class="track-title-bar">
+                        <span class="track-title">🧘 HEALER PAD</span>
+                        <label class="custom-file-btn" for="fileInput-3">Load File</label>
+                        <input type="file" id="fileInput-3" class="hidden-file-input" accept="audio/*">
+                    </div>
+                    <label class="control-label">Vol: <span class="track-vol-val">60%</span></label>
+                    <input type="range" class="slider-input track-volume" min="0" max="100" value="60" style="width: 100%;">
+                </div>
+                <div class="track-fx">
+                    <button class="fx-toggle btn-mute">MUTE</button>
+                    <button class="fx-toggle btn-solo">SOLO</button>
+                </div>
+                <div class="step-grid" data-track="3">
+                    <!-- 16 steps injected dynamically -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Status Bar -->
+        <section class="status-monitor">
+            <div>STATUS: <span id="statusLabel" class="status-message">Sequencer Idle // Ready for Arrangement</span></div>
+            <div>COMPILER ENGINE: OFFLINE LOCAL DSP</div>
+        </section>
+
+    </main>
+
+    <!-- DSP Compiling Modal -->
+    <div id="compilingOverlay" class="compiling-overlay">
+        <div class="spinner"></div>
+        <h2 style="font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent-cyan);">COMPILING SONG STRUCTURE</h2>
+        <p style="font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--text-muted);">Processing 16-step grid and rendering WAV in local buffer...</p>
+    </div>
+
+    <!-- Script file -->
+    <script src="script.js"></script>
+
+</body>
+</html>

@@ -15,5 +15,7 @@ DESC = "The Fluid Motion TV pulse: Visualizing the decoupling of terrestrial per
 PHASE = "Sovereign Phase Catalyst"
 PIANOLA_AND_UKE_RELEASE = "2026-07-13T18:30:00+12:00"
 PORTAL_GATEWAY_RESTRICTED = "2026-07-13T18:45:00+12:00"
+SEQUENCER_STUDIO_RELEASE = "2026-07-13T19:05:00+12:00"
+
 
 
