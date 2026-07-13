@@ -218,6 +218,10 @@
     {
       "timestamp": "2026-07-14T02:05:00+12:00",
       "summary": "Upgraded Sovereign Album Builder (album.html) to support embedding dedicated YouTube links for each audio/video track, rendering a 'WATCH VIDEO' action button on the player cards that launches inside a responsive theater-mode overlay."
+    },
+    {
+      "timestamp": "2026-07-14T02:15:00+12:00",
+      "summary": "Added a 'Start Blank Album Template' slate cleaner action inside Album Builder (album.html) to clear demo settings, and integrated a promotion/launch bridge inside the Radio Triage queue panel (triage.html)."
     }
   ]
 }

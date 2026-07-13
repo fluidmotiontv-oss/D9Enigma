@@ -721,6 +721,7 @@
             </div>
         </div>
 
+        <button class="admin-save-btn" style="background: rgba(255, 0, 85, 0.15); border: 1.5px solid var(--alert); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 5px;" onclick="resetToBlankAlbumTemplate()">🧹 START BLANK ALBUM TEMPLATE</button>
         <button class="admin-save-btn" onclick="saveAdminSettings()">MINT & SAVE CONFIGURATION</button>
         <button class="admin-save-btn" style="background: rgba(0, 229, 255, 0.15); border: 1.5px solid var(--accent); color: #fff; font-family: 'Orbitron', sans-serif; margin-top: 5px;" onclick="exportStandaloneHTML()">📥 DOWNLOAD STANDALONE HTML</button>
         <button class="admin-save-btn" style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); margin-top: 5px;" onclick="toggleAdminPanel()">CANCEL</button>
@@ -1328,6 +1329,37 @@
                 }
             } else {
                 tempSettings = null;
+            }
+        }
+
+        function resetToBlankAlbumTemplate() {
+            if (confirm("🧹 Reset to Blank Album Template?\n\nThis will clear all current tracks and metadata to give you a clean slate for publishing your own album. You can download the exported standalone HTML when finished.\n\nDo you want to proceed?")) {
+                tempSettings = {
+                    brandName: "New Sovereign Album",
+                    profileUrl: "",
+                    vaultKey: "D9_LOVE",
+                    price: "$10.00 USD",
+                    accentColor: "#d4af37",
+                    artistName: "Independent Artist",
+                    artistBio: "Decentralized audio-visual artisan.",
+                    tracks: []
+                };
+                
+                // Synchronize admin form fields
+                document.getElementById('admin-brand-name').value = tempSettings.brandName;
+                document.getElementById('admin-profile-url').value = tempSettings.profileUrl;
+                document.getElementById('admin-vault-key').value = tempSettings.vaultKey;
+                document.getElementById('admin-price').value = tempSettings.price;
+                document.getElementById('artist-name').value = tempSettings.artistName;
+                document.getElementById('artist-bio').value = tempSettings.artistBio;
+
+                // Sync current settings too so rendering updates
+                currentSettings = JSON.parse(JSON.stringify(tempSettings));
+                
+                renderAdminVideosList();
+                renderAlbumTracks();
+                
+                alert("🧹 Slate cleared! Your blank album template is ready. Add your tracks, custom descriptions, and media links, then click 'Download Standalone HTML'.");
             }
         }
 
