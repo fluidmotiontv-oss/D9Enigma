@@ -908,6 +908,7 @@
             </div>
             <div class="ledger-actions">
                 <button class="ledger-btn" onclick="triggerShareLink()">🔗 SHARE VAULT</button>
+                <button class="ledger-btn" style="border-color: var(--highlight); color: var(--highlight);" onclick="openInviteCollaborator()">🤝 COLLABORATE</button>
                 <button class="ledger-btn" onclick="openCommentModal()">💬 COMMENT BOOST</button>
                 <button class="ledger-btn" style="border-color: var(--accent); color: var(--accent);" onclick="openBuyNotesModal()">🔋 BUY H-NOTES</button>
             </div>
@@ -2033,6 +2034,26 @@
             alert("🔗 Referral Link Copied!\n\nPromotion bonus of +1.5 Listening Hours and +0.2x Boost Multiplier credited to your ledger.");
         }
 
+        function openInviteCollaborator() {
+            const name = prompt("🤝 Invite a Collaborator:\n\nEnter your friend's name (e.g. Dawn Rainstar Milazzo):", "Dawn Rainstar Milazzo");
+            if (!name || !name.trim()) return;
+
+            const refLink = `${window.location.origin}${window.location.pathname}?collab=${encodeURIComponent(name.trim())}`;
+            const message = `Hi ${name.trim()}! I'm compiling our music release into a portable offline HTML vault using the Dragon 9 Sovereign Album Builder. Would you like to collaborate on this with me? Check it out here: ${refLink}`;
+
+            navigator.clipboard.writeText(message);
+
+            let hours = parseFloat(localStorage.getItem('d9_listening_hours') || '0.0');
+            hours += 2.0;
+            localStorage.setItem('d9_listening_hours', hours.toFixed(1));
+            document.getElementById('user-listening-hours').innerText = hours.toFixed(1);
+
+            const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(refLink)}`;
+
+            alert(`🤝 Collaboration Message Copied for ${name.trim()}!\n\nMessage:\n"${message}"\n\nReferral bonus of +2.0 Listening Hours credited! Press OK to open Facebook to send it to them.`);
+            window.open(fbShareUrl, '_blank');
+        }
+
         function openCommentModal() {
             const comment = prompt("💬 Submit Track Feedback / Review:\n\nType your comment below to support this artist and boost your hours!");
             if (!comment || !comment.trim()) return;
@@ -2159,6 +2180,15 @@
 
         // Initialize Settings
         loadAdminSettings();
+
+        // Check for collaboration invite query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const collabName = urlParams.get('collab');
+        if (collabName) {
+            setTimeout(() => {
+                alert(`🤝 Welcome to the Sovereign Album Builder!\n\nYou've been invited by a fellow artist to collaborate on a portable, password-secured digital music release.\n\nUse the tools here to customize tracks, edit descriptions, and build your shared release vault!`);
+            }, 1500);
+        }
 
         // --- INTERACTIVE FLUID CANVAS ---
         const canvas = document.createElement('canvas');
