@@ -14,4 +14,6 @@ D9_SYNC_LINK = "https://www.facebook.com/share/p/19A7yZHZCF/"
 DESC = "The Fluid Motion TV pulse: Visualizing the decoupling of terrestrial perception."
 PHASE = "Sovereign Phase Catalyst"
 PIANOLA_AND_UKE_RELEASE = "2026-07-13T18:30:00+12:00"
+PORTAL_GATEWAY_RESTRICTED = "2026-07-13T18:45:00+12:00"
+
 

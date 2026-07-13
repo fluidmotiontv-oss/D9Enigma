@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Systems Suite Hub</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020205;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --highlight: #00e5ff;
+            --highlight-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6b5c82;
+            --card-bg: rgba(10, 10, 15, 0.7);
+            --border-color: rgba(0, 229, 255, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        /* Ambient scanline grids */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            z-index: 1;
+            background-size: 100% 4px, 30px 30px, 30px 30px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header design */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 40px;
+            background: rgba(5, 5, 8, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 25px var(--highlight-glow);
+            position: relative;
+        }
+
+        .hub-switch-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .hub-switch-link:hover {
+            border-color: var(--highlight);
+            color: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px var(--highlight-glow);
+        }
+
+        .header-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--highlight);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* App list grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1.5px solid var(--border-color);
+            border-radius: 18px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            min-height: 380px;
+        }
+
+        .app-card::after {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(135deg, var(--highlight), transparent, var(--accent));
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0.1;
+            transition: opacity 0.4s;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--highlight);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 20px var(--highlight-glow);
+        }
+
+        .app-card:hover::after {
+            opacity: 0.25;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 15px;
+        }
+
+        .app-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px var(--highlight-glow));
+        }
+
+        .app-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .app-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+            margin-top: 3px;
+        }
+
+        .app-desc {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #d1c1a5;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+
+        /* Action buttons */
+        .app-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: rgba(0, 229, 255, 0.08);
+            border: 1.5px solid var(--highlight);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: var(--highlight);
+            color: #000;
+            box-shadow: 0 0 20px var(--highlight-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(212, 175, 55, 0.06);
+            border: 1.5px solid var(--accent);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        footer {
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="apps.html" class="hub-switch-link">🌌 Portal Gate</a>
+            <h1 class="header-title">Sovereign Systems</h1>
+            <p class="header-subtitle">Network Fabric, Forensic Tools & Operations</p>
+        </header>
+
+        <main class="app-grid">
+            
+            <!-- App 1: Universal Bridge -->
+            <div class="app-card" id="app-bridge">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">Bridge 🌉</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Universal Bridge</h2>
+                            <span class="app-status">P2P TUNNEL v2.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Secure peer-to-peer data bridge tunneling files, chat logs, and socket payloads between client nodes with end-to-end local encryption keys.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="universalbridge/index.html" class="btn btn-primary">⚡ Launch Bridge</a>
+                    <a href="universalbridge/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="universalbridge/index.html" download="universal_bridge.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 2: Harmony Exchange -->
+            <div class="app-card" id="app-exchange">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎼</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Harmony Exchange</h2>
+                            <span class="app-status">P2P LEDGER v1.1</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Local WebTorrent database exchange. Synchronize file lists, passcodes, and transaction indices directly between adjacent sandbox nodes.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="harmonyexchange/index.html" class="btn btn-primary">⚡ Launch Exchange</a>
+                    <a href="harmonyexchange/index.html" download="harmony_exchange.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 3: Node Fabric -->
+            <div class="app-card" id="app-fabric">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🕸️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Node Fabric</h2>
+                            <span class="app-status">NETWORK DECODING v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">WebRTC socket peer tracker and signal grid mapping. Monitor network links, frame sizes, latency, and connected peer configurations.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="nodefabric/index.html" class="btn btn-primary">⚡ Launch Node Fabric</a>
+                    <a href="nodefabric/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="nodefabric/index.html" download="node_fabric.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 4: VDO4N6 Forensics -->
+            <div class="app-card" id="app-vdo4n6">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">📹</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">VDO4N6 Forensic Reel</h2>
+                            <span class="app-status">VIDEO SCRAPING v2.4</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Local metadata scraper and visual log compiler for video reels. Analyzes camera indices, frame rates, and visual anomalies inside offline folders.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="vdo4n6/index.html" class="btn btn-primary">⚡ Launch Forensic Reel</a>
+                    <a href="vdo4n6/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="vdo4n6/index.html" download="vdo4n6_reel.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 5: Kite Rider Shield -->
+            <div class="app-card" id="app-kiterider">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🛡️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Kite Rider Shield</h2>
+                            <span class="app-status">DECENTRALIZED ENIGMA v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Cybernetic packet defense and key cipher generator. Protect sandbox assets and compile local credential vaults without logging telemetry.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="kiterider/index.html" class="btn btn-primary">⚡ Launch Shield</a>
+                    <a href="kiterider/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="kiterider/index.html" download="kiterider_shield.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 6: Dragon 8 Editor -->
+            <div class="app-card" id="app-editor">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎬</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Dragon 8 Editor</h2>
+                            <span class="app-status">MARKUP COMPILER v1.2</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">A localized code and markdown editor module. Edit settings, save local storage scripts, and preview designs completely offline.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="dragon8editor/index.html" class="btn btn-primary">⚡ Launch Editor</a>
+                    <a href="dragon8editor/index.html" download="dragon8_editor.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 7: Infinity Racer -->
+            <div class="app-card" id="app-rider">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🕹️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Infinity Racer</h2>
+                            <span class="app-status">SOVEREIGN SIMULATION v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">A cybernetic vector-rendered interactive driving simulation built inside 2D canvas framebuffers for local response training.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="infinity-racer/index.html" class="btn btn-primary">⚡ Launch Racer</a>
+                    <a href="infinity-racer/index.html" download="infinity_racer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 8: Dial Universal Clock -->
+            <div class="app-card" id="app-dial">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">⏱️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Dial Clock</h2>
+                            <span class="app-status">TEMPORAL LOGIC v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Core temporal calculator synchronizing traditional 24h systems with Dragon 9 decimal standards. Calculates relax cycles and temporal offsets.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="dial/index.html" class="btn btn-primary">⚡ Launch Clock</a>
+                    <a href="dial/landing.html" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="dial/index.html" download="dial_clock.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+        </main>
+
+        <footer>
+            DRAGON 9 SOVEREIGN SYSTEMS INTEGRITY MONITOR
+        </footer>
+    </div>
+
+</body>
+</html>

@@ -81,6 +81,14 @@
       "logic": "ukulele/script.js",
       "landing": "ukulele/landing.html",
       "description": "An interactive ukulele fretboard visualizer and rhythm progression guide with synthesized string modeling plucks/strums and tempo-metronome synchronization."
+    },
+    "creative_hub": {
+      "file": "creative.html",
+      "description": "A curated apps directory showing only creative tools (music, art, and gardens) for public visitors and artists."
+    },
+    "systems_hub": {
+      "file": "systems.html",
+      "description": "A separate tech console showing operational tools (bridges, torrent exchange, video forensics, and shell modules) for developers."
     }
   },
   "recorded_efforts": [
@@ -139,6 +147,10 @@
     {
       "timestamp": "2026-07-13T18:30:00+12:00",
       "summary": "Built the brand new Synesthetic Pianola (synthesizer keyboard with player piano roll and Web MIDI USB sync) and Sovereign Ukulele Instructor (fretboard finger positions, pluck/strum simulator, metronome tempo sync, and progression tutorial guides), and integrated them across the App Store, 3D home portal, shop portal, and horizontal nav headers."
+    },
+    {
+      "timestamp": "2026-07-13T18:45:00+12:00",
+      "summary": "Split the main app dashboard into two separate curated portfolios: creative.html (Creative Suite for public artists/musicians) and systems.html (Systems Suite for developers/operators). Overwrote apps.html to act as a futuristic Portal Gateway selector, and updated navigation cross-links in all 12 sub-apps."
     }
   ]
 }
