@@ -1,4 +1,4 @@
-const cacheName = 'fluidmotion-v6';
+const cacheName = 'fluidmotion-v7';
 const staticAssets = [
   './',
   './index.html',
