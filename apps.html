@@ -596,7 +596,7 @@
             const donateBtn = document.getElementById('paypal-donate-btn');
             if (donateBtn) {
                 if (PAYPAL_USERNAME.includes('@')) {
-                    donateBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=${encodeURIComponent(PAYPAL_USERNAME)}&currency_code=USD`;
+                    donateBtn.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_USERNAME)}&item_name=Support%20Dragon%209%20Development&currency_code=USD`;
                     const hintEl = document.querySelector('.donation-setup-hint');
                     if (hintEl) {
                         hintEl.textContent = `Donations linked to: ${PAYPAL_USERNAME}`;
