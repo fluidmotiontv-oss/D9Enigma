@@ -461,6 +461,28 @@
 </head>
 <body>
 
+    <!-- Systems Gate Authorization Overlay -->
+    <div id="systemsGateOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #020205; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; font-family: 'Orbitron', sans-serif; color: #fff;">
+        <span style="font-size: 4rem; filter: drop-shadow(0 0 15px rgba(255, 0, 85, 0.4));">🔒</span>
+        <h2 style="letter-spacing: 3px; color: #ff0055;">SECURE ACCESS RESTRICTED</h2>
+        <p style="font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #8c85a3; max-width: 400px; text-align: center; line-height: 1.5;">This node is decoupled. You must authenticate at the Systems Console to activate this interface.</p>
+        <a href="../systems.html" style="padding: 12px 24px; border: 1.5px solid #00e5ff; background: rgba(0, 229, 255, 0.08); color: #fff; text-decoration: none; border-radius: 8px; font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; box-shadow: 0 0 15px rgba(0, 229, 255, 0.25); transition: all 0.3s;">🔑 Authenticate Hub</a>
+    </div>
+
+    <script>
+        (function() {
+            if (sessionStorage.getItem('systems_auth') === 'granted') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const gate = document.getElementById('systemsGateOverlay');
+                    if (gate) gate.style.display = 'none';
+                });
+            } else {
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+        })();
+    </script>
+
 <div class="header">
     <div class="theme-switcher">
         <div class="theme-btn btn-classic" title="Classic" onclick="setTheme('classic')"></div>
