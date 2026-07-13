@@ -187,11 +187,13 @@ function updateColorsFromTheme() {
 
     // Apply colors to 3D elements
     if (state.trackRails) {
-        state.trackRails.material.color.setHex(state.colors.accent);
+        state.trackRails.children.forEach(child => {
+            if (child.material) child.material.color.setHex(state.colors.accent);
+        });
     }
     if (state.trackSleepers) {
         state.trackSleepers.material.color.setHex(state.colors.accent);
-        state.trackSleepers.material.opacity = 0.18;
+        state.trackSleepers.material.opacity = 0.4;
     }
     if (state.trackRingsMesh) {
         state.trackRingsMesh.material.color.setHex(state.colors.accent);
@@ -234,7 +236,7 @@ function initThree() {
     
     state.scene = new THREE.Scene();
     // Soft fog for deep cosmic space depth
-    state.scene.fog = new THREE.FogExp2(0x050308, 0.015);
+    state.scene.fog = new THREE.FogExp2(0x050308, 0.006);
     
     state.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
     
@@ -309,7 +311,7 @@ function buildTrack() {
         color: state.colors.accent,
         linewidth: 2,
         transparent: true,
-        opacity: 0.55
+        opacity: 0.9
     });
     
     state.trackRails = new THREE.Group();
@@ -322,7 +324,7 @@ function buildTrack() {
     const crossbarMat = new THREE.LineBasicMaterial({
         color: state.colors.accent,
         transparent: true,
-        opacity: 0.18
+        opacity: 0.4
     });
     state.trackSleepers = new THREE.LineSegments(crossbarGeo, crossbarMat);
     state.scene.add(state.trackSleepers);
@@ -332,7 +334,7 @@ function buildTrack() {
     const ringMat = new THREE.LineBasicMaterial({
         color: state.colors.accent,
         transparent: true,
-        opacity: 0.12
+        opacity: 0.35
     });
     state.trackRingsMesh = new THREE.LineSegments(ringGeo, ringMat);
     state.scene.add(state.trackRingsMesh);
@@ -396,7 +398,7 @@ function buildShip() {
     
     // Central hull
     const cockpitGeo = new THREE.SphereGeometry(0.2, 8, 8);
-    const cockpitMat = new THREE.MeshBasicMaterial({ color: state.colors.highlight, wireframe: true });
+    const cockpitMat = new THREE.MeshPhongMaterial({ color: state.colors.highlight, flatShading: true, shininess: 80 });
     const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
     shipGroup.add(cockpit);
     
@@ -404,7 +406,7 @@ function buildShip() {
     const wingGeo = new THREE.ConeGeometry(0.18, 0.6, 3);
     wingGeo.rotateX(Math.PI / 2); // align forward
     wingGeo.translate(0, 0, -0.1);
-    const wingMat = new THREE.MeshBasicMaterial({ color: state.colors.accent, wireframe: true });
+    const wingMat = new THREE.MeshPhongMaterial({ color: state.colors.accent, flatShading: true, shininess: 40 });
     const wings = new THREE.Mesh(wingGeo, wingMat);
     wings.scale.set(3.0, 0.5, 1.0);
     shipGroup.add(wings);
@@ -446,16 +448,16 @@ function spawnEntityAhead() {
     let geo, mat;
     if (type === 'hazard') {
         // Red double pyramid (octahedron)
-        geo = new THREE.OctahedronGeometry(0.24, 0);
-        mat = new THREE.MeshBasicMaterial({ color: state.colors.alert, wireframe: true });
+        geo = new THREE.OctahedronGeometry(0.3, 0);
+        mat = new THREE.MeshPhongMaterial({ color: state.colors.alert, flatShading: true, shininess: 30 });
     } else if (type === 'orb_gold') {
         // Gold icosahedron
-        geo = new THREE.IcosahedronGeometry(0.18, 0);
-        mat = new THREE.MeshBasicMaterial({ color: 0xffd700, wireframe: true });
+        geo = new THREE.IcosahedronGeometry(0.22, 0);
+        mat = new THREE.MeshPhongMaterial({ color: 0xffd700, flatShading: true, shininess: 100 });
     } else {
         // Cyan sphere
-        geo = new THREE.IcosahedronGeometry(0.15, 1);
-        mat = new THREE.MeshBasicMaterial({ color: state.colors.highlight, wireframe: true });
+        geo = new THREE.IcosahedronGeometry(0.18, 1);
+        mat = new THREE.MeshPhongMaterial({ color: state.colors.highlight, flatShading: true, shininess: 100 });
     }
     
     const mesh = new THREE.Mesh(geo, mat);
