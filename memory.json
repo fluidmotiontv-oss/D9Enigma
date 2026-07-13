@@ -282,6 +282,10 @@
     {
       "timestamp": "2026-07-14T07:51:00+12:00",
       "summary": "Embedded the Sovereign Tools for the Fluid Motion of the Future presentation tutorial video as a responsive video section across the apps gateway (apps.html), the Creative Suite hub (creative.html), and the Sovereign Systems hub (systems.html)."
+    },
+    {
+      "timestamp": "2026-07-14T08:02:00+12:00",
+      "summary": "Restored the Night Fish floating AI assistant widget and holographic projection components across the entire workspace by importing scripts/night_fish_assistant.js and scripts/night_fish.css in apps.html, creative.html, systems.html, sound.html, vision.html, nature.html, and sitemap.html."
     }
   ]
 }
