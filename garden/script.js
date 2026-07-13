@@ -599,6 +599,53 @@ function initAssistant() {
     dom.btnBeeSoil.addEventListener('click', () => {
         speakBeeAdvice("Buzz... Soil check: Maintain a 30:1 Carbon-to-Nitrogen ratio. Mix woody forest mulch with green compost weeds. Tune seedbed layers to 852Hz Humus frequency to stimulate mycorrhizal fungal grids.");
     });
+
+    const input = document.getElementById('bee-query');
+    if (input) {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                queryHumbleBee();
+            }
+        });
+    }
+}
+
+function queryHumbleBee() {
+    const input = document.getElementById('bee-query');
+    if (!input) return;
+    const query = input.value.trim().toLowerCase();
+    if (!query) return;
+
+    let response = "Buzz... Analyzing frequencies... I don't see that specific cultivation sequence in my local database. Try asking me about: Kawakawa, Harakeke, Kūmara, Pruning, Compost, or Companion Guilds!";
+
+    if (query.includes("kawakawa")) {
+        response = "Buzz... Kawakawa is a sacred Māori medicinal plant. Cultivate in rich compost with partial shade. Tune seedbeds to 528Hz Solfeggio frequency to align molecular cell structure during planting.";
+    } else if (query.includes("harakeke") || query.includes("flax")) {
+        response = "Buzz... Harakeke (NZ Flax) grows best in moist soil profiles. Always harvest outer leaves first, leaving the baby shoot (rito) and parent leaves untouched. Tune with 639Hz to support growth structures.";
+    } else if (query.includes("kumara") || query.includes("kūmara") || query.includes("sweet potato")) {
+        response = "Buzz... Kūmara sweet potatoes love sandy loam soil. Transplant sprouts (tupu) during a waning moon to encourage deep root energy. Tune composting beds to 432Hz to stimulate earthworms.";
+    } else if (query.includes("prun") || query.includes("cut") || query.includes("arbor")) {
+        response = "Buzz... Mid-winter pruning of fruit trees (June/July in NZ) should be done with sharp, sanitized tools at a 45-degree angle. This keeps cuts dry and disease-free while tree sap is dormant.";
+    } else if (query.includes("compost") || query.includes("soil") || query.includes("humus")) {
+        response = "Buzz... Maintain a carbon-to-nitrogen ratio of 30:1. Turn piles regularly to oxygenate. Tune composting beds to 852Hz (Humus resonance) to attract positive microbial activity.";
+    } else if (query.includes("guild") || query.includes("companion")) {
+        response = "Buzz... Create self-sustaining companion guilds! Plant nitrogen-fixers (like clover or beans) next to heavy feeders. Use tall crops to shield shade-loving herbs (like Kawakawa) from midday rays.";
+    } else if (query.includes("lunar") || query.includes("moon")) {
+        response = "Buzz... Waxing crescent moon (Days 1-7) boosts above-ground leafy growth. Full moon (Days 8-14) is prime for transplanting. Waning phases (Days 15-28) direct energy to root formation.";
+    } else if (query.includes("hello") || query.includes("hi") || query.includes("buzz") || query.includes("help")) {
+        response = "Buzz... Greetings, cultivator! I am the Humble Bee assistant. Ask me questions about Kawakawa, Harakeke, Kūmara, Composting, Pruning, or Companion planting guilds.";
+    }
+
+    speakBeeAdvice(response);
+    input.value = "";
+}
+
+function triggerBeeSuggestion(topic) {
+    const input = document.getElementById('bee-query');
+    if (input) {
+        input.value = topic;
+        queryHumbleBee();
+    }
 }
 
 let typingTimeout = null;
