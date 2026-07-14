@@ -116,6 +116,11 @@
     "sovereign_surf": {
       "file": "surf/index.html",
       "description": "An offline-resilient marine dashboard displaying tide graphs, wind vectors, swell metrics, and weather calendars with precise geolocation lookup."
+    },
+    "sovereign_wave_rider": {
+      "file": "infinity-racer/index.html",
+      "logic": "infinity-racer/script.js",
+      "description": "3D Lemniscate Wave Rider game riding a 3D ocean wave barrel in Three.js, alongside an offline 2D Drift Frequency wave carving canvas game (surf/game/index.html) and responsive mobile controls."
     }
   },
   "recorded_efforts": [
@@ -322,6 +327,10 @@
     {
       "timestamp": "2026-07-14T21:05:00+12:00",
       "summary": "Designed and built the Sovereign Community Portal & Resonant Gallery app (portal/index.html) integrating the 'Be Your Light' New Zealand project video. Set up the gold telluride/iridescent pastel coastal sand aesthetic, a persistent local-storage wallet keeping track of Harmony Notes, support splits (90/10 split), ad promoted flow pay-to-watch mechanics, and the 'Add Your Light' content submission form. Registered access in creative.html, sitemap.html, and registry logs."
+    },
+    {
+      "timestamp": "2026-07-14T22:35:00+12:00",
+      "summary": "Built Sovereign Surf Rider: Drift Frequency, combining a 3D Lemniscate wave-riding game (infinity-racer/) with a 2D Canvas swell sandbox (surf/game/). Configured Solfeggio frequency particles, dynamic D9 clock wave height modulation, trick air spins, and dual-thumb mobile control overlays. Integrated launcher configurations into creative.html, nature.html, sitemap.html, and the surf dashboard."
     }
   ]
 }

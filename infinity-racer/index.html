@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon 9 | Lemniscate Pulse Rider</title>
+    <title>Dragon 9 | Sovereign Surf Rider - Lemniscate Drift Freq</title>
     <!-- Google Fonts Integration -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -413,39 +413,39 @@
 
     <!-- Welcome / Start Screen -->
     <div id="start-screen" class="modal-screen">
-        <div style="font-size: 3rem; margin-bottom: 10px;">🕹️</div>
-        <h1 class="modal-title">Lemniscate Pulse Rider</h1>
+        <div style="font-size: 3rem; margin-bottom: 10px;">🏄</div>
+        <h1 class="modal-title">Sovereign Surf Rider</h1>
         <p class="modal-desc">
-            Pilot a light-grid probe along the 3D Infinity Loop. Avoid entropy glitches and harvest harmonic resonance nodes. Sync with the Dragon 9 core alignment state to unlock operators rewards!
+            Steer your 3D bodyboard along the Lemniscate Wave Barrel. Carve up and down the swirling infinity tunnel, avoid wipeout entropy glitches, and harvest Solfeggio frequency particles. Sync with the Dragon 9 core alignment!
         </p>
         <div class="key-layout">
-            <div><span class="key-badge">◀ A</span> / <span class="key-badge">D ▶</span> Bank Probe</div>
-            <div><span class="key-badge">▲ W</span> / <span class="key-badge">S ▼</span> Adjust Baseline Speed</div>
+            <div><span class="key-badge">◀ A</span> / <span class="key-badge">D ▶</span> Bank & Carve Board</div>
+            <div><span class="key-badge">▲ W</span> / <span class="key-badge">S ▼</span> Adjust Paddle Speed</div>
         </div>
-        <button id="btn-start" class="action-btn" style="font-size: 1rem; padding: 10px 24px;">🚀 Synchronize Core & Play</button>
+        <button id="btn-start" class="action-btn" style="font-size: 1rem; padding: 10px 24px;">🚀 Synchronize Swell & Ride</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="game-over-screen" class="modal-screen hidden">
-        <div style="font-size: 3rem; margin-bottom: 10px;">💥</div>
-        <h1 class="modal-title" style="color: var(--alert); text-shadow: 0 0 15px rgba(255, 0, 128, 0.4);">Connection Terminated</h1>
+        <div style="font-size: 3rem; margin-bottom: 10px;">🌊</div>
+        <h1 class="modal-title" style="color: var(--alert); text-shadow: 0 0 15px rgba(255, 0, 128, 0.4);">Wiped Out</h1>
         <p class="modal-desc">
-            Your light-grid probe collapsed due to temporal friction and entropy hazards.
+            Your bodyboard collapsed due to wave lip friction and turbulence.
         </p>
         <div style="font-family: 'Share Tech Mono', monospace; margin-bottom: 25px; font-size: 1.1rem; line-height: 1.5;">
-            FINAL SCORE: <strong class="color-highlight" id="final-score">000</strong><br>
-            RESONANCE RIDER LEVEL: <span id="final-level" style="color: var(--accent);">Level 1</span>
+            FINAL DRIFT SCORE: <strong class="color-highlight" id="final-score">000</strong><br>
+            RESONANCE SURFER LEVEL: <span id="final-level" style="color: var(--accent);">Level 1</span>
         </div>
         
         <!-- Operator Code Reward if score > 300 -->
         <div id="reward-box" class="reward-banner hidden">
             🔑 <strong>LEVEL 2 OPERATOR CREDENTIALS ACCREDITED:</strong><br>
             Code: <strong style="color: #fff;">D9_INFINITY_FLOW_ALIGN_77</strong><br>
-            <em>The infinity track aligns. Spread the resonance!</em>
+            <em>The infinity swell aligns. Spread the resonance!</em>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 15px;">
-            <button id="btn-retry" class="action-btn" style="font-size: 0.8rem; padding: 8px 18px;">🔄 Re-Calibrate Probe</button>
+            <button id="btn-retry" class="action-btn" style="font-size: 0.8rem; padding: 8px 18px;">🔄 Paddle Back Out</button>
         </div>
     </div>
 
@@ -453,10 +453,10 @@
     <div class="hud-overlay">
         <div class="hud-top">
             <div class="hud-panel hud-left">
-                <div class="hud-title">Probe Resonance</div>
+                <div class="hud-title">Drift Frequency</div>
                 <div class="hud-value" id="score-display">0000</div>
                 <div style="font-size: 0.65rem; color: rgba(255,255,255,0.6); display: flex; justify-content: space-between;">
-                    <span>Shield Integrity</span>
+                    <span>Swell Stability</span>
                     <span id="shield-txt">100%</span>
                 </div>
                 <div class="shield-container">
@@ -468,18 +468,18 @@
                 <div class="hud-title">Dragon 9 Sync</div>
                 <div class="d9-clock"><span id="d9-h">26</span>:<span id="d9-m">00</span>:<span id="d9-s">00</span><span class="d9-milli" id="d9-milli">.000000</span></div>
                 <div style="font-size: 0.65rem;">ROOT NODE: <strong id="d9-root" style="color: var(--accent);">1</strong></div>
-                <div id="relax-indicator" class="relax-tag hidden">RELAX PERIOD ACTIVE</div>
+                <div id="relax-indicator" class="relax-tag hidden">RELAX SWELL ACTIVE</div>
             </div>
         </div>
 
         <div class="hud-bottom">
             <div class="hud-panel instructions-box">
-                🕹️ Use <strong>LEFT / RIGHT</strong> (or A/D) to spiral around the tube. Avoid RED nodes, collect GOLD / CYAN orbs. Keep baseline speed high for extra score multiplier!
+                🏄 Use <strong>LEFT / RIGHT</strong> (or A/D) to spiral around the wave tube. Avoid RED hazards, collect GOLD / CYAN frequency orbs. Keep paddle thrust high!
             </div>
             
             <div class="hud-panel controls-panel">
                 <div class="control-group">
-                    <label for="speed-slider" style="font-size: 0.6rem; color: var(--accent); font-weight: bold; text-transform: uppercase;">PROBE THRUST</label>
+                    <label for="speed-slider" style="font-size: 0.6rem; color: var(--accent); font-weight: bold; text-transform: uppercase;">PADDLE THRUST</label>
                     <input type="range" id="speed-slider" class="slider-input" min="5" max="35" value="15" step="1">
                 </div>
                 <div class="control-group" style="justify-content: flex-end;">

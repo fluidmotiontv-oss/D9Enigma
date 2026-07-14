@@ -358,17 +358,17 @@ function createSparkTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
-// Create starfield in the background
+// Create bioluminescent marine particle field in the background
 function buildStarfield() {
-    const count = 400;
+    const count = 450;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     
     for (let i = 0; i < count; i++) {
-        // Place stars in a huge sphere around the center
+        // Place particles in a huge sphere around the center
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos((Math.random() * 2) - 1);
-        const radius = 100 + (Math.random() * 80);
+        const radius = 90 + (Math.random() * 70);
         
         positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
         positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
@@ -379,11 +379,11 @@ function buildStarfield() {
     
     const texture = createSparkTexture();
     const material = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.8,
+        color: state.colors.highlight, // Neon marine color
+        size: 1.1,
         map: texture,
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.65,
         blending: THREE.AdditiveBlending,
         depthWrite: false
     });
@@ -392,35 +392,64 @@ function buildStarfield() {
     state.scene.add(state.starfield);
 }
 
-// Build the player's 3D ship
+// Build the player's 3D bodyboard
 function buildShip() {
-    const shipGroup = new THREE.Group();
+    const boardGroup = new THREE.Group();
     
-    // Central hull
-    const cockpitGeo = new THREE.SphereGeometry(0.2, 8, 8);
-    const cockpitMat = new THREE.MeshPhongMaterial({ color: state.colors.highlight, flatShading: true, shininess: 80 });
-    const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
-    shipGroup.add(cockpit);
+    // Bodyboard deck
+    const boardGeo = new THREE.BoxGeometry(0.32, 0.03, 0.6);
+    const boardMat = new THREE.MeshPhongMaterial({ 
+        color: state.colors.highlight, 
+        flatShading: true, 
+        shininess: 80 
+    });
+    const board = new THREE.Mesh(boardGeo, boardMat);
+    board.position.y = 0.02;
+    boardGroup.add(board);
     
-    // Wings
-    const wingGeo = new THREE.ConeGeometry(0.18, 0.6, 3);
-    wingGeo.rotateX(Math.PI / 2); // align forward
-    wingGeo.translate(0, 0, -0.1);
-    const wingMat = new THREE.MeshPhongMaterial({ color: state.colors.accent, flatShading: true, shininess: 40 });
-    const wings = new THREE.Mesh(wingGeo, wingMat);
-    wings.scale.set(3.0, 0.5, 1.0);
-    shipGroup.add(wings);
+    // Slick bottom
+    const slickGeo = new THREE.BoxGeometry(0.3, 0.01, 0.58);
+    const slickMat = new THREE.MeshPhongMaterial({ 
+        color: state.colors.accent, 
+        flatShading: true, 
+        shininess: 100 
+    });
+    const slick = new THREE.Mesh(slickGeo, slickMat);
+    slick.position.y = 0.001;
+    boardGroup.add(slick);
     
-    // Engine plume
-    const flameGeo = new THREE.ConeGeometry(0.1, 0.4, 4);
-    flameGeo.rotateX(-Math.PI / 2); // points backward
-    flameGeo.translate(0, 0, -0.4);
-    const flameMat = new THREE.MeshBasicMaterial({ color: state.colors.alert, transparent: true, opacity: 0.8 });
-    const flame = new THREE.Mesh(flameGeo, flameMat);
-    shipGroup.add(flame);
+    // Surfer body silhouette (lying down prone on the board)
+    const bodyGeo = new THREE.BoxGeometry(0.18, 0.1, 0.42);
+    const bodyMat = new THREE.MeshPhongMaterial({ 
+        color: 0xffffff, 
+        flatShading: true,
+        shininess: 30
+    });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.set(0, 0.08, -0.05);
+    boardGroup.add(body);
     
-    state.scene.add(shipGroup);
-    state.ship = shipGroup;
+    // Head
+    const headGeo = new THREE.SphereGeometry(0.08, 8, 8);
+    const headMat = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
+    const head = new THREE.Mesh(headGeo, headMat);
+    head.position.set(0, 0.15, 0.15);
+    boardGroup.add(head);
+    
+    // Water spray tail (basic translucent cones representing spray)
+    const sprayGeo = new THREE.ConeGeometry(0.1, 0.4, 4);
+    sprayGeo.rotateX(-Math.PI / 2);
+    sprayGeo.translate(0, 0, -0.45);
+    const sprayMat = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff, 
+        transparent: true, 
+        opacity: 0.65 
+    });
+    const spray = new THREE.Mesh(sprayGeo, sprayMat);
+    boardGroup.add(spray);
+    
+    state.scene.add(boardGroup);
+    state.ship = boardGroup;
 }
 
 // --- GAMEPLAY MECHANICS ---
@@ -673,10 +702,10 @@ function triggerGameOver() {
     document.getElementById('final-score').innerText = String(state.score).padStart(4, '0');
     
     // Evaluate operational rank
-    let rank = "Level 1 Cadet";
-    if (state.score >= 500) rank = "Level 3 Grand Master 💎";
-    else if (state.score >= 250) rank = "Level 2 Resonance Operator 🚀";
-    else if (state.score >= 100) rank = "Level 1 System Calibrator";
+    let rank = "Level 1 Swell Novice";
+    if (state.score >= 500) rank = "Level 3 Wave Master 💎";
+    else if (state.score >= 250) rank = "Level 2 Resonance Surfer 🏄";
+    else if (state.score >= 100) rank = "Level 1 Pocket Carver";
     
     document.getElementById('final-level').innerText = rank;
     
