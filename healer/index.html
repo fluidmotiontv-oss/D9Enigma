@@ -230,11 +230,47 @@
             min-height: 280px;
             background: rgba(5, 5, 10, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 15px;
+            border-radius: 18px;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .visualizer-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 38%);
+            pointer-events: none;
+        }
+
+        .visualizer-card::after {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            animation: auraPulse 5s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .visualizer-card.active {
+            border-color: var(--glow-color);
+            box-shadow: 0 0 28px var(--glow-color);
+            transform: translateY(-2px);
+        }
+
+        .visualizer-card.active::after {
+            border-color: var(--glow-color);
+            box-shadow: 0 0 32px var(--glow-color);
+        }
+
+        @keyframes auraPulse {
+            0%, 100% { transform: scale(0.98); opacity: 0.5; }
+            50% { transform: scale(1.02); opacity: 0.9; }
         }
 
         #visualizer-canvas {
@@ -255,6 +291,136 @@
             padding: 20px;
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .session-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .immersive-toggle {
+            align-self: flex-start;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-main);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .immersive-toggle:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        body.immersive-mode {
+            padding-bottom: 0;
+        }
+
+        body.immersive-mode .container {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 20px;
+            gap: 20px;
+            grid-template-columns: 1.3fr 320px;
+        }
+
+        body.immersive-mode header {
+            display: none;
+        }
+
+        body.immersive-mode .panel {
+            min-height: calc(100vh - 40px);
+            border-radius: 24px;
+        }
+
+        body.immersive-mode .visualizer-card {
+            min-height: min(62vh, 520px);
+            flex: 1;
+        }
+
+        .ritual-transition {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, rgba(0,229,255,0.15), rgba(2,2,5,0.95));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.7s ease;
+            z-index: 30;
+        }
+
+        .ritual-transition.active {
+            opacity: 1;
+        }
+
+        .journey-track {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .journey-step {
+            flex: 1;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        .journey-step.active {
+            background: var(--accent-cyan);
+            transform: scaleY(1.15);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.12);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        .status-copy {
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        .status-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
         .play-btn {
@@ -704,6 +870,21 @@
                 </div>
             </div>
 
+            <div class="session-card" id="session-card">
+                <button class="immersive-toggle" id="immersive-toggle">⟡ Full ritual view</button>
+                <div class="status-pill" id="status-pill">READY TO BEGIN</div>
+                <div class="status-copy" id="status-copy">DNA Transformation · mono carrier · ocean veil</div>
+                <div class="status-row">
+                    <span class="status-chip" id="mode-chip">Best for renewal</span>
+                    <span class="status-chip" id="ambient-chip">Ocean drift</span>
+                </div>
+                <div class="journey-track" id="journey-track">
+                    <div class="journey-step active"></div>
+                    <div class="journey-step"></div>
+                    <div class="journey-step"></div>
+                </div>
+            </div>
+
             <!-- Solfeggio Presets Header -->
             <div class="tab-bar">
                 <button class="tab-btn active" id="btn-solfeggio-tab">Solfeggio Frequencies</button>
@@ -839,6 +1020,8 @@
             </div>
         </aside>
     </div>
+
+    <div class="ritual-transition" id="ritual-transition"></div>
 
     <!-- Core App Logic -->
     <script src="script.js"></script>

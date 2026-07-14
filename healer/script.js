@@ -135,6 +135,14 @@ const dom = {
     statBeat: document.getElementById('stat-beat'),
     statPad: document.getElementById('stat-pad'),
     solfeggioContainer: document.getElementById('solfeggio-container'),
+    visualizerCard: document.querySelector('.visualizer-card'),
+    statusPill: document.getElementById('status-pill'),
+    statusCopy: document.getElementById('status-copy'),
+    modeChip: document.getElementById('mode-chip'),
+    ambientChip: document.getElementById('ambient-chip'),
+    immersiveToggle: document.getElementById('immersive-toggle'),
+    ritualTransition: document.getElementById('ritual-transition'),
+    journeySteps: Array.from(document.querySelectorAll('.journey-step')),
     
     // Sliders
     sliderToneVol: document.getElementById('slider-tone-vol'),
@@ -168,6 +176,7 @@ function init() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     drawVisualizerPlaceholder();
+    updateSessionCard();
 }
 
 function resizeCanvas() {
@@ -217,6 +226,7 @@ function selectSolfeggioPreset(preset) {
     
     // Set custom CSS variable for glow theme match
     document.documentElement.style.setProperty('--glow-color', preset.color);
+    updateSessionCard();
     
     if (isPlaying) {
         updateFrequencies();
@@ -226,6 +236,7 @@ function selectSolfeggioPreset(preset) {
 // Event handlers
 function setupEventListeners() {
     dom.btnPlay.addEventListener('click', togglePlayback);
+    dom.immersiveToggle.addEventListener('click', toggleImmersiveMode);
     
     // Volumes
     dom.sliderToneVol.addEventListener('input', (e) => {
@@ -266,6 +277,7 @@ function setupEventListeners() {
                 c.classList.remove('active');
             }
         });
+        updateSessionCard();
         
         if (isPlaying) {
             updateFrequencies();
@@ -285,6 +297,7 @@ function setupEventListeners() {
     dom.toggleBinaural.addEventListener('change', (e) => {
         isBinaural = e.target.checked;
         dom.statBeat.textContent = isBinaural ? `${beatFreq}Hz` : 'OFF';
+        updateSessionCard();
         if (isPlaying) {
             rebuildAudioPipeline();
         }
@@ -306,6 +319,7 @@ function setupEventListeners() {
                 btn.classList.remove('active');
             }
         });
+        updateSessionCard();
         
         if (isPlaying) {
             updateFrequencies();
@@ -336,6 +350,7 @@ function setupEventListeners() {
                     return;
                 }
             }
+            updateSessionCard();
             
             if (isPlaying) {
                 updateFrequencies();
@@ -347,6 +362,7 @@ function setupEventListeners() {
     dom.selectAmbient.addEventListener('change', (e) => {
         ambientType = e.target.value;
         dom.statPad.textContent = ambientType.toUpperCase();
+        updateSessionCard();
         if (isPlaying) {
             rebuildAudioPipeline();
         }
@@ -373,6 +389,29 @@ function togglePlayback() {
     }
 }
 
+function toggleImmersiveMode() {
+    document.body.classList.toggle('immersive-mode');
+    const active = document.body.classList.contains('immersive-mode');
+    dom.immersiveToggle.textContent = active ? '◌ Exit ritual view' : '⟡ Full ritual view';
+    dom.immersiveToggle.style.borderColor = active ? 'var(--accent-cyan)' : 'rgba(255,255,255,0.08)';
+    dom.immersiveToggle.style.color = active ? 'var(--accent-cyan)' : 'var(--text-main)';
+}
+
+function triggerRitualTransition() {
+    if (!dom.ritualTransition) return;
+    dom.ritualTransition.classList.remove('active');
+    void dom.ritualTransition.offsetWidth;
+    dom.ritualTransition.classList.add('active');
+    setTimeout(() => dom.ritualTransition.classList.remove('active'), 650);
+}
+
+function advanceJourneyStep() {
+    if (!dom.journeySteps || !dom.journeySteps.length) return;
+    dom.journeySteps.forEach((step, index) => {
+        step.classList.toggle('active', index <= (isPlaying ? 1 : 0));
+    });
+}
+
 function startAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -391,6 +430,9 @@ function startAudio() {
     
     buildAudioPipeline();
     animateVisualizer();
+    updateSessionCard();
+    triggerRitualTransition();
+    advanceJourneyStep();
 }
 
 function stopAudio() {
@@ -400,6 +442,8 @@ function stopAudio() {
     dom.btnPlay.classList.remove('playing');
     dom.playIcon.textContent = '▶';
     dom.playText.textContent = 'Activate resonance';
+    updateSessionCard();
+    advanceJourneyStep();
     
     // Smooth fadeout before stopping
     if (audioCtx && masterGain) {
@@ -769,40 +813,61 @@ function updateTimerDisplay() {
 function drawVisualizerPlaceholder() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw deep background circles
-    ctx.fillStyle = 'rgba(5, 5, 10, 0.4)';
+    const gradient = ctx.createRadialGradient(canvas.width * 0.5, canvas.height * 0.45, 20, canvas.width * 0.5, canvas.height * 0.45, canvas.width * 0.6);
+    gradient.addColorStop(0, 'rgba(0, 229, 255, 0.16)');
+    gradient.addColorStop(0.5, 'rgba(4, 8, 20, 0.78)');
+    gradient.addColorStop(1, 'rgba(2, 2, 5, 0.98)');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
-    
-    // Standard cybernetic grid overlay
-    for (let i = 0; i < canvas.width; i += 40) {
+    for (let i = 0; i < canvas.width; i += 38) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
         ctx.lineTo(i, canvas.height);
         ctx.stroke();
     }
-    for (let j = 0; j < canvas.height; j += 40) {
+    for (let j = 0; j < canvas.height; j += 38) {
         ctx.beginPath();
         ctx.moveTo(0, j);
         ctx.lineTo(canvas.width, j);
         ctx.stroke();
     }
     
-    // Center glow circle
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, 60, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 229, 255, 0.02)';
+    ctx.arc(canvas.width / 2, canvas.height / 2, 70, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0, 229, 255, 0.04)';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)';
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.18)';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 36, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
     ctx.stroke();
     
-    // Write soft start text
-    ctx.fillStyle = 'rgba(244, 228, 188, 0.4)';
+    ctx.fillStyle = 'rgba(244, 228, 188, 0.6)';
     ctx.font = '10px "Share Tech Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText("RESONATOR STANDBY - WAITING FOR ACTIVATION", canvas.width / 2, canvas.height / 2 + 100);
+    ctx.fillText('RESONATOR STANDBY • READY FOR A DEEPER FIELD', canvas.width / 2, canvas.height / 2 + 108);
+}
+
+function updateSessionCard() {
+    const preset = SOLFEGGIO_PRESETS.find(item => item.freq === carrierFreq) || SOLFEGGIO_PRESETS[4];
+    const ambientLabel = ambientType === 'ocean' ? 'Ocean veil' : ambientType === 'rain' ? 'Rain hush' : ambientType === 'pink' ? 'Pink drift' : 'Tone only';
+    const focusLabel = preset.freq >= 741 ? 'Clarity & vision' : preset.freq >= 639 ? 'Connection & heart opening' : preset.freq >= 528 ? 'Transformation & renewal' : 'Grounding & release';
+    const toneLabel = isPlaying ? 'Resonance active' : 'Ready to begin';
+    const beatLabel = isBinaural ? 'Binaural pulse' : 'Mono carrier';
+
+    if (dom.statusPill) dom.statusPill.textContent = toneLabel.toUpperCase();
+    if (dom.statusCopy) dom.statusCopy.innerHTML = `<strong>${preset.name}</strong> · ${beatLabel} · ${ambientLabel}`;
+    if (dom.modeChip) dom.modeChip.textContent = focusLabel;
+    if (dom.ambientChip) dom.ambientChip.textContent = ambientType === 'off' ? 'No ambience' : ambientLabel;
+    if (dom.visualizerCard) {
+        dom.visualizerCard.classList.toggle('active', isPlaying);
+        dom.visualizerCard.style.setProperty('--glow-color', preset.color);
+    }
 }
 
 function animateVisualizer() {
