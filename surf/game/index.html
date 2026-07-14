@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon 9 | Sovereign Surf Rider - Drift Frequency</title>
+    <title>Dragon 9 | Sovereign Surf Rider - 3D Water Tunnel</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #020205;
-            --panel-bg: rgba(5, 10, 18, 0.8);
+            --bg-dark: #00050c;
+            --panel-bg: rgba(5, 12, 22, 0.85);
             --gold: #d4af37;
-            --gold-glow: rgba(212, 175, 55, 0.25);
+            --gold-glow: rgba(212, 175, 55, 0.35);
             --cyan: #00e5ff;
-            --cyan-glow: rgba(0, 229, 255, 0.25);
+            --cyan-glow: rgba(0, 229, 255, 0.35);
             --magenta: #ff0055;
             --text-main: #f4e4bc;
-            --text-muted: #6b5c82;
+            --text-muted: #4e6a8d;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,19 +32,6 @@
             position: relative;
         }
 
-        /* Scanline HUD backdrop */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
-            background-size: 30px 30px;
-            z-index: 1;
-            pointer-events: none;
-        }
-
         body::after {
             content: " ";
             display: block;
@@ -54,13 +41,13 @@
             background-size: 100% 4px;
             z-index: 9999;
             pointer-events: none;
-            opacity: 0.12;
+            opacity: 0.15;
         }
 
         .header {
             width: 100%;
             padding: 15px 30px;
-            border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.18);
             background: var(--panel-bg);
             backdrop-filter: blur(15px);
             z-index: 100;
@@ -124,7 +111,7 @@
         }
 
         .hud-panel {
-            background: rgba(5, 10, 15, 0.7);
+            background: rgba(4, 12, 24, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--cyan);
@@ -210,14 +197,14 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, #081220 0%, #020408 100%);
+            background: #00050c;
         }
 
         /* Screens */
         .screen-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 4, 8, 0.9);
+            background: rgba(2, 6, 15, 0.9);
             backdrop-filter: blur(8px);
             z-index: 100;
             display: flex;
@@ -317,7 +304,7 @@
         .mobile-btn {
             width: 65px;
             height: 65px;
-            background: rgba(5, 10, 20, 0.7);
+            background: rgba(4, 10, 20, 0.75);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border: 2.5px solid var(--cyan);
@@ -354,6 +341,7 @@
     </style>
 </head>
 <body>
+
     <!-- Header -->
     <div class="header">
         <div class="logo">Sovereign <span>Surf Rider</span></div>
@@ -368,28 +356,28 @@
         
         <!-- Welcome Screen -->
         <div id="start-screen" class="screen-modal">
-            <div style="font-size: 3rem; margin-bottom: 10px;">🏄</div>
-            <h1 class="screen-title">Drift Frequency</h1>
+            <div style="font-size: 3rem; margin-bottom: 10px;">🌊</div>
+            <h1 class="screen-title">3D Wave Tunnel</h1>
             <p class="screen-desc">
-                Ride the swelling wave face of Port Waikato. Carve up to perform high airs, slide down to gather speed in the trough, and tuck into the breaking tube for maximum resonance. Harvest Solfeggio frequency particles to maintain alignment!
+                Ride inside a swirling 3D ocean-barrel pipeline styled after the Lemniscate of Bernoulli. Spiral around the water tunnel walls to collect Solfeggio frequency resonance orbs, dodging turbulent red foam whirlpools!
             </p>
             <div class="key-layout">
-                <div><span class="key-badge">▲ W</span> / <span class="key-badge">▼ S</span> Carve Face</div>
-                <div><span class="key-badge">SPACE</span> Perform Air Trick</div>
+                <div><span class="key-badge">◀ A</span> / <span class="key-badge">D ▶</span> Spiral Tube</div>
+                <div><span class="key-badge">▲ W</span> / <span class="key-badge">S ▼</span> Paddle Thrust</div>
             </div>
-            <button id="btn-start" class="action-btn">Catch Wave & Ride</button>
+            <button id="btn-start" class="action-btn">Enter Barrel & Ride</button>
         </div>
 
         <!-- Wipeout Screen -->
         <div id="game-over-screen" class="screen-modal hidden">
-            <div style="font-size: 3rem; margin-bottom: 10px;">🌊</div>
+            <div style="font-size: 3rem; margin-bottom: 10px;">🌀</div>
             <h1 class="screen-title" style="color:var(--magenta); text-shadow:0 0 15px rgba(255,0,85,0.4);">Wiped Out</h1>
             <p class="screen-desc">
-                The swell engulfed your board. Your drift frequency collapsed.
+                Your bodyboard collapsed in the swirling water vortex.
             </p>
             <div style="font-family: 'Share Tech Mono', monospace; font-size: 1.15rem; margin-bottom: 25px; line-height: 1.5;">
                 FINAL DRIFT SCORE: <span id="final-score" style="color:var(--cyan); font-weight:bold;">0000</span><br>
-                MAX TUBE TIME: <span id="final-tube" style="color:var(--gold);">0.0s</span>
+                RESONANCE RANK: <span id="final-rank" style="color:var(--gold);">Swell Novice</span>
             </div>
             <button id="btn-retry" class="action-btn">Paddle Back Out</button>
         </div>
@@ -404,7 +392,7 @@
                     <div class="hud-title">Drift Frequency</div>
                     <div class="hud-value" id="score-display">0000</div>
                     <div style="font-size: 0.6rem; color: var(--text-muted); display:flex; justify-content:space-between; margin-top:2px;">
-                        <span>Hull Shield</span>
+                        <span>Swell Stability</span>
                         <span id="shield-txt">100%</span>
                     </div>
                     <div class="shield-container">
@@ -415,17 +403,17 @@
                 <div class="hud-panel" style="align-items: flex-end; text-align: right;">
                     <div class="hud-title">Dragon 9 Sync</div>
                     <div class="clock-sync" id="d9-clock-txt">26:00:00</div>
-                    <div id="relax-tag" class="relax-indicator hidden">RELAX MODE ACTIVE</div>
+                    <div id="relax-tag" class="relax-indicator hidden">RELAX SWELL ACTIVE</div>
                 </div>
             </div>
 
             <div class="hud-bottom" style="align-items:flex-end;">
-                <div class="hud-panel instructions-hud" style="max-width: 320px; font-size: 0.62rem; line-height: 1.3;">
-                    🌊 <strong>TUBE BONUS:</strong> Stay on the left edge of the wave to ride the barrel! Carve up to jump and hit <strong>SPACE</strong> in the air to perform tricks. Avoid red foam debris!
+                <div class="hud-panel instructions-hud" style="max-width: 340px; font-size: 0.62rem; line-height: 1.3;">
+                    🏄 Spiral around the inside of the water tube using <strong>LEFT / RIGHT</strong> (or A/D). Keep W/S paddle thrust high to multiply score. Avoid red hazards!
                 </div>
                 
                 <div class="hud-panel" style="font-family:'Share Tech Mono'; font-size:0.75rem;">
-                    TUBE TIME: <span id="tube-timer" style="color:var(--gold); font-weight:bold;">0.0s</span>
+                    SPEED: <span id="speed-meter" style="color:var(--cyan); font-weight:bold;">0.15</span>
                 </div>
             </div>
         </div>
@@ -433,133 +421,334 @@
         <!-- Mobile Controls Overlay -->
         <div class="mobile-controls">
             <div class="mobile-btn-group">
-                <button class="mobile-btn" id="ctrl-up" oncontextmenu="return false;">▲</button>
-                <button class="mobile-btn" id="ctrl-down" oncontextmenu="return false;">▼</button>
+                <button class="mobile-btn" id="ctrl-left" oncontextmenu="return false;">◀</button>
+                <button class="mobile-btn" id="ctrl-right" oncontextmenu="return false;">▶</button>
             </div>
             <div class="mobile-btn-group">
-                <button class="mobile-btn" id="ctrl-trick" style="width: 75px; height: 65px; border-radius: 12px; font-size:0.8rem; font-family:'Orbitron';" oncontextmenu="return false;">TRICK</button>
+                <button class="mobile-btn" id="ctrl-up" oncontextmenu="return false;">▲</button>
+                <button class="mobile-btn" id="ctrl-down" oncontextmenu="return false;">▼</button>
             </div>
         </div>
 
     </div>
 
-    <!-- Audio & Physics Script -->
-    <script>
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
+    <!-- Script imports -->
+    <script type="module">
+        import * as THREE from '../../three.module.min.js';
 
-        // Game State variables
-        let state = {
+        // --- GAME STATE ---
+        const state = {
             isPlaying: false,
             score: 0,
             shield: 100,
-            tubeTime: 0,
-            time: 0,
-            rider: {
-                x: 0,
-                y: 0,
-                targetY: 0,
-                heightPercent: 0.5, // 0 is bottom (trough), 1 is top (lip)
-                vy: 0,
-                isAirborne: false,
-                airY: 0,
-                airVy: 0,
-                trickActive: false,
-                trickTimer: 0,
-                trickMultiplier: 1
+            speedMultiplier: 1.0,
+            baseSpeed: 0.15,
+            tPlayer: 0, // position along lemniscate (0 to 2*PI)
+            playerAngle: 0, // angle around inside wall (0 to 2*PI)
+            targetAngle: 0,
+            
+            // Three.js Core
+            scene: null,
+            camera: null,
+            renderer: null,
+            trackRadius: 1.8,
+            trackScale: 24,
+            
+            // Objects
+            ship: null,
+            trackRings: [],
+            entities: [],
+            starfield: null,
+            ambientLight: null,
+            dirLight: null,
+            
+            colors: {
+                accent: 0xd4af37,
+                highlight: 0x00e5ff,
+                alert: 0xff0055,
+                primary: 0x040c18,
+                secondary: 0x00050c
             },
-            particles: [],
-            obstacles: [],
-            waveConfig: {
-                amplitude: 100,
-                frequency: 0.005,
-                speed: 0.08,
-                baseY: 0
-            },
+
             keys: {
+                ArrowLeft: false,
+                ArrowRight: false,
+                KeyA: false,
+                KeyD: false,
                 ArrowUp: false,
                 ArrowDown: false,
                 KeyW: false,
-                KeyS: false,
-                Space: false
+                KeyS: false
             }
         };
 
-        // Web Audio Generative Audio
-        let audioCtx = null;
-        let ambientSynth = null;
-        let ambientGain = null;
+        // Pre-allocated vectors for Frenet computation
+        const _pPrev = new THREE.Vector3();
+        const _pNext = new THREE.Vector3();
+        const _ref = new THREE.Vector3();
+        const _shipPos = new THREE.Vector3();
 
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                // Low rumbling ocean synth
-                ambientSynth = audioCtx.createOscillator();
-                ambientGain = audioCtx.createGain();
-                
-                ambientSynth.type = 'sine';
-                ambientSynth.frequency.value = 55; // low A
-                
-                // Add some filter sweeps for wave swoosh
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.value = 400;
-                
-                // LFO to modulate wave swoosh filter
-                const lfo = audioCtx.createOscillator();
-                const lfoGain = audioCtx.createGain();
-                lfo.type = 'sine';
-                lfo.frequency.value = 0.15; // slow modulation
-                lfoGain.gain.value = 300;
-                
-                lfo.connect(lfoGain);
-                lfoGain.connect(filter.frequency);
-                
-                ambientSynth.connect(filter);
-                filter.connect(ambientGain);
-                ambientGain.connect(audioCtx.destination);
-                
-                ambientGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                ambientSynth.start();
-                lfo.start();
-            }
+        const _framePlayer = {
+            position: new THREE.Vector3(),
+            tangent: new THREE.Vector3(),
+            normal: new THREE.Vector3(),
+            binormal: new THREE.Vector3()
+        };
+
+        // Calculates 3D coordinates along the Lemniscate of Bernoulli
+        function getLemniscatePositionTo(t, target, scale = state.trackScale) {
+            const sinT = Math.sin(t);
+            const cosT = Math.cos(t);
+            const denominator = 1 + sinT * sinT;
+            target.x = (scale * cosT) / denominator;
+            target.y = (scale * sinT * cosT) / denominator;
+            target.z = Math.sin(t * 2) * (scale / 4);
+            return target;
         }
 
-        function playChime(success) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+        // In-place calculation of Frenet-Serret frame
+        function updateFrameAt(t, frame) {
+            const eps = 0.001;
+            getLemniscatePositionTo(t - eps, _pPrev);
+            getLemniscatePositionTo(t + eps, _pNext);
+            getLemniscatePositionTo(t, frame.position);
             
-            if (success) {
-                // Happy chord
-                osc.frequency.setValueAtTime(528, audioCtx.currentTime); // Solfeggio 528
-                osc.frequency.exponentialRampToValueAtTime(784, audioCtx.currentTime + 0.35);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-            } else {
-                // Crash
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            frame.tangent.subVectors(_pNext, _pPrev).normalize();
+            
+            _ref.set(0, 1, 0);
+            if (Math.abs(frame.tangent.dot(_ref)) > 0.9) {
+                _ref.set(0, 0, 1);
             }
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
+            
+            frame.binormal.crossVectors(frame.tangent, _ref).normalize();
+            frame.normal.crossVectors(frame.binormal, frame.tangent).normalize();
         }
 
-        // Resizing Canvas
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-            state.waveConfig.baseY = canvas.height * 0.65;
-            state.rider.x = canvas.width * 0.28;
+        // Initialize Three.js Scene
+        function initThree() {
+            const container = document.querySelector('.game-window');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            state.scene = new THREE.Scene();
+            state.scene.fog = new THREE.FogExp2(state.colors.secondary, 0.02);
+            
+            state.camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 100);
+            state.renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game-canvas'), antialias: true });
+            state.renderer.setSize(width, height);
+            state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Add lighting
+            state.ambientLight = new THREE.AmbientLight(0x0a1e3f, 1.2);
+            state.scene.add(state.ambientLight);
+            
+            state.dirLight = new THREE.DirectionalLight(0x00e5ff, 1.0);
+            state.dirLight.position.set(0, 15, 15);
+            state.scene.add(state.dirLight);
+            
+            // Build Track, Starfield, and Board
+            buildWaterTunnel();
+            buildBioluminescence();
+            buildSurferBoard();
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+
+        // Build a swirling liquid water tunnel out of overlapping circles
+        function buildWaterTunnel() {
+            const steps = 180;
+            const group = new THREE.Group();
+            
+            for (let i = 0; i < steps; i++) {
+                const t = (i / steps) * Math.PI * 2;
+                const frame = {
+                    position: new THREE.Vector3(),
+                    tangent: new THREE.Vector3(),
+                    normal: new THREE.Vector3(),
+                    binormal: new THREE.Vector3()
+                };
+                updateFrameAt(t, frame);
+                
+                // Construct a circular hoop ring
+                const ringSegments = 16;
+                const pts = [];
+                for (let j = 0; j <= ringSegments; j++) {
+                    const angle = (j / ringSegments) * Math.PI * 2;
+                    const pt = new THREE.Vector3()
+                        .copy(frame.position)
+                        .addScaledVector(frame.normal, Math.cos(angle) * state.trackRadius)
+                        .addScaledVector(frame.binormal, Math.sin(angle) * state.trackRadius);
+                    pts.push(pt);
+                }
+                
+                const geo = new THREE.BufferGeometry().setFromPoints(pts);
+                const mat = new THREE.LineBasicMaterial({
+                    color: i % 2 === 0 ? state.colors.highlight : state.colors.accent,
+                    transparent: true,
+                    opacity: 0.35,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const ringMesh = new THREE.Line(geo, mat);
+                group.add(ringMesh);
+                
+                state.trackRings.push({
+                    mesh: ringMesh,
+                    baseRotation: Math.random() * Math.PI,
+                    rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.01 + Math.random() * 0.02)
+                });
+            }
+            
+            state.scene.add(group);
+        }
+
+        // Build bubble points representing bioluminescence
+        function buildBioluminescence() {
+            const count = 300;
+            const geo = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            
+            for (let i = 0; i < count; i++) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const radius = 60 + (Math.random() * 50);
+                
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+            }
+            
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            // Create round bubble texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 16;
+            canvas.height = 16;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+            grad.addColorStop(0, 'rgba(0, 229, 255, 1)');
+            grad.addColorStop(0.5, 'rgba(0, 100, 255, 0.5)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 16, 16);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            
+            const mat = new THREE.PointsMaterial({
+                color: state.colors.highlight,
+                size: 0.9,
+                map: texture,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            
+            state.starfield = new THREE.Points(geo, mat);
+            state.scene.add(state.starfield);
+        }
+
+        // Construct 3D bodyboarder
+        function buildSurferBoard() {
+            const group = new THREE.Group();
+            
+            // Bodyboard deck
+            const boardGeo = new THREE.BoxGeometry(0.24, 0.02, 0.52);
+            const boardMat = new THREE.MeshPhongMaterial({ 
+                color: state.colors.highlight, 
+                flatShading: true,
+                shininess: 60
+            });
+            const board = new THREE.Mesh(boardGeo, boardMat);
+            group.add(board);
+            
+            // Prone surfer body
+            const bodyGeo = new THREE.BoxGeometry(0.14, 0.08, 0.35);
+            const bodyMat = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.set(0, 0.06, -0.05);
+            group.add(body);
+            
+            // Head looking forward
+            const headGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const headMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.set(0, 0.12, 0.12);
+            group.add(head);
+            
+            // Splashing tail
+            const sprayGeo = new THREE.ConeGeometry(0.06, 0.25, 4);
+            sprayGeo.rotateX(-Math.PI / 2);
+            sprayGeo.translate(0, 0, -0.38);
+            const sprayMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+            const spray = new THREE.Mesh(sprayGeo, sprayMat);
+            group.add(spray);
+            
+            state.scene.add(group);
+            state.ship = group;
+        }
+
+        // Spawns golden resonance orbs or whirlpool hazards
+        function spawnEntities() {
+            if (state.entities.length >= 10) return;
+            
+            const tOffset = 0.5 + Math.random() * 1.2;
+            const targetT = (state.tPlayer + tOffset) % (Math.PI * 2);
+            const angle = Math.random() * Math.PI * 2;
+            const isHazard = Math.random() < 0.25;
+            
+            let geo, mat;
+            if (isHazard) {
+                // Red hazard (eddy vortex)
+                geo = new THREE.OctahedronGeometry(0.18, 0);
+                mat = new THREE.MeshPhongMaterial({ color: state.colors.alert, flatShading: true, emissive: 0x440000 });
+            } else {
+                // Golden orb (Solfeggio resonant particle)
+                geo = new THREE.SphereGeometry(0.1, 8, 8);
+                mat = new THREE.MeshPhongMaterial({ color: state.colors.accent, flatShading: true, shininess: 80, emissive: 0x332200 });
+            }
+            
+            const mesh = new THREE.Mesh(geo, mat);
+            state.scene.add(mesh);
+            
+            state.entities.push({
+                mesh,
+                t: targetT,
+                angle,
+                isHazard
+            });
+        }
+
+        // Key handlers
+        const keys = state.keys;
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.ArrowLeft = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.ArrowRight = true;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.ArrowUp = true;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.ArrowDown = false;
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.ArrowLeft = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.ArrowRight = false;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.ArrowUp = false;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.ArrowDown = false;
+        });
+
+        // Mobile touch bindings
+        const bindMobileBtn = (id, keyCode) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const onPress = (e) => { e.preventDefault(); keys[keyCode] = true; };
+            const onRelease = (e) => { e.preventDefault(); keys[keyCode] = false; };
+            el.addEventListener('touchstart', onPress, { passive: false });
+            el.addEventListener('touchend', onRelease, { passive: false });
+            el.addEventListener('touchcancel', onRelease, { passive: false });
+            el.addEventListener('mousedown', onPress);
+            el.addEventListener('mouseup', onRelease);
+            el.addEventListener('mouseleave', onRelease);
+        };
+        bindMobileBtn('ctrl-left', 'ArrowLeft');
+        bindMobileBtn('ctrl-right', 'ArrowRight');
+        bindMobileBtn('ctrl-up', 'ArrowUp');
+        bindMobileBtn('ctrl-down', 'ArrowDown');
 
         // Check D9 Time
         function getDragonNineTime() {
@@ -576,7 +765,6 @@
             const totalSeconds = (nzTime.getHours() * 3600) + (nzTime.getMinutes() * 60) + nzTime.getSeconds();
             const isRelax = (totalSeconds < 540) || (totalSeconds >= 42660 && totalSeconds < 43740) || (totalSeconds >= 85860);
             
-            // Format time coordinates
             const d9Hour = Math.floor(totalSeconds / 3240) % 27;
             const d9Minute = Math.floor((totalSeconds % 3240) / 60);
             const d9Second = totalSeconds % 60;
@@ -589,351 +777,235 @@
             };
         }
 
-        // Controls binding
-        const keys = state.keys;
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.ArrowUp = true;
-            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.ArrowDown = true;
-            if (e.code === 'Space') {
-                keys.Space = true;
-                e.preventDefault();
+        // Web Audio Synthesizer
+        let audioCtx = null;
+        function playChime(success) {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-        });
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.ArrowUp = false;
-            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.ArrowDown = false;
-            if (e.code === 'Space') keys.Space = false;
-        });
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (success) {
+                osc.frequency.setValueAtTime(528, audioCtx.currentTime); // Solfeggio 528Hz
+                osc.frequency.exponentialRampToValueAtTime(784, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            }
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
 
-        // Mobile touch bindings
-        const bindMobileBtn = (id, keyCode) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const onPress = (e) => { e.preventDefault(); keys[keyCode] = true; };
-            const onRelease = (e) => { e.preventDefault(); keys[keyCode] = false; };
-            el.addEventListener('touchstart', onPress, { passive: false });
-            el.addEventListener('touchend', onRelease, { passive: false });
-            el.addEventListener('touchcancel', onRelease, { passive: false });
-            el.addEventListener('mousedown', onPress);
-            el.addEventListener('mouseup', onRelease);
-            el.addEventListener('mouseleave', onRelease);
-        };
-        bindMobileBtn('ctrl-up', 'ArrowUp');
-        bindMobileBtn('ctrl-down', 'ArrowDown');
-        bindMobileBtn('ctrl-trick', 'Space');
+        // Reset
+        function resetGame() {
+            state.score = 0;
+            state.shield = 100;
+            state.tPlayer = 0;
+            state.playerAngle = 0;
+            state.targetAngle = 0;
+            state.speedMultiplier = 1.0;
+            
+            // Clean active entities
+            state.entities.forEach(ent => state.scene.remove(ent.mesh));
+            state.entities = [];
+        }
 
-        // Start game button
+        // Start
         document.getElementById('btn-start').addEventListener('click', () => {
             document.getElementById('start-screen').classList.add('hidden');
-            initAudio();
             resetGame();
             state.isPlaying = true;
         });
 
-        // Retry game button
         document.getElementById('btn-retry').addEventListener('click', () => {
             document.getElementById('game-over-screen').classList.add('hidden');
             resetGame();
             state.isPlaying = true;
         });
 
-        function resetGame() {
-            state.score = 0;
-            state.shield = 100;
-            state.tubeTime = 0;
-            state.particles = [];
-            state.obstacles = [];
-            state.rider.heightPercent = 0.5;
-            state.rider.isAirborne = false;
-            state.rider.airY = 0;
-            state.rider.airVy = 0;
-            state.rider.trickActive = false;
-            state.rider.trickTimer = 0;
-        }
-
-        // Particle generator
-        function spawnParticle() {
-            state.particles.push({
-                x: canvas.width + 20,
-                heightPercent: Math.random() * 0.95,
-                size: 4 + Math.random() * 4,
-                color: Math.random() > 0.3 ? 'var(--cyan)' : 'var(--gold)',
-                pulse: Math.random() * Math.PI
-            });
-        }
-
-        // Obstacle generator
-        function spawnObstacle() {
-            state.obstacles.push({
-                x: canvas.width + 20,
-                heightPercent: 0.15 + Math.random() * 0.75,
-                radius: 12 + Math.random() * 12,
-                color: 'var(--magenta)',
-                speed: 4 + Math.random() * 3
-            });
-        }
-
-        // Physics + Drawing loops
-        function gameLoop() {
-            // Check clock sync
+        // Animation Frame Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // D9 Time Pacing
             const d9Time = getDragonNineTime();
             document.getElementById('d9-clock-txt').innerText = `${d9Time.h}:${d9Time.m}:${d9Time.s}`;
             
             const relaxTag = document.getElementById('relax-tag');
             if (d9Time.isRelax) {
                 relaxTag.classList.remove('hidden');
-                // Calmer waves in relax mode
-                state.waveConfig.amplitude = 60;
-                state.waveConfig.frequency = 0.003;
-                state.waveConfig.speed = 0.04;
+                state.baseSpeed = 0.08;
             } else {
                 relaxTag.classList.add('hidden');
-                // Charging waves in active focus mode
-                state.waveConfig.amplitude = 110;
-                state.waveConfig.frequency = 0.006;
-                state.waveConfig.speed = 0.09;
+                state.baseSpeed = 0.16;
             }
-
-            if (state.isPlaying) {
-                state.time += state.waveConfig.speed;
-
-                // Adjust rider height percent via keys
+            
+            if (state.isPlaying && state.renderer) {
+                // Update player angle around tube based on inputs
+                if (keys.ArrowLeft) state.targetAngle += 0.07;
+                if (keys.ArrowRight) state.targetAngle -= 0.07;
+                
+                state.playerAngle += (state.targetAngle - state.playerAngle) * 0.18;
+                
+                // Adjust speed based on inputs
                 if (keys.ArrowUp) {
-                    state.rider.heightPercent = Math.min(1.15, state.rider.heightPercent + 0.015);
+                    state.speedMultiplier = Math.min(2.5, state.speedMultiplier + 0.02);
                 } else if (keys.ArrowDown) {
-                    state.rider.heightPercent = Math.max(0.02, state.rider.heightPercent - 0.015);
-                } else {
-                    // Slight gravity slide back to the pocket (H ~ 0.5)
-                    state.rider.heightPercent += (0.5 - state.rider.heightPercent) * 0.01;
+                    state.speedMultiplier = Math.max(0.4, state.speedMultiplier - 0.02);
                 }
-
-                // Air launch physics
-                if (state.rider.heightPercent > 1.0) {
-                    if (!state.rider.isAirborne) {
-                        state.rider.isAirborne = true;
-                        state.rider.airVy = -8; // initial jump boost
-                        state.rider.airY = 0;
-                    }
+                
+                const currentSpeed = state.baseSpeed * state.speedMultiplier;
+                document.getElementById('speed-meter').innerText = currentSpeed.toFixed(2);
+                
+                // Move player t along track
+                state.tPlayer = (state.tPlayer + (currentSpeed * 0.06)) % (Math.PI * 2);
+                
+                // Compute player position along Frenet-Serret frame
+                updateFrameAt(state.tPlayer, _framePlayer);
+                
+                // Calculate board position offset inside tube wall
+                _shipPos.copy(_framePlayer.position)
+                    .addScaledVector(_framePlayer.normal, Math.cos(state.playerAngle) * state.trackRadius * 0.9)
+                    .addScaledVector(_framePlayer.binormal, Math.sin(state.playerAngle) * state.trackRadius * 0.9);
+                
+                if (state.ship) {
+                    state.ship.position.copy(_shipPos);
+                    
+                    // Direct board orientation
+                    const lookTarget = new THREE.Vector3().copy(_framePlayer.position)
+                        .addScaledVector(_framePlayer.normal, Math.cos(state.playerAngle) * state.trackRadius * 0.9)
+                        .addScaledVector(_framePlayer.binormal, Math.sin(state.playerAngle) * state.trackRadius * 0.9);
+                    
+                    // Look slightly ahead on track
+                    const tLook = (state.tPlayer + 0.1) % (Math.PI * 2);
+                    const frameLook = { position: new THREE.Vector3() };
+                    getLemniscatePositionTo(tLook, frameLook.position);
+                    state.ship.lookAt(frameLook.position);
                 }
-
-                if (state.rider.isAirborne) {
-                    state.rider.airY += state.rider.airVy;
-                    state.rider.airVy += 0.4; // gravity
-
-                    // Perform air trick
-                    if (keys.Space) {
-                        state.rider.trickActive = true;
-                        state.rider.trickTimer += 1;
-                        state.score += 2; // ticks up score while spinning in the air!
-                    }
-
-                    // Landing check
-                    if (state.rider.airY >= 0) {
-                        state.rider.airY = 0;
-                        state.rider.isAirborne = false;
-                        state.rider.heightPercent = 0.95; // Land back near the lip
+                
+                // Direct camera behind player
+                const tCam = (state.tPlayer - 0.2 + Math.PI * 2) % (Math.PI * 2);
+                const frameCam = {
+                    position: new THREE.Vector3(),
+                    tangent: new THREE.Vector3(),
+                    normal: new THREE.Vector3(),
+                    binormal: new THREE.Vector3()
+                };
+                updateFrameAt(tCam, frameCam);
+                
+                const camPos = new THREE.Vector3().copy(frameCam.position)
+                    .addScaledVector(frameCam.normal, Math.cos(state.playerAngle) * state.trackRadius * 0.7)
+                    .addScaledVector(frameCam.binormal, Math.sin(state.playerAngle) * state.trackRadius * 0.7)
+                    .addScaledVector(frameCam.tangent, -0.6);
+                
+                state.camera.position.lerp(camPos, 0.15);
+                state.camera.lookAt(_shipPos);
+                
+                // Rotate water tunnel hoops to simulate swirling barrel
+                state.trackRings.forEach(ring => {
+                    ring.mesh.rotation.z += ring.rotSpeed;
+                });
+                
+                // Spawn new entities
+                if (Math.random() < 0.04) spawnEntities();
+                
+                // Process Entities
+                for (let i = state.entities.length - 1; i >= 0; i--) {
+                    const ent = state.entities[i];
+                    
+                    // Position entity ahead on track
+                    const frameEnt = {
+                        position: new THREE.Vector3(),
+                        tangent: new THREE.Vector3(),
+                        normal: new THREE.Vector3(),
+                        binormal: new THREE.Vector3()
+                    };
+                    updateFrameAt(ent.t, frameEnt);
+                    
+                    const entPos = new THREE.Vector3().copy(frameEnt.position)
+                        .addScaledVector(frameEnt.normal, Math.cos(ent.angle) * state.trackRadius * 0.9)
+                        .addScaledVector(frameEnt.binormal, Math.sin(ent.angle) * state.trackRadius * 0.9);
+                    
+                    ent.mesh.position.copy(entPos);
+                    ent.mesh.rotation.y += 0.02;
+                    
+                    // Check distance for collision
+                    const dist = _shipPos.distanceTo(entPos);
+                    
+                    // Calculate if player has passed this entity (cleanup)
+                    let tDiff = ent.t - state.tPlayer;
+                    if (tDiff < -Math.PI) tDiff += Math.PI * 2;
+                    if (tDiff > Math.PI) tDiff -= Math.PI * 2;
+                    
+                    if (dist < 0.35) {
+                        state.scene.remove(ent.mesh);
+                        state.entities.splice(i, 1);
                         
-                        if (state.rider.trickActive) {
+                        if (ent.isHazard) {
+                            state.shield -= 25;
+                            playChime(false);
+                            if (state.shield <= 0) {
+                                state.isPlaying = false;
+                                document.getElementById('final-score').innerText = state.score;
+                                document.getElementById('final-rank').innerText = state.score >= 500 ? "Wave Master 💎" : "Swell Novice";
+                                document.getElementById('game-over-screen').classList.remove('hidden');
+                            }
+                        } else {
+                            state.score += 100;
+                            state.shield = Math.min(100, state.shield + 5);
                             playChime(true);
-                            state.score += 150; // Trick landing bonus
-                            state.rider.trickActive = false;
-                            state.rider.trickTimer = 0;
                         }
-                    }
-                } else {
-                    state.rider.trickActive = false;
-                }
-
-                // Speed calculations based on H (0 is trough, 0.9 is lip)
-                // Riding high in the pocket (left edge) accumulates tube time
-                const isRidingTube = (state.rider.heightPercent > 0.3 && state.rider.heightPercent < 0.7);
-                if (isRidingTube && Math.random() < 0.15) {
-                    state.tubeTime += 0.1;
-                    state.score += 5; // Tube bonus
-                }
-
-                // Spawn items
-                if (Math.random() < 0.03) spawnParticle();
-                if (Math.random() < 0.008) spawnObstacle();
-
-                // Process Particles
-                for (let i = state.particles.length - 1; i >= 0; i--) {
-                    const p = state.particles[i];
-                    p.x -= 4; // scroll speed
-                    
-                    // Collision check
-                    const pY = state.waveConfig.baseY + Math.sin((p.x) * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * p.heightPercent);
-                    
-                    // Rider current position
-                    const rY = state.waveConfig.baseY + Math.sin(state.rider.x * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * state.rider.heightPercent) + state.rider.airY;
-                    
-                    const dx = p.x - state.rider.x;
-                    const dy = pY - rY;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if (dist < 25) {
-                        state.score += 50;
-                        state.shield = Math.min(100, state.shield + 5);
-                        playChime(true);
-                        state.particles.splice(i, 1);
-                    } else if (p.x < -20) {
-                        state.particles.splice(i, 1);
+                    } else if (tDiff < -0.3) {
+                        // Clean up passed entities
+                        state.scene.remove(ent.mesh);
+                        state.entities.splice(i, 1);
                     }
                 }
-
-                // Process Obstacles
-                for (let i = state.obstacles.length - 1; i >= 0; i--) {
-                    const obs = state.obstacles[i];
-                    obs.x -= obs.speed;
-                    
-                    // Collision check
-                    const obsY = state.waveConfig.baseY + Math.sin((obs.x) * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * obs.heightPercent);
-                    const rY = state.waveConfig.baseY + Math.sin(state.rider.x * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * state.rider.heightPercent) + state.rider.airY;
-                    
-                    const dx = obs.x - state.rider.x;
-                    const dy = obsY - rY;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if (dist < obs.radius + 15) {
-                        state.shield -= 25;
-                        playChime(false);
-                        state.obstacles.splice(i, 1);
-                        
-                        if (state.shield <= 0) {
-                            state.isPlaying = false;
-                            document.getElementById('final-score').innerText = state.score;
-                            document.getElementById('final-tube').innerText = `${state.tubeTime.toFixed(1)}s`;
-                            document.getElementById('game-over-screen').classList.remove('hidden');
-                        }
-                    } else if (obs.x < -40) {
-                        state.obstacles.splice(i, 1);
-                    }
-                }
-
-                // Tick up core score
+                
+                // Tick score
                 state.score += 1;
-
+                
                 // Update HUD
                 document.getElementById('score-display').innerText = String(state.score).padStart(4, '0');
                 document.getElementById('shield-bar').style.width = `${state.shield}%`;
                 document.getElementById('shield-txt').innerText = `${state.shield}%`;
-                document.getElementById('tube-timer').innerText = `${state.tubeTime.toFixed(1)}s`;
             }
-
-            // Draw wave face background
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Layered Scrolling Wave Curves (3 layers for depth)
-            for (let layer = 0; layer < 3; layer++) {
-                const amp = state.waveConfig.amplitude * (0.8 + layer * 0.1);
-                const freq = state.waveConfig.frequency * (0.95 + layer * 0.05);
-                const baseLine = state.waveConfig.baseY + (layer * 20);
-                
-                ctx.beginPath();
-                ctx.moveTo(0, canvas.height);
-                
-                for (let x = 0; x <= canvas.width; x += 15) {
-                    const y = baseLine + Math.sin(x * freq + state.time + (layer * 0.4)) * amp;
-                    ctx.lineTo(x, y);
-                }
-                
-                ctx.lineTo(canvas.width, canvas.height);
-                ctx.closePath();
-                
-                // Color gradients based on active/relax modes
-                let fillGrad = ctx.createLinearGradient(0, canvas.height * 0.4, 0, canvas.height);
-                if (d9Time.isRelax) {
-                    fillGrad.addColorStop(0, `rgba(212, 175, 55, ${0.08 + (layer * 0.05)})`); // Gold
-                    fillGrad.addColorStop(1, `rgba(10, 5, 20, 0.95)`);
-                } else {
-                    fillGrad.addColorStop(0, `rgba(0, 229, 255, ${0.08 + (layer * 0.05)})`); // Cyan
-                    fillGrad.addColorStop(1, `rgba(5, 10, 25, 0.95)`);
-                }
-                
-                ctx.fillStyle = fillGrad;
-                ctx.fill();
-            }
-
-            // Draw Breaking Wave Lip / Foam curl on the left side
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-            for (let j = 0; j < 8; j++) {
-                const fx = state.rider.x - 70 - (j * 15);
-                const fy = state.waveConfig.baseY + Math.sin(fx * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * 0.6) + (Math.sin(state.time * 2 + j) * 15);
-                ctx.beginPath();
-                ctx.arc(fx, fy, 25 + (j*4), 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Draw Particles
-            state.particles.forEach(p => {
-                const y = state.waveConfig.baseY + Math.sin(p.x * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * p.heightPercent);
-                p.pulse += 0.08;
-                
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = p.color;
-                
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, y, p.size + Math.sin(p.pulse) * 2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.shadowBlur = 0;
-            });
-
-            // Draw Obstacles
-            state.obstacles.forEach(obs => {
-                const y = state.waveConfig.baseY + Math.sin(obs.x * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * obs.heightPercent);
-                
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = obs.color;
-                
-                // Red glowing triangle debris
-                ctx.fillStyle = obs.color;
-                ctx.beginPath();
-                ctx.moveTo(obs.x, y - obs.radius);
-                ctx.lineTo(obs.x + obs.radius, y + obs.radius);
-                ctx.lineTo(obs.x - obs.radius, y + obs.radius);
-                ctx.closePath();
-                ctx.fill();
-                
-                ctx.shadowBlur = 0;
-            });
-
-            // Draw Rider / Bodyboarder Avatar
-            const riderY = state.waveConfig.baseY + Math.sin(state.rider.x * state.waveConfig.frequency + state.time) * state.waveConfig.amplitude - (180 * state.rider.heightPercent) + state.rider.airY;
             
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = state.rider.trickActive ? 'var(--gold)' : 'var(--cyan)';
-            
-            // Draw neon surfer silhouette
-            ctx.fillStyle = state.rider.trickActive ? '#fff' : 'var(--cyan)';
-            ctx.beginPath();
-            // Draw bodyboard shape
-            ctx.ellipse(state.rider.x, riderY, 16, 26, -0.4 + (state.rider.isAirborne ? Math.sin(state.time * 6) * 0.8 : 0), 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Draw rider body dots
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(state.rider.x - 4, riderY - 8, 4, 0, Math.PI * 2); // Head
-            ctx.fill();
-
-            // Draw air spin rotation effect when performing trick
-            if (state.rider.trickActive) {
-                ctx.strokeStyle = 'var(--gold)';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(state.rider.x, riderY, 32, 0, Math.PI * 2);
-                ctx.stroke();
+            // Rotate background bubbles
+            if (state.starfield) {
+                state.starfield.rotation.y += 0.0006;
+                state.starfield.rotation.z += 0.0003;
             }
-
-            ctx.shadowBlur = 0;
-
-            requestAnimationFrame(gameLoop);
+            
+            if (state.renderer && state.scene && state.camera) {
+                state.renderer.render(state.scene, state.camera);
+            }
         }
 
-        // Run loop
-        requestAnimationFrame(gameLoop);
+        // Initialize and Start
+        window.addEventListener('DOMContentLoaded', () => {
+            initThree();
+            animate();
+        });
+        
+        // Window Resize
+        window.addEventListener('resize', () => {
+            const container = document.querySelector('.game-window');
+            if (!container || !state.renderer) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            state.camera.aspect = w / h;
+            state.camera.updateProjectionMatrix();
+            state.renderer.setSize(w, h);
+        });
     </script>
 </body>
 </html>
