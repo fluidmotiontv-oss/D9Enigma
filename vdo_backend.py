@@ -197,12 +197,30 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_error_response("URL parameter is missing.")
                     return
                 
-                # Check for fluidmotiontv query
-                if '#fluidmotiontv' in url.lower() or url.lower() == 'fluidmotiontv':
+                # Check for fluidmotiontv or tim dwen queries
+                if '#fluidmotiontv' in url.lower() or url.lower() == 'fluidmotiontv' or 'tim dwen' in url.lower() or 'timothy dwen' in url.lower():
                     self.send_success_response({
                         "status": "success",
                         "is_collection": True,
                         "reels": [
+                            {
+                                "video_url": "https://www.youtube.com/embed/JgKmAs4Xa54",
+                                "title": "FM-TV: Be Your Light (New Zealand)",
+                                "desc": "Igniting the light in ourselves ignites the light in others. Space of Love concept.",
+                                "id": "fmtv_beyourlight",
+                                "duration": 180,
+                                "gps": "-37.3822, 174.9042 (Port Waikato)",
+                                "mood": "Inspirational"
+                            },
+                            {
+                                "video_url": "https://www.facebook.com/share/p/19A7yZHZCF/",
+                                "title": "FM-TV: D9 Sovereign Sync-Event",
+                                "desc": "The Fluid Motion TV pulse: Visualizing the decoupling of terrestrial perception.",
+                                "id": "fmtv_sync_event",
+                                "duration": 54,
+                                "gps": "-36.8485, 174.7633 (Auckland)",
+                                "mood": "Sync-Event"
+                            },
                             {
                                 "video_url": "mock",
                                 "title": "FM-TV: Auckland Octagon Resonance Grid",
@@ -232,12 +250,12 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
                             },
                             {
                                 "video_url": "mock",
-                                "title": "FM-TV: Whale Volumetric Lightfield",
-                                "desc": "3D lightfield parallax reconstruction of whale paths near sovereign reef grids.",
-                                "id": "fmtv_04",
-                                "duration": 22,
-                                "gps": "-17.6509, -149.4260 (Tahiti)",
-                                "mood": "Creative"
+                                "title": "FM-TV: Pee Dub Telluride Mineral Scan",
+                                "desc": "Spectrogram scanning of black sands showing high electromagnetic telluride resonance.",
+                                "id": "fmtv_05",
+                                "duration": 26,
+                                "gps": "-37.3822, 174.9042 (Port Waikato)",
+                                "mood": "Geological"
                             }
                         ]
                     })
