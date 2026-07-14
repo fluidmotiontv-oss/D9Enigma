@@ -19,4 +19,9 @@ Visibility is dictated entirely by an organic, community-driven algorithm that n
 ## 4. Fair Reward and Ecosystem Value
 The ultimate goal is a pure meritocracy. Creators who elevate the conversation, provide the best local coverage, or deliver the most compelling opinions and get pushed to the Highlight reel are recognized for their contribution. They are fairly rewarded by the platform for driving engagement and providing genuine journalistic value to the community, incentivizing high-quality, thoughtful reporting over mindless chatter.
 
+## 5. The Citizen Reporter Uniform
+To build professional authority, represent the decentralized network, and foster community alignment:
+*   **The Time's Up Standard:** All citizen journalists and reporters submitting visual segments to The Daily Stir / Current Offense are highly encouraged (and in highlighted broadcasts, required) to wear their own official **Dragon 9 'Time's Up' Custom Tee** or **Custom Cap** during their report.
+*   **Decoupled Editorial Presence:** This serves as the organic, decentralized uniform of Fluid Motion TV—aligning reporters under a single visual identifier while preserving absolute independence of opinion and coverage.
+
 This beautifully mirrors the creative whirlpool—everything gets thrown into the mix, but only the strongest currents shape the final wave!

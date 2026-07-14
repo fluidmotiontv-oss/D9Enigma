@@ -48,5 +48,15 @@
         "description": "Custom embroidered structural cap featuring the 'Time's Up' alignment logo. Perfect for citizen journalists and sovereign builders alike.",
         "timestamp": 1784030004,
         "sales_count": 55
+    },
+    {
+        "title": "Dragon 9 'Time's Up' Custom Tee",
+        "artist": "Timothy Dwen",
+        "url": "https://fluidmotiontv-oss.github.io/Fluidmotiontv-clock/",
+        "price": "$45.00 USD",
+        "payment": "fluidmotiontv@gmail.com",
+        "description": "Premium organic cotton heavyweight t-shirt featuring the 'Time's Up' clock face alignment graphic. The official uniform of Sovereign decentralized journalism.",
+        "timestamp": 1784030005,
+        "sales_count": 55
     }
 ]
