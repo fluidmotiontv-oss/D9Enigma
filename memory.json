@@ -96,6 +96,10 @@
       "landing": "sound.html#sequencer",
       "description": "An offline multi-track song compiler and step sequencer with pre-synthesized creative loops, custom audio loading, individual track mutes/solos/volume mixing, and client-side WAV export."
     },
+    "sovereign_plasma": {
+      "file": "plasma/index.html",
+      "description": "An interactive 3D/2D plasma globe filament sandbox featuring Midpoint Displacement fractal lightning math, simulated magnetic EMF steering, and audio frequency/tone sync."
+    },
     "sitemap": {
       "file": "sitemap.html",
       "pdf": "sitemap.pdf",
@@ -306,6 +310,10 @@
     {
       "timestamp": "2026-07-14T20:25:00+12:00",
       "summary": "Added media upload/selection controls in Sovereign Album Builder (album.html), added /api/upload-media raw upload API in vdo_backend.py with offline Base64 fallback, and drafted the concept document for 'The Daily Stir' & 'Current Offense' engine (the_daily_stir_concept.md) detailing decentralized journalism and organic community sorting."
+    },
+    {
+      "timestamp": "2026-07-14T20:45:00+12:00",
+      "summary": "Built the brand-new Sovereign Plasma Globe & Filament Sandbox app (plasma/index.html), integrated it into vision.html and sitemap.html, and implemented dynamic active/relax visual pacing sync to the Dragon 9 clock."
     }
   ]
 }

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Sovereign Plasma Filament Sandbox</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020205;
+            --panel-bg: rgba(10, 10, 15, 0.75);
+            --border-color: rgba(0, 229, 255, 0.15);
+            --text-main: #f4e4bc;
+            --text-muted: #8c85a3;
+            --accent: #00e5ff;
+            --accent-glow: rgba(0, 229, 255, 0.25);
+            --highlight: #ff0055;
+            --highlight-glow: rgba(255, 0, 85, 0.25);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Ambient scanlines and grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        .header {
+            width: 100%;
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            letter-spacing: 4px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--accent);
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .main-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            z-index: 10;
+            position: relative;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                border-left: none !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+
+        .sidebar {
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-right {
+            border-right: none;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #fff;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-label span.value {
+            color: var(--accent);
+        }
+
+        .preset-btn {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+            background: rgba(0, 229, 255, 0.05);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+        }
+
+        .preset-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            cursor: pointer;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .toggle-btn.active {
+            border-color: var(--accent);
+            background: rgba(0, 229, 255, 0.08);
+            color: #fff;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .canvas-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            position: relative;
+            background: radial-gradient(circle, rgba(15,15,25,0.3) 0%, rgba(2,2,5,0.9) 100%);
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            cursor: pointer;
+        }
+
+        /* Clock Sync Indicator Overlay */
+        .clock-sync-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1.5px solid var(--accent);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.3s;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        /* secure passcode auth gate overlay */
+        #systemsGateOverlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: #020205; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+            font-family: 'Orbitron', sans-serif; color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Systems Gate Authorization Overlay -->
+    <div id="systemsGateOverlay">
+        <span style="font-size: 4rem; filter: drop-shadow(0 0 15px rgba(255, 0, 85, 0.4));">🔒</span>
+        <h2 style="letter-spacing: 3px; color: #ff0055;">SECURE ACCESS RESTRICTED</h2>
+        <p style="font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #8c85a3; max-width: 400px; text-align: center; line-height: 1.5;">This node is decoupled. You must authenticate at the Systems Console to activate this interface.</p>
+        <a href="../systems.html" style="padding: 12px 24px; border: 1.5px solid #00e5ff; background: rgba(0, 229, 255, 0.08); color: #fff; text-decoration: none; border-radius: 8px; font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; box-shadow: 0 0 15px rgba(0, 229, 255, 0.25); transition: all 0.3s;">🔑 Authenticate Hub</a>
+    </div>
+
+    <script>
+        (function() {
+            if (sessionStorage.getItem('systems_auth') === 'granted') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const gate = document.getElementById('systemsGateOverlay');
+                    if (gate) gate.style.display = 'none';
+                });
+            } else {
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+        })();
+    </script>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">Sovereign <span>Plasma Sandbox</span></div>
+        <div style="display: flex; gap: 10px;">
+            <a href="../vision.html" class="nav-btn">← Vision Portal</a>
+            <a href="../systems.html" class="nav-btn">Systems Console</a>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-container">
+        
+        <!-- Left Sidebar: Presets & Controls -->
+        <div class="sidebar">
+            <div class="panel-title">1. Plasma Presets</div>
+            
+            <div class="control-group">
+                <button class="preset-btn active" id="preset-godzilla" onclick="applyPreset('godzilla')">
+                    🦖 Godzilla Atomic <span>Blue</span>
+                </button>
+            </div>
+            
+            <div class="control-group">
+                <button class="preset-btn" id="preset-dragon" onclick="applyPreset('dragon')">
+                    🐉 Dragon Fire <span>Amber</span>
+                </button>
+            </div>
+            
+            <div class="control-group">
+                <button class="preset-btn" id="preset-kong" onclick="applyPreset('kong')">
+                    🦍 Kong Primal <span>Violet</span>
+                </button>
+            </div>
+
+            <div class="panel-title" style="margin-top: 15px;">2. Force Field Logic</div>
+            
+            <button class="toggle-btn" id="emf-toggle" onclick="toggleEMF()">
+                🧲 Magnetic EMF Steer <span id="emf-status">OFF</span>
+            </button>
+
+            <button class="toggle-btn active" id="clock-sync-toggle" onclick="toggleClockSync()">
+                ⏱️ Dragon 9 Time Sync <span id="sync-status">ON</span>
+            </button>
+
+            <div style="font-family:'Share Tech Mono'; font-size:0.6rem; color:var(--text-muted); line-height: 1.4; border: 1px dashed rgba(255,255,255,0.06); padding: 10px; border-radius: 6px; margin-top: 10px;">
+                <span style="color:var(--accent);">INFO:</span> Charged plasma responds to electromagnetic fields. Toggle the Magnetic Steer to curl filaments into containment spirals.
+            </div>
+        </div>
+
+        <!-- Center: Interactive Plasma Globe -->
+        <div class="canvas-container">
+            <div class="clock-sync-indicator" id="clock-indicator">
+                <div class="sync-dot" id="indicator-dot"></div>
+                <span id="indicator-text">D9 CLOCK: ACTIVE (FOCUS)</span>
+            </div>
+            <canvas id="plasma-canvas"></canvas>
+        </div>
+
+        <!-- Right Sidebar: Sound & Arcs Parameters -->
+        <div class="sidebar sidebar-right">
+            <div class="panel-title">3. Physical Arcs</div>
+            
+            <div class="control-group">
+                <div class="control-label">Voltage / Arc Count <span class="value" id="val-arcs">12</span></div>
+                <input type="range" class="slider" id="slider-arcs" min="1" max="32" value="12" oninput="updateParam('arcs', this.value)">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Branch Complexity <span class="value" id="val-complexity">4</span></div>
+                <input type="range" class="slider" id="slider-complexity" min="2" max="6" value="4" oninput="updateParam('complexity', this.value)">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">Plasma Width <span class="value" id="val-width">1.5</span></div>
+                <input type="range" class="slider" id="slider-width" min="1" max="5" step="0.5" value="1.5" oninput="updateParam('width', this.value)">
+            </div>
+
+            <div class="panel-title" style="margin-top: 15px;">4. Audio Resonance</div>
+
+            <button class="toggle-btn" id="audio-input-toggle" onclick="toggleAudioInput()">
+                🎙️ Audio Mic Sync <span>OFF</span>
+            </button>
+
+            <div class="control-group">
+                <div class="control-label">Resonance Synthesizer Tone</div>
+                <button class="preset-btn" style="text-align: center; display: block;" id="tone-btn" onclick="toggleSynthTone()">
+                    🔊 Enable Test Frequency
+                </button>
+            </div>
+
+            <div class="control-group" id="synth-controls" style="display: none;">
+                <div class="control-label">Freq (Solfeggio) <span class="value" id="val-freq">528 Hz</span></div>
+                <input type="range" class="slider" id="slider-freq" min="256" max="963" value="528" oninput="updateToneFreq(this.value)">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Physics & Sound Script -->
+    <script>
+        const canvas = document.getElementById('plasma-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Parameters
+        let params = {
+            arcs: 12,
+            complexity: 4,
+            width: 1.5,
+            glow: 12,
+            colorHue: 190, // Blue Godzilla default
+            colorSat: 100,
+            colorLight: 50,
+            emf: false,
+            clockSync: true,
+            audioSync: false,
+            audioLevel: 0
+        };
+
+        // Presets configuration
+        const presets = {
+            godzilla: { arcs: 14, complexity: 4, width: 1.5, colorHue: 190, colorSat: 100, colorLight: 50, name: 'Godzilla Atomic Blue' },
+            dragon: { arcs: 10, complexity: 3, width: 2.0, colorHue: 25, colorSat: 100, colorLight: 50, name: 'Dragon Fire Amber' },
+            kong: { arcs: 8, complexity: 5, width: 1.2, colorHue: 285, colorSat: 100, colorLight: 50, name: 'Kong Primal Violet' }
+        };
+
+        // State variables
+        let mouse = { x: 0, y: 0, isDown: false, inside: false };
+        let sphere = { x: 0, y: 0, radius: 220, innerRadius: 28 };
+        let rotationTime = 0;
+
+        // Web Audio components
+        let audioCtx = null;
+        let analyser = null;
+        let microphone = null;
+        let oscillator = null;
+        let oscGain = null;
+        let audioDataArray = null;
+
+        // Auto-sizing
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth - 60, container.clientHeight - 60, 500);
+            canvas.width = size;
+            canvas.height = size;
+            sphere.x = size / 2;
+            sphere.y = size / 2;
+            sphere.radius = size * 0.44;
+            sphere.innerRadius = size * 0.06;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Mouse tracking
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            mouse.x = clientX - rect.left;
+            mouse.y = clientY - rect.top;
+            
+            // Check distance
+            const dx = mouse.x - sphere.x;
+            const dy = mouse.y - sphere.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            mouse.inside = dist <= sphere.radius + 15;
+        }
+
+        canvas.addEventListener('mousemove', getMousePos);
+        canvas.addEventListener('mousedown', (e) => { mouse.isDown = true; getMousePos(e); });
+        window.addEventListener('mouseup', () => { mouse.isDown = false; });
+        
+        canvas.addEventListener('touchmove', getMousePos);
+        canvas.addEventListener('touchstart', (e) => { mouse.isDown = true; getMousePos(e); });
+        window.addEventListener('touchend', () => { mouse.isDown = false; });
+
+        // Preset Apply
+        function applyPreset(type) {
+            const preset = presets[type];
+            if (!preset) return;
+
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`preset-${type}`).classList.add('active');
+
+            params.arcs = preset.arcs;
+            params.complexity = preset.complexity;
+            params.width = preset.width;
+            params.colorHue = preset.colorHue;
+            params.colorSat = preset.colorSat;
+            params.colorLight = preset.colorLight;
+
+            // Update DOM sliders
+            document.getElementById('slider-arcs').value = preset.arcs;
+            document.getElementById('val-arcs').innerText = preset.arcs;
+            document.getElementById('slider-complexity').value = preset.complexity;
+            document.getElementById('val-complexity').innerText = preset.complexity;
+            document.getElementById('slider-width').value = preset.width;
+            document.getElementById('val-width').innerText = preset.width;
+
+            // Apply custom accent theme variables to document
+            const accentVal = `hsl(${preset.colorHue}, ${preset.colorSat}%, ${preset.colorLight}%)`;
+            const glowVal = `hsla(${preset.colorHue}, ${preset.colorSat}%, ${preset.colorLight}%, 0.25)`;
+            document.documentElement.style.setProperty('--accent', accentVal);
+            document.documentElement.style.setProperty('--accent-glow', glowVal);
+        }
+
+        function updateParam(name, val) {
+            params[name] = parseFloat(val);
+            document.getElementById(`val-${name}`).innerText = val;
+        }
+
+        // Toggles
+        function toggleEMF() {
+            params.emf = !params.emf;
+            const btn = document.getElementById('emf-toggle');
+            btn.classList.toggle('active', params.emf);
+            document.getElementById('emf-status').innerText = params.emf ? 'ON' : 'OFF';
+        }
+
+        function toggleClockSync() {
+            params.clockSync = !params.clockSync;
+            const btn = document.getElementById('clock-sync-toggle');
+            btn.classList.toggle('active', params.clockSync);
+            document.getElementById('sync-status').innerText = params.clockSync ? 'ON' : 'OFF';
+            document.getElementById('clock-indicator').style.display = params.clockSync ? 'flex' : 'none';
+        }
+
+        // D9 Clock checks
+        function getDragonNineMode() {
+            const date = new Date();
+            // Let's assume global parent synchronization if running inside workspace iframe
+            let drift = 0;
+            try {
+                if (window.parent && window.parent.timeDriftOffset) {
+                    drift = window.parent.timeDriftOffset;
+                }
+            } catch (e) {}
+
+            const utc = date.getTime() + drift + (date.getTimezoneOffset() * 60000);
+            const nzTime = new Date(utc + (3600000 * 12)); // NZ standard offset
+            const totalSeconds = (nzTime.getHours() * 3600) + (nzTime.getMinutes() * 60) + nzTime.getSeconds();
+            const isRelax = (totalSeconds < 540) || (totalSeconds >= 42660 && totalSeconds < 43740) || (totalSeconds >= 85860);
+            return isRelax ? 'relax' : 'active';
+        }
+
+        // Fractal recursive lightning builder
+        function drawFractalLine(x1, y1, x2, y2, displace, minSize, ctx, upwardBias) {
+            if (displace < minSize) {
+                ctx.lineTo(x2, y2);
+            } else {
+                const mid_x = (x1 + x2) / 2;
+                const mid_y = (y1 + y2) / 2 - (upwardBias * displace * 0.15); // Add slight drift upward
+                
+                // Shift perpendicular
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const nx = -dy / len;
+                const ny = dx / len;
+                const offset = (Math.random() - 0.5) * displace;
+                
+                const mx = mid_x + nx * offset;
+                const my = mid_y + ny * offset;
+                
+                drawFractalLine(x1, y1, mx, my, displace / 2, minSize, ctx, upwardBias);
+                drawFractalLine(mx, my, x2, y2, displace / 2, minSize, ctx, upwardBias);
+            }
+        }
+
+        // Render loop
+        function draw() {
+            // Check D9 time sync modulation
+            let currentMode = 'active';
+            if (params.clockSync) {
+                currentMode = getDragonNineMode();
+                const indicator = document.getElementById('clock-indicator');
+                const dot = document.getElementById('indicator-dot');
+                const label = document.getElementById('indicator-text');
+                
+                if (currentMode === 'relax') {
+                    label.innerText = 'D9 CLOCK: RELAX MODE';
+                    dot.style.background = '#ffaa00';
+                    indicator.style.borderColor = '#ffaa00';
+                    indicator.style.boxShadow = '0 0 10px rgba(255, 170, 0, 0.25)';
+                } else {
+                    label.innerText = 'D9 CLOCK: ACTIVE (FOCUS)';
+                    dot.style.background = 'var(--accent)';
+                    indicator.style.borderColor = 'var(--accent)';
+                    indicator.style.boxShadow = '0 0 10px var(--accent-glow)';
+                }
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Read audio analyser data if active
+            let audioAmp = 0;
+            if (params.audioSync && analyser) {
+                analyser.getByteFrequencyData(audioDataArray);
+                let sum = 0;
+                for (let i = 0; i < audioDataArray.length; i++) {
+                    sum += audioDataArray[i];
+                }
+                audioAmp = sum / audioDataArray.length / 255; // Normalized amplitude 0 to 1
+            }
+
+            // Draw outer glass sphere boundary
+            ctx.strokeStyle = currentMode === 'relax' ? 'rgba(255, 170, 0, 0.2)' : 'rgba(0, 229, 255, 0.15)';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = currentMode === 'relax' ? '#ffaa00' : 'var(--accent)';
+            ctx.beginPath();
+            ctx.arc(sphere.x, sphere.y, sphere.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Draw Central Electrode Core
+            const coreGrad = ctx.createRadialGradient(sphere.x, sphere.y, 2, sphere.x, sphere.y, sphere.innerRadius);
+            const coreHue = currentMode === 'relax' ? 35 : params.colorHue;
+            coreGrad.addColorStop(0, '#ffffff');
+            coreGrad.addColorStop(0.3, `hsl(${coreHue}, 100%, 75%)`);
+            coreGrad.addColorStop(1, `hsl(${coreHue}, 100%, 25%)`);
+            ctx.fillStyle = coreGrad;
+            ctx.beginPath();
+            ctx.arc(sphere.x, sphere.y, sphere.innerRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Modulate parameters based on D9 clock mode
+            let targetArcs = params.arcs;
+            let targetComplexity = params.complexity;
+            let targetDisplacement = 60 + (audioAmp * 120);
+            
+            if (currentMode === 'relax') {
+                targetArcs = Math.max(1, Math.floor(params.arcs * 0.2)); // few filaments
+                targetComplexity = Math.max(2, params.complexity - 1); // simpler arcing
+                targetDisplacement = 40; // lower activity
+            }
+
+            // Draw Filaments
+            rotationTime += params.emf ? 0.015 : 0.003;
+
+            for (let i = 0; i < targetArcs; i++) {
+                // Angle and target boundaries
+                const baseAngle = (i * (Math.PI * 2) / targetArcs) + rotationTime;
+                
+                let targetX, targetY;
+                let converge = false;
+
+                // Mouse influence converges arcs to mouse coordinate if inside globe
+                if (mouse.inside && (mouse.isDown || Math.random() < 0.6)) {
+                    const mouseDx = mouse.x - sphere.x;
+                    const mouseDy = mouse.y - sphere.y;
+                    const mouseDist = Math.sqrt(mouseDx*mouseDx + mouseDy*mouseDy);
+                    
+                    // Converge arcing to the outer edge closest to the mouse pointer
+                    const targetAngle = Math.atan2(mouseDy, mouseDx);
+                    
+                    // Distribute targets slightly around mouse location
+                    const spread = (Math.random() - 0.5) * 0.15;
+                    targetX = sphere.x + sphere.radius * Math.cos(targetAngle + spread);
+                    targetY = sphere.y + sphere.radius * Math.sin(targetAngle + spread);
+                    converge = true;
+                } else {
+                    targetX = sphere.x + sphere.radius * Math.cos(baseAngle);
+                    targetY = sphere.y + sphere.radius * Math.sin(baseAngle);
+                }
+
+                // Emitter start point
+                const startX = sphere.x + sphere.innerRadius * Math.cos(baseAngle);
+                const startY = sphere.y + sphere.innerRadius * Math.sin(baseAngle);
+
+                // Setup arcing path
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+
+                // Midpoint displacement arcing
+                const minSegSize = 10 - targetComplexity;
+                const displace = targetDisplacement;
+
+                // Upward convection/drift bias
+                const upwardBias = 0.5; 
+
+                // Draw arcing line path
+                if (params.emf) {
+                    // Spiral/containment math: generate midpoints along a curve
+                    const steps = 10;
+                    let lastX = startX;
+                    let lastY = startY;
+                    for (let j = 1; j <= steps; j++) {
+                        const t = j / steps;
+                        
+                        // Linear interpolation
+                        let lx = startX + (targetX - startX) * t;
+                        let ly = startY + (targetY - startY) * t;
+                        
+                        // Apply spiral swirl rotation offset
+                        const spiralOffset = Math.sin(t * Math.PI) * 28 * Math.cos(rotationTime * 1.5);
+                        const angleOffset = Math.atan2(ly - sphere.y, lx - sphere.x) + (t * 0.45);
+                        const rad = Math.sqrt((lx - sphere.x)**2 + (ly - sphere.y)**2);
+                        
+                        lx = sphere.x + rad * Math.cos(angleOffset);
+                        ly = sphere.y + rad * Math.sin(angleOffset);
+
+                        // Add small electrical jiggle
+                        lx += (Math.random() - 0.5) * 6;
+                        ly += (Math.random() - 0.5) * 6;
+
+                        ctx.lineTo(lx, ly);
+                        lastX = lx;
+                        lastY = ly;
+                    }
+                } else {
+                    drawFractalLine(startX, startY, targetX, targetY, displace, minSegSize, ctx, upwardBias);
+                }
+
+                // Draw outer filament glow line
+                const filamentHue = currentMode === 'relax' ? 30 + (i*10) : params.colorHue + (i * 2);
+                ctx.strokeStyle = `hsla(${filamentHue}, ${params.colorSat}%, ${params.colorLight}%, 0.35)`;
+                ctx.lineWidth = params.width * (converge ? 2 : 1.2) + (audioAmp * 4);
+                ctx.shadowBlur = params.glow + (audioAmp * 10);
+                ctx.shadowColor = `hsl(${filamentHue}, 100%, 50%)`;
+                ctx.stroke();
+
+                // Draw inner bright core filament line
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = params.width * 0.35 + (audioAmp * 0.5);
+                ctx.shadowBlur = 0;
+                ctx.stroke();
+
+                // Terminating outer discharge spark point
+                ctx.fillStyle = `hsl(${filamentHue}, 100%, 65%)`;
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 3 + Math.random() * 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Initialize Loop
+        draw();
+
+        // Web Audio Utilities
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                audioDataArray = new Uint8Array(analyser.frequencyBinCount);
+            }
+        }
+
+        function toggleAudioInput() {
+            initAudio();
+            const btn = document.getElementById('audio-input-toggle');
+
+            if (!params.audioSync) {
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                    .then(stream => {
+                        microphone = audioCtx.createMediaStreamSource(stream);
+                        microphone.connect(analyser);
+                        params.audioSync = true;
+                        btn.classList.add('active');
+                        btn.querySelector('span').innerText = 'ON';
+                    })
+                    .catch(err => {
+                        alert("Microphone access denied or unavailable.");
+                        console.error(err);
+                    });
+            } else {
+                if (microphone) {
+                    microphone.disconnect();
+                    microphone = null;
+                }
+                params.audioSync = false;
+                btn.classList.remove('active');
+                btn.querySelector('span').innerText = 'OFF';
+            }
+        }
+
+        function toggleSynthTone() {
+            initAudio();
+            const btn = document.getElementById('tone-btn');
+            const controls = document.getElementById('synth-controls');
+
+            if (!oscillator) {
+                oscillator = audioCtx.createOscillator();
+                oscGain = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = parseFloat(document.getElementById('slider-freq').value);
+                
+                oscGain.gain.setValueAtTime(0.04, audioCtx.currentTime); // low volume
+                
+                oscillator.connect(oscGain);
+                oscGain.connect(analyser);
+                oscGain.connect(audioCtx.destination);
+                
+                oscillator.start();
+                
+                btn.innerText = "🔊 Disable Test Frequency";
+                btn.style.borderColor = "var(--highlight)";
+                btn.style.boxShadow = "0 0 10px var(--highlight-glow)";
+                controls.style.display = "block";
+            } else {
+                oscillator.stop();
+                oscillator.disconnect();
+                oscillator = null;
+                oscGain.disconnect();
+                oscGain = null;
+                
+                btn.innerText = "🔊 Enable Test Frequency";
+                btn.style.borderColor = "rgba(255,255,255,0.08)";
+                btn.style.boxShadow = "none";
+                controls.style.display = "none";
+            }
+        }
+
+        function updateToneFreq(val) {
+            if (oscillator) {
+                oscillator.frequency.value = parseFloat(val);
+            }
+            document.getElementById('val-freq').innerText = `${val} Hz`;
+        }
+    </script>
+</body>
+</html>
