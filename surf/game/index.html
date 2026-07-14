@@ -451,12 +451,13 @@
             scene: null,
             camera: null,
             renderer: null,
-            trackRadius: 1.8,
-            trackScale: 24,
+            trackRadius: 3.2,
+            trackScale: 52,
             
             // Objects
             ship: null,
-            trackRings: [],
+            waterTubeMesh: null,
+            waterTubeWire: null,
             entities: [],
             starfield: null,
             ambientLight: null,
@@ -552,52 +553,55 @@
             buildSurferBoard();
         }
 
-        // Build a swirling liquid water tunnel out of overlapping circles
-        function buildWaterTunnel() {
-            const steps = 180;
-            const group = new THREE.Group();
-            
-            for (let i = 0; i < steps; i++) {
-                const t = (i / steps) * Math.PI * 2;
-                const frame = {
-                    position: new THREE.Vector3(),
-                    tangent: new THREE.Vector3(),
-                    normal: new THREE.Vector3(),
-                    binormal: new THREE.Vector3()
-                };
-                updateFrameAt(t, frame);
-                
-                // Construct a circular hoop ring
-                const ringSegments = 16;
-                const pts = [];
-                for (let j = 0; j <= ringSegments; j++) {
-                    const angle = (j / ringSegments) * Math.PI * 2;
-                    const pt = new THREE.Vector3()
-                        .copy(frame.position)
-                        .addScaledVector(frame.normal, Math.cos(angle) * state.trackRadius)
-                        .addScaledVector(frame.binormal, Math.sin(angle) * state.trackRadius);
-                    pts.push(pt);
-                }
-                
-                const geo = new THREE.BufferGeometry().setFromPoints(pts);
-                const mat = new THREE.LineBasicMaterial({
-                    color: i % 2 === 0 ? state.colors.highlight : state.colors.accent,
-                    transparent: true,
-                    opacity: 0.35,
-                    blending: THREE.AdditiveBlending
-                });
-                
-                const ringMesh = new THREE.Line(geo, mat);
-                group.add(ringMesh);
-                
-                state.trackRings.push({
-                    mesh: ringMesh,
-                    baseRotation: Math.random() * Math.PI,
-                    rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.01 + Math.random() * 0.02)
-                });
+        // Subclass THREE.Curve to define the Bernoulli Lemniscate path
+        class LemniscateCurve extends THREE.Curve {
+            constructor(scale = 52) {
+                super();
+                this.scale = scale;
             }
+            getPoint(t, optionalTarget = new THREE.Vector3()) {
+                const angle = t * Math.PI * 2;
+                const sinT = Math.sin(angle);
+                const cosT = Math.cos(angle);
+                const denominator = 1 + sinT * sinT;
+                optionalTarget.x = (this.scale * cosT) / denominator;
+                optionalTarget.y = (this.scale * sinT * cosT) / denominator;
+                optionalTarget.z = Math.sin(angle * 2) * (this.scale * 0.45);
+                return optionalTarget;
+            }
+        }
+
+        // Build a volumetric liquid water tunnel mesh with flat-shaded crystal facets
+        function buildWaterTunnel() {
+            const curve = new LemniscateCurve(state.trackScale);
+            // Segments: 120, Radius: 3.2, Radial segments: 18, Closed: true
+            const geo = new THREE.TubeGeometry(curve, 120, state.trackRadius, 18, true);
             
-            state.scene.add(group);
+            // Crystal/liquid translucent blue material
+            const mat = new THREE.MeshPhongMaterial({
+                color: 0x00a3ff,
+                emissive: 0x001633,
+                transparent: true,
+                opacity: 0.52,
+                shininess: 95,
+                side: THREE.DoubleSide,
+                flatShading: true
+            });
+            
+            const mesh = new THREE.Mesh(geo, mat);
+            state.scene.add(mesh);
+            state.waterTubeMesh = mesh;
+            
+            // Subtle glowing outer wireframe grid for ripple flow lines
+            const wireMat = new THREE.MeshBasicMaterial({
+                color: 0x00e5ff,
+                transparent: true,
+                opacity: 0.12,
+                wireframe: true
+            });
+            const wireMesh = new THREE.Mesh(geo, wireMat);
+            state.scene.add(wireMesh);
+            state.waterTubeWire = wireMesh;
         }
 
         // Build bubble points representing bioluminescence
@@ -688,7 +692,7 @@
 
         // Spawns golden resonance orbs or whirlpool hazards
         function spawnEntities() {
-            if (state.entities.length >= 10) return;
+            if (state.entities.length >= 6) return;
             
             const tOffset = 0.5 + Math.random() * 1.2;
             const targetT = (state.tPlayer + tOffset) % (Math.PI * 2);
@@ -909,13 +913,16 @@
                 state.camera.position.lerp(camPos, 0.15);
                 state.camera.lookAt(_shipPos);
                 
-                // Rotate water tunnel hoops to simulate swirling barrel
-                state.trackRings.forEach(ring => {
-                    ring.mesh.rotation.z += ring.rotSpeed;
-                });
+                // Rotate water tunnel mesh and wireframe to simulate swirling currents
+                if (state.waterTubeMesh) {
+                    state.waterTubeMesh.rotation.z += 0.003;
+                }
+                if (state.waterTubeWire) {
+                    state.waterTubeWire.rotation.z -= 0.001;
+                }
                 
-                // Spawn new entities
-                if (Math.random() < 0.04) spawnEntities();
+                // Spawn new entities (reduced frequency for smoother, less clustered gameplay)
+                if (Math.random() < 0.015) spawnEntities();
                 
                 // Process Entities
                 for (let i = state.entities.length - 1; i >= 0; i--) {
