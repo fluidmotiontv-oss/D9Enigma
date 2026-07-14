@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | DawnEngine v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #04050b;
+            --panel: rgba(8, 10, 20, 0.82);
+            --panel-strong: rgba(12, 15, 30, 0.95);
+            --text: #f6efe5;
+            --muted: #86a6bb;
+            --accent: #ffb347;
+            --accent-2: #ff4d6d;
+            --cyan: #3ddcff;
+            --green: #58f5a4;
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255, 179, 71, 0.16), transparent 24%),
+                radial-gradient(circle at 80% 0%, rgba(61, 220, 255, 0.18), transparent 35%),
+                linear-gradient(135deg, #020307 0%, #050714 45%, #03050a 100%);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 90%);
+            pointer-events: none;
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.75;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px 20px 48px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: rgba(6, 8, 15, 0.75);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .brand-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #111;
+            font-weight: 800;
+            box-shadow: 0 0 24px rgba(255, 179, 71, 0.35);
+        }
+
+        .brand strong { display: block; font-size: 0.95rem; }
+        .brand span { font-size: 0.7rem; color: var(--muted); letter-spacing: 1.5px; }
+
+        .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .pill, .ghost {
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+        }
+        .pill {
+            background: linear-gradient(135deg, rgba(255,179,71,0.24), rgba(255,77,109,0.2));
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.3fr 0.9fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 22px;
+            backdrop-filter: blur(22px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.28);
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.7rem, 2.5vw, 2.6rem);
+            line-height: 1.1;
+            margin: 0 0 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero .subtitle {
+            color: var(--muted);
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            color: #d8dce8;
+            line-height: 1.65;
+            margin-bottom: 18px;
+            max-width: 700px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .stat .value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .stat .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+        }
+
+        .control-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-card {
+            border-radius: 18px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .control-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin: 0 0 8px;
+        }
+
+        .control-card p {
+            margin: 0 0 10px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .button-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .button-row button {
+            border: 0;
+            border-radius: 999px;
+            padding: 9px 12px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 8px 18px rgba(255,77,109,0.2);
+        }
+        .button-row button.secondary {
+            background: linear-gradient(135deg, var(--cyan), #6a72ff);
+        }
+
+        .grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 20px; }
+
+        .module-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .module-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .module-card strong { display: block; margin-bottom: 5px; }
+        .module-card span { color: var(--muted); font-size: 0.84rem; }
+        .module-card .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green), var(--cyan));
+            box-shadow: 0 0 14px rgba(88,245,164,0.35);
+            flex-shrink: 0;
+        }
+
+        .signal-panel {
+            min-height: 320px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signal-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(61,220,255,0.18), transparent 58%);
+            pointer-events: none;
+        }
+
+        .signal-visor {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), 0 12px 30px rgba(0,0,0,0.22);
+        }
+
+        .visor-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.72rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .status-chip::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+        }
+
+        .visor-graph {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .orbit-shell {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%);
+            box-shadow: inset 0 0 30px rgba(255,255,255,0.03);
+        }
+
+        .orbit-core {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--accent), var(--accent-2));
+            box-shadow: 0 0 22px rgba(255,179,71,0.35);
+            animation: pulseCore 2.6s infinite ease-in-out;
+        }
+
+        .orbit-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.12);
+            animation: spin 8s linear infinite;
+        }
+
+        .ring-a { inset: 12px; border-color: rgba(255,179,71,0.25); }
+        .ring-b { inset: 30px; border-color: rgba(61,220,255,0.24); animation-direction: reverse; animation-duration: 10s; }
+        .ring-c { inset: 48px; border-color: rgba(88,245,164,0.24); animation-duration: 6s; }
+
+        .metric-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .metric-pill {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .metric-pill strong { color: var(--accent); font-family: 'Orbitron', sans-serif; }
+
+        .signal-bars {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+            height: 56px;
+            align-items: end;
+        }
+
+        .portal-switcher {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .portal-pill {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.03);
+            color: var(--text);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .portal-pill:hover, .portal-pill.active {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .signal-bar {
+            border-radius: 999px 999px 4px 4px;
+            background: linear-gradient(180deg, var(--cyan), var(--accent));
+            height: 16%;
+            min-height: 10px;
+            opacity: 0.8;
+            box-shadow: 0 0 10px rgba(61,220,255,0.18);
+            transition: height 0.4s ease, opacity 0.4s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseCore {
+            0%, 100% { transform: scale(0.94); box-shadow: 0 0 18px rgba(255,179,71,0.3); }
+            50% { transform: scale(1.08); box-shadow: 0 0 28px rgba(255,179,71,0.45); }
+        }
+
+        @media (max-width: 920px) {
+            .hero, .grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            .topbar { border-radius: 20px; flex-direction: column; align-items: flex-start; }
+            .stats { grid-template-columns: 1fr; }
+            .page { padding: 16px 12px 36px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="aurora"></canvas>
+
+    <div class="page">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-badge">D</div>
+                <div>
+                    <strong>DawnEngine v2</strong>
+                    <span>Immersive signal orchestration</span>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <a class="pill" href="apps.html">Back to Portal</a>
+                <a class="ghost" href="index.html">Nexus Home</a>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="panel">
+                <div class="subtitle">Signal Forge / Broadcast Core / Ambient Control</div>
+                <h1>Awaken the luminous engine behind the Dragon 9 experience.</h1>
+                <p>DawnEngine v2 unifies the live pulse of your media, lights, audio, and narrative systems into one elegant command deck. It is designed to feel cinematic, responsive, and effortless while staying grounded in the modular spirit of your site.</p>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="value" id="signalValue">98%</div>
+                        <div class="label">Signal Strength</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="latencyValue">14ms</div>
+                        <div class="label">Latency</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="moodValue">Luminous</div>
+                        <div class="label">Current Mood</div>
+                    </div>
+                </div>
+
+                <div class="signal-visor">
+                    <div class="visor-top">
+                        <span class="status-chip" id="statusChip">LIVE</span>
+                        <span>Signal Forge Matrix</span>
+                    </div>
+                    <div class="visor-graph">
+                        <div class="orbit-shell">
+                            <div class="orbit-ring ring-a"></div>
+                            <div class="orbit-ring ring-b"></div>
+                            <div class="orbit-ring ring-c"></div>
+                            <div class="orbit-core"></div>
+                        </div>
+                        <div class="metric-list">
+                            <div class="metric-pill"><span>Harmonic</span><strong id="harmonicMetric">0.93</strong></div>
+                            <div class="metric-pill"><span>Resonance</span><strong id="resonanceMetric">1.12</strong></div>
+                            <div class="metric-pill"><span>Bridge</span><strong id="bridgeMetric">Stable</strong></div>
+                        </div>
+                    </div>
+                    <div class="signal-bars" id="signalBars"></div>
+                    <div class="portal-switcher" id="portalSwitcher"></div>
+                </div>
+            </div>
+
+            <div class="control-stack">
+                <div class="panel control-card">
+                    <h3>Command Deck</h3>
+                    <p>Prime the engine, shift the atmosphere, and route your next broadcast into motion.</p>
+                    <div class="button-row">
+                        <button onclick="setMood('Luminous')">Prime Pulse</button>
+                        <button class="secondary" onclick="setMood('Radiant')">Shift Glow</button>
+                    </div>
+                </div>
+                <div class="panel control-card">
+                    <h3>Live Modules</h3>
+                    <p>These systems are ready to carry the experience from the landing page into the deeper portals.</p>
+                    <div class="button-row">
+                        <button onclick="activateModule('Broadcast')">Open Broadcast</button>
+                        <button class="secondary" onclick="activateModule('Vault')">Open Vault</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid">
+            <div class="panel signal-panel">
+                <div style="font-family: 'Orbitron', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; font-size: 0.8rem; color: var(--muted); margin-bottom: 8px;">Core Spectrum</div>
+                <div id="coreReadout" style="font-family: 'Share Tech Mono', monospace; color: #f0e6d0; font-size: 0.92rem; line-height: 1.7;">
+                    // DawnEngine v2 online<br>
+                    // Broadcast lattice stable<br>
+                    // Harmonic vectors aligned
+                </div>
+            </div>
+
+            <div class="module-list">
+                <div class="panel module-card">
+                    <div>
+                        <strong>Signal Forge</strong>
+                        <span>Shapes the pulse and color language of the experience.</span>
+                    </div>
+                    <div class="dot"></div>
+                </div>
+                <div class="panel module-card">
+                    <div>
+                        <strong>Chrono Lattice</strong>
+                        <span>Syncs motion, transitions, and tempo-aware states.</span>
+                    </div>
+                    <div class="dot"></div>
+                </div>
+                <div class="panel module-card">
+                    <div>
+                        <strong>Bridge Sync</strong>
+                        <span>Connects the site’s portals into one seamless flow.</span>
+                    </div>
+                    <div class="dot"></div>
+                </div>
+                <div class="panel module-card">
+                    <div>
+                        <strong>Echo Vault</strong>
+                        <span>Stores the atmosphere for later recall and remixing.</span>
+                    </div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('aurora');
+        const ctx = canvas.getContext('2d');
+        let width = 0;
+        let height = 0;
+        let frame = 0;
+
+        function resize() {
+            width = canvas.width = window.innerWidth * devicePixelRatio;
+            height = canvas.height = window.innerHeight * devicePixelRatio;
+            ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+        }
+
+        function draw() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            ctx.clearRect(0, 0, w, h);
+
+            const gradient = ctx.createRadialGradient(w * 0.25, h * 0.2, 40, w * 0.25, h * 0.2, 360);
+            gradient.addColorStop(0, 'rgba(255, 179, 71, 0.18)');
+            gradient.addColorStop(1, 'rgba(255, 179, 71, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(w * 0.25, h * 0.2, 360, 0, Math.PI * 2);
+            ctx.fill();
+
+            const gradient2 = ctx.createRadialGradient(w * 0.78, h * 0.14, 30, w * 0.78, h * 0.14, 320);
+            gradient2.addColorStop(0, 'rgba(61, 220, 255, 0.22)');
+            gradient2.addColorStop(1, 'rgba(61, 220, 255, 0)');
+            ctx.fillStyle = gradient2;
+            ctx.beginPath();
+            ctx.arc(w * 0.78, h * 0.14, 320, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 7; i++) {
+                const y = (h / 8) * (i + 1);
+                ctx.beginPath();
+                ctx.moveTo(0, y + Math.sin(frame / 40 + i) * 20);
+                ctx.quadraticCurveTo(w * 0.25, y + Math.cos(frame / 55 + i) * 18, w * 0.5, y + Math.sin(frame / 70 + i) * 12);
+                ctx.quadraticCurveTo(w * 0.75, y + Math.cos(frame / 45 + i) * 16, w, y + Math.sin(frame / 60 + i) * 15);
+                ctx.stroke();
+            }
+
+            frame += 1;
+            requestAnimationFrame(draw);
+        }
+
+        const portals = [
+            { key: 'creative', label: 'Creative', url: 'creative.html', line: '// Creative gateway selected<br>// Instrument and visual paths online' },
+            { key: 'systems', label: 'Systems', url: 'systems.html', line: '// Systems bridge selected<br>// Ledger and telemetry paths online' },
+            { key: 'radio', label: 'Radio', url: 'radio/index.html', line: '// Broadcast node selected<br>// Live signal routing engaged' }
+        ];
+
+        const moodProfiles = {
+            Luminous: { signal: 98, latency: 14, line: '// Atmosphere tuned to luminous<br>// Signal lattice recalibrated<br>// Motion vectors harmonized', accent: '#ffb347', accent2: '#ff4d6d', cyan: '#3ddcff', green: '#58f5a4', harmonic: '0.93', resonance: '1.12', bridge: 'Stable' },
+            Radiant: { signal: 94, latency: 18, line: '// Radiant field active<br>// Glow channels widened<br>// Horizons aligned', accent: '#ffe066', accent2: '#ff66c4', cyan: '#00f7ff', green: '#8ef7c1', harmonic: '0.96', resonance: '1.08', bridge: 'Bright' },
+            Sovereign: { signal: 96, latency: 12, line: '// Sovereign pulse online<br>// Core nodes synchronized<br>// Broadcast authority stable', accent: '#7cf0ff', accent2: '#6f7dff', cyan: '#77f0ff', green: '#8effc1', harmonic: '0.98', resonance: '1.15', bridge: 'Locked' }
+        };
+
+        let currentMood = 'Luminous';
+        let activePortal = 'creative';
+
+        function applyTheme(profile) {
+            document.documentElement.style.setProperty('--accent', profile.accent);
+            document.documentElement.style.setProperty('--accent-2', profile.accent2);
+            document.documentElement.style.setProperty('--cyan', profile.cyan);
+            document.documentElement.style.setProperty('--green', profile.green);
+            document.getElementById('statusChip').style.borderColor = `rgba(255,255,255,0.12)`;
+        }
+
+        function renderBars(profile) {
+            const container = document.getElementById('signalBars');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'signal-bar';
+                const height = 16 + ((i + 1) % 5) * 12 + Math.sin((i + 1) * 0.7 + Date.now() / 500) * 8;
+                bar.style.height = `${Math.max(16, height)}%`;
+                bar.style.opacity = `${0.65 + (i % 4) * 0.08}`;
+                container.appendChild(bar);
+            }
+        }
+
+        function renderPortalSwitcher() {
+            const container = document.getElementById('portalSwitcher');
+            if (!container) return;
+            container.innerHTML = '';
+            portals.forEach(portal => {
+                const button = document.createElement('button');
+                button.className = `portal-pill${portal.key === activePortal ? ' active' : ''}`;
+                button.textContent = portal.label;
+                button.onclick = () => switchPortal(portal.key);
+                container.appendChild(button);
+            });
+        }
+
+        function switchPortal(key) {
+            activePortal = key;
+            const portal = portals.find(item => item.key === key);
+            if (portal) {
+                document.getElementById('coreReadout').innerHTML = portal.line;
+                document.getElementById('bridgeMetric').textContent = portal.label;
+                document.getElementById('statusChip').textContent = portal.label.toUpperCase();
+                renderPortalSwitcher();
+            }
+        }
+
+        function renderState(profile) {
+            document.getElementById('signalValue').textContent = `${profile.signal}%`;
+            document.getElementById('latencyValue').textContent = `${profile.latency}ms`;
+            document.getElementById('moodValue').textContent = currentMood;
+            document.getElementById('coreReadout').innerHTML = profile.line;
+            document.getElementById('harmonicMetric').textContent = profile.harmonic;
+            document.getElementById('resonanceMetric').textContent = profile.resonance;
+            document.getElementById('bridgeMetric').textContent = profile.bridge;
+            applyTheme(profile);
+            renderBars(profile);
+            renderPortalSwitcher();
+        }
+
+        function setMood(value) {
+            currentMood = value;
+            renderState(moodProfiles[value] || moodProfiles.Luminous);
+        }
+
+        function activateModule(module) {
+            const profile = moodProfiles[currentMood] || moodProfiles.Luminous;
+            document.getElementById('coreReadout').innerHTML = `// ${module} module engaged<br>// ${currentMood} field active<br>// Experience flow accelerated`;
+            document.getElementById('signalValue').textContent = `${Math.min(profile.signal + 2, 100)}%`;
+            document.getElementById('latencyValue').textContent = `${Math.max(profile.latency - 1, 8)}ms`;
+            renderBars(profile);
+        }
+
+        setInterval(() => {
+            const keys = Object.keys(moodProfiles);
+            const next = keys[(keys.indexOf(currentMood) + 1) % keys.length];
+            currentMood = next;
+            renderState(moodProfiles[next]);
+        }, 6000);
+
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+        renderState(moodProfiles.Luminous);
+        renderPortalSwitcher();
+    </script>
+</body>
+</html>
