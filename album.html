@@ -228,36 +228,86 @@
         .track-card {
             flex: 0 0 420px;
             height: 60vh;
-            background: rgba(15, 15, 20, 0.45);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: linear-gradient(145deg, rgba(18, 18, 24, 0.92), rgba(8, 8, 12, 0.78));
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border: 1.5px solid var(--border-color);
-            border-radius: 20px;
+            border-radius: 22px;
             scroll-snap-align: center;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, border-color 0.3s;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, border-color 0.3s, box-shadow 0.3s ease;
             position: relative;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            box-shadow: 0 18px 45px rgba(0,0,0,0.65);
             transform-origin: center center -80px;
+        }
+
+        .track-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(212,175,55,0.25), transparent 30%, rgba(0,229,255,0.25) 70%, transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .track-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 35%, rgba(0,0,0,0.16));
+            pointer-events: none;
         }
 
         .track-card:hover {
             border-color: var(--highlight);
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 15px var(--highlight-glow);
+            box-shadow: 0 24px 55px rgba(0, 0, 0, 0.75), 0 0 24px var(--highlight-glow);
         }
 
         .media-pane {
             width: 100%;
             height: 60%;
-            background: #000;
+            background: radial-gradient(circle at top left, rgba(212,175,55,0.2), transparent 30%), radial-gradient(circle at bottom right, rgba(0,229,255,0.16), transparent 28%), #000;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            overflow: hidden;
+        }
+
+        .media-pane::before {
+            content: '';
+            position: absolute;
+            inset: -20%;
+            background: conic-gradient(from 180deg, rgba(212,175,55,0.12), transparent 18%, rgba(0,229,255,0.16) 40%, transparent 58%, rgba(255,0,128,0.12) 78%, transparent 100%);
+            filter: blur(22px);
+            animation: spin-slow 14s linear infinite;
+            opacity: 0.75;
+            pointer-events: none;
+        }
+
+        .media-pane::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(130deg, rgba(255,255,255,0.16), transparent 30%, rgba(255,255,255,0.06) 70%, transparent);
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        .media-shell {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
         }
 
         .media-pane iframe {
@@ -272,6 +322,9 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.18));
+            position: relative;
+            z-index: 2;
         }
 
         .track-index {
@@ -280,6 +333,7 @@
             color: var(--highlight);
             letter-spacing: 2px;
             margin-bottom: 4px;
+            text-shadow: 0 0 8px var(--highlight-glow);
         }
 
         .track-title {
@@ -289,12 +343,32 @@
             letter-spacing: 1.5px;
             color: #fff;
             margin-bottom: 6px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.12);
         }
 
         .track-desc {
             font-size: 0.75rem;
             color: var(--text-muted);
             line-height: 1.5;
+            text-shadow: 0 0 8px rgba(0,0,0,0.25);
+        }
+
+        .chat-btn {
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .chat-btn:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.28), 0 0 14px var(--highlight-glow);
+        }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* --- THE GATEWAY CALL TO ACTION FOOTER --- */
@@ -1108,7 +1182,7 @@
                 }
 
                 card.innerHTML = `
-                    <div class="media-pane">${mediaHTML}</div>
+                    <div class="media-pane"><div class="media-shell">${mediaHTML}</div></div>
                     <div class="card-details" style="display: flex; flex-direction: column; justify-content: space-between; height: 40%;">
                         <div>
                             <div class="track-index" style="display:flex; justify-content:space-between; align-items:center;">

@@ -13,6 +13,82 @@ let injectorOsc = null;
 let injectorGainNode = null;
 let isInjectorActive = false;
 let injectorVol = 0.25; // Default 25%
+let fallbackAudioNodes = null;
+let fallbackTimer = null;
+
+function stopFallbackBroadcastAudio() {
+    if (fallbackTimer) {
+        clearInterval(fallbackTimer);
+        fallbackTimer = null;
+    }
+
+    if (fallbackAudioNodes && audioCtx) {
+        try {
+            const nodes = fallbackAudioNodes;
+            if (nodes.osc1 && nodes.osc1.stop) nodes.osc1.stop();
+            if (nodes.osc2 && nodes.osc2.stop) nodes.osc2.stop();
+            if (nodes.lfo && nodes.lfo.stop) nodes.lfo.stop();
+            nodes.gainNode.disconnect();
+            nodes.filter.disconnect();
+            nodes.masterGain.disconnect();
+            nodes.lfoGain.disconnect();
+        } catch (e) {
+            // Ignore cleanup errors and keep the page resilient.
+        }
+        fallbackAudioNodes = null;
+    }
+}
+
+function startFallbackBroadcastAudio(track) {
+    if (!audioCtx) return;
+    stopFallbackBroadcastAudio();
+
+    const ctx = audioCtx;
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.018;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    const gainNode = ctx.createGain();
+    gainNode.gain.value = 0.0001;
+
+    const baseFreq = /528/i.test(track?.name || '') ? 528 : 432;
+    osc1.type = 'sine';
+    osc1.frequency.value = baseFreq;
+    osc2.type = 'triangle';
+    osc2.frequency.value = baseFreq * 1.25;
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.08;
+    lfoGain.gain.value = 90;
+
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    gainNode.connect(filter);
+    filter.connect(masterGain);
+    masterGain.connect(ctx.destination);
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+
+    osc1.start();
+    osc2.start();
+    lfo.start();
+    gainNode.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.3);
+
+    fallbackAudioNodes = { osc1, osc2, lfo, gainNode, lfoGain, filter, masterGain };
+
+    fallbackTimer = setInterval(() => {
+        if (!fallbackAudioNodes || !audioCtx) return;
+        const drift = 24 + Math.random() * 18;
+        fallbackAudioNodes.osc1.frequency.setTargetAtTime(baseFreq + drift, ctx.currentTime, 0.5);
+        fallbackAudioNodes.osc2.frequency.setTargetAtTime(baseFreq * 1.25 + drift * 0.8, ctx.currentTime, 0.5);
+    }, 2200);
+}
 
 function initAudioPipeline() {
     if (audioCtx) return;
@@ -162,6 +238,7 @@ function playRadioTrack(index) {
     if (!radioPlayer || !trackLabel) return;
     const track = radioTracks[index];
     radioPlayer.src = track.src;
+    radioPlayer.load();
     trackLabel.textContent = `${track.name.toUpperCase()} - ${track.artist.toUpperCase()}`;
     
     // Setup audio nodes on first play interaction
@@ -176,9 +253,11 @@ function playRadioTrack(index) {
     
     // Attempts to play (browsers require user interaction first)
     radioPlayer.play().then(() => {
+        stopFallbackBroadcastAudio();
         log(`Streaming track: "${track.name}"`, "PLAYER");
     }).catch(() => {
-        log(`Awaiting user permission to auto-play stream. Click Play.`, "PLAYER");
+        log(`Primary stream unavailable for "${track.name}"; switching to local synthetic broadcast ambience.`, "PLAYER");
+        startFallbackBroadcastAudio(track);
     });
 }
 

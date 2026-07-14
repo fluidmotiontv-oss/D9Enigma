@@ -29,7 +29,13 @@
             min-height: 100vh;
             overflow-y: auto;
             position: relative;
-            padding: 40px 20px;
+            padding: 32px 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 18px 12px;
+            }
         }
 
         /* Ambient scanline grids */
@@ -196,9 +202,16 @@
         /* App list grid */
         .app-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 22px;
+            margin-bottom: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
         }
 
         .app-card {
@@ -207,7 +220,7 @@
             -webkit-backdrop-filter: blur(15px);
             border: 1.5px solid var(--border-color);
             border-radius: 18px;
-            padding: 25px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -215,7 +228,13 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             position: relative;
             overflow: hidden;
-            min-height: 380px;
+            min-height: 340px;
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--highlight);
+            box-shadow: 0 14px 34px rgba(0,0,0,0.6), 0 0 20px var(--highlight-glow);
         }
 
         .app-card::after {
@@ -406,13 +425,38 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 20px 12px;
+            }
+            header {
+                padding: 24px 18px;
+            }
+            .header-title {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+            .header-subtitle {
+                font-size: 0.78rem;
+                letter-spacing: 1.5px;
+            }
+            .hub-switch-link {
+                top: 12px;
+                right: 12px;
+                font-size: 0.62rem;
+                padding: 6px 10px;
+            }
             .donation-banner {
                 grid-template-columns: 1fr;
                 gap: 20px;
                 text-align: center;
+                padding: 22px;
             }
             .invite-form {
                 flex-direction: column;
+            }
+            .app-card {
+                min-height: auto;
+                padding: 20px;
             }
         }
     </style>

@@ -36,6 +36,7 @@
             flex-direction: column;
             overflow-x: hidden;
             position: relative;
+            padding-bottom: 24px;
         }
 
         /* Ambient Background Blobs */
@@ -140,17 +141,45 @@
         .hero {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            gap: 56px;
             align-items: center;
-            padding: 80px 0;
+            padding: 72px 0 56px;
         }
 
         @media (max-width: 968px) {
+            header {
+                padding: 20px 0 16px;
+                flex-direction: column;
+                gap: 12px;
+            }
             .hero {
                 grid-template-columns: 1fr;
-                gap: 40px;
-                padding: 40px 0;
+                gap: 28px;
+                padding: 30px 0 36px;
                 text-align: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 16px;
+            }
+            .logo {
+                font-size: 1.2rem;
+                letter-spacing: 1.5px;
+            }
+            h1 {
+                font-size: 2.3rem;
+            }
+            .description {
+                font-size: 1rem;
+            }
+            .btn {
+                width: 100%;
+                padding: 14px 18px;
+            }
+            .cta-group {
+                flex-direction: column;
             }
         }
 

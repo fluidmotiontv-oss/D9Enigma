@@ -129,15 +129,27 @@
             top: 20px;
             left: 20px;
             right: 20px;
-            padding: 14px 28px; 
+            padding: 14px 24px; 
             border: 1px solid rgba(255, 255, 255, 0.08);
             background: rgba(10, 10, 10, 0.45); 
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-radius: 12px; z-index: 100;
             display: flex; justify-content: space-between; align-items: center;
+            gap: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: border-color 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 10px 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
 
         /* System Status Pulsing LED */
@@ -165,14 +177,23 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
-            padding: 16px 12px;
+            padding: 14px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             z-index: 100;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: border-color 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .control-dock {
+                left: 10px;
+                top: 78px;
+                padding: 10px 8px;
+                gap: 8px;
+            }
         }
         .dock-label {
             font-family: 'Orbitron', sans-serif;
@@ -272,18 +293,25 @@
         /* Holographic Infinity Carousel (3D Ring) */
         #holo-carousel-container {
             position: fixed;
-            bottom: 33%;
+            bottom: 30%;
             left: 50%;
             transform: translateX(-50%);
             width: 100vw;
             height: 200px;
             overflow: visible;
-            z-index: 100;
+            z-index: 90;
             display: flex;
             align-items: center;
             justify-content: center;
             perspective: 1200px;
             pointer-events: none; /* Let clicks pass through empty space */
+        }
+
+        @media (max-width: 768px) {
+            #holo-carousel-container {
+                bottom: 34%;
+                transform: translateX(-50%) scale(0.9);
+            }
         }
         
         #holo-carousel-track {
@@ -463,21 +491,39 @@
         /* Repositioned Floating Vortex HUD */
         .vortex-hud {
             position: fixed;
-            bottom: 85px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 600px;
+            width: min(600px, calc(100vw - 24px));
             max-width: 90%;
             text-align: center; 
-            padding: 14px 28px; 
+            padding: 12px 16px; 
             border: 1px solid rgba(255, 255, 255, 0.08);
             background: rgba(10, 10, 10, 0.45); 
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-radius: 12px; z-index: 100;
             display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center;
+            gap: 8px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: border 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .vortex-hud {
+                bottom: 10px;
+                padding: 10px 12px;
+                width: calc(100vw - 20px);
+            }
+            .digital-stream {
+                font-size: 24px;
+            }
+            .millionths {
+                font-size: 12px;
+            }
+            .root-val {
+                font-size: 0.75rem;
+            }
         }
         
         .digital-stream { 

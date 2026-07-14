@@ -1298,6 +1298,34 @@
     let registeredAlbums = [];
     let selectedCatalogAlbum = null;
 
+    function syncThemeToIframe() {
+        const iframe = document.getElementById('viewport-iframe');
+        if (!iframe || !iframe.contentWindow) return;
+        try {
+            const theme = document.body.className || '';
+            iframe.contentWindow.postMessage({ type: 'dragon-theme-sync', theme }, '*');
+        } catch (err) {
+            console.warn('Theme sync to iframe skipped:', err);
+        }
+    }
+
+    window.triggerGithubTimeSync = async function() {
+        const indicator = document.getElementById('gh-sync-indicator');
+        if (indicator) indicator.textContent = 'GH-SYNC: WAIT';
+        try {
+            const response = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=UTC');
+            if (!response.ok) throw new Error('Clock sync failed');
+            const data = await response.json();
+            const now = new Date(data.dateTime);
+            const clockEl = document.getElementById('header-standard-clock');
+            if (clockEl) clockEl.textContent = now.toISOString().slice(11, 19) + ' UTC';
+            if (indicator) indicator.textContent = 'GH-SYNC: OK';
+        } catch (err) {
+            console.warn('GitHub time sync unavailable:', err);
+            if (indicator) indicator.textContent = 'GH-SYNC: OFFLINE';
+        }
+    };
+
     function toggleShopCatalogModal() {
         const modal = document.getElementById('catalog-modal');
         if (modal) {
