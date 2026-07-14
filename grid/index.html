@@ -311,6 +311,16 @@
         <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 5px; letter-spacing: 2px; font-family: 'Orbitron', sans-serif;">ACTIVE TRANSMISSION GRIDS • 90/9/1 MULTIPLEX</div>
     </div>
     
+    <!-- Sync-Event Temporal Catalyst Widget -->
+    <a class="sync-catalyst-card" style="border: 1.5px solid var(--highlight); background: rgba(0, 229, 255, 0.03); padding: 10px 15px; border-radius: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--text-main); display: flex; flex-direction: column; gap: 4px; box-shadow: 0 0 15px var(--highlight-glow); max-width: 480px; min-width: 320px; transition: all 0.3s; cursor: pointer; text-decoration: none;" onmouseover="this.style.background='rgba(0, 229, 255, 0.08)'; this.style.boxShadow='0 0 25px var(--highlight-glow)'" onmouseout="this.style.background='rgba(0, 229, 255, 0.03)'; this.style.boxShadow='0 0 15px var(--highlight-glow)'" href="https://www.facebook.com/share/p/19A7yZHZCF/" target="_blank">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--highlight-glow); padding-bottom: 3px; margin-bottom: 3px;">
+            <span style="font-weight: 700; color: var(--highlight); letter-spacing: 1px;">🌐 D9 TEMPORAL SYNC-LINK</span>
+            <span style="background: var(--highlight); color: #000; padding: 1px 4px; border-radius: 3px; font-size: 0.5rem; font-weight: bold; animation: pulse 1.5s infinite;">ALIGNED</span>
+        </div>
+        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fff;">LINK: <span style="text-decoration: underline;">https://www.facebook.com/share/p/19A7yZHZCF/</span></div>
+        <div style="color: var(--text-muted); font-size: 0.55rem; line-height: 1.2;">"The Fluid Motion TV pulse: Visualizing the decoupling of terrestrial perception."</div>
+    </a>
+    
     <div style="display: flex; gap: 10px;">
         <a href="../systems.html" class="nav-btn">Hub</a>
         <a href="../dial/" class="nav-btn">Core Dial ⏱️</a>
@@ -511,8 +521,12 @@
             
             ctx.clearRect(0, 0, w, h);
             
+            const stationCard = canvas.closest('.station');
+            const offset = parseFloat(stationCard.dataset.offset || 0);
+            const mode = stationCard.dataset.mode || 'active';
+            
             // Draw central grid line
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.strokeStyle = mode === 'relax' ? 'rgba(255, 170, 0, 0.08)' : 'rgba(255, 255, 255, 0.04)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(0, h/2);
@@ -520,19 +534,26 @@
             ctx.stroke();
 
             // Draw sine wave
-            ctx.strokeStyle = currentAccent;
-            ctx.lineWidth = 1.5;
-            ctx.shadowBlur = 4;
-            ctx.shadowColor = currentAccent;
+            const waveColor = mode === 'relax' ? '#ffaa00' : currentAccent;
+            ctx.strokeStyle = waveColor;
+            ctx.lineWidth = mode === 'relax' ? 1.0 : 1.5;
+            ctx.shadowBlur = mode === 'relax' ? 2 : 4;
+            ctx.shadowColor = waveColor;
             ctx.beginPath();
             
-            const offset = parseFloat(canvas.closest('.station').dataset.offset || 0);
-            
             for (let x = 0; x < w; x++) {
-                // Modulate frequency based on timezone offset to make them distinct!
-                const freq = 0.04 + (Math.abs(offset) * 0.002);
-                const amp = (h / 3) * (0.8 + Math.sin(time * 0.2 + offset) * 0.2);
-                const y = h/2 + Math.sin(x * freq + time + idx) * amp;
+                let freq, amp, speed;
+                if (mode === 'relax') {
+                    freq = 0.015; // wide, calm waves
+                    amp = (h / 5) * (0.6 + Math.sin(time * 0.05 + offset) * 0.1); // lower amplitude
+                    speed = time * 0.15; // slower speed
+                } else {
+                    freq = 0.04 + (Math.abs(offset) * 0.002);
+                    amp = (h / 3) * (0.8 + Math.sin(time * 0.2 + offset) * 0.2);
+                    speed = time;
+                }
+                
+                const y = h/2 + Math.sin(x * freq + speed + idx) * amp;
                 
                 if (x === 0) {
                     ctx.moveTo(x, y);
@@ -572,10 +593,14 @@
             const wheel = card.querySelector('.water-wheel');
             const microsEl = card.querySelector('.micros');
 
+            // Store mode in dataset for the visualizer loop to read
+            card.dataset.mode = dragon.mode;
+
             if (dragon.mode === 'relax') {
                 fluidEl.innerText = "RELAX";
                 fluidEl.className = "fluid-time relax-mode";
                 card.style.borderColor = "#ffaa00";
+                card.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 170, 0, 0.15)";
                 statusEl.style.backgroundColor = "#ffaa00";
                 if(wheel) wheel.style.color = "#ffaa00";
             } else {
@@ -583,14 +608,14 @@
                 fluidEl.className = "fluid-time";
                 fluidEl.style.color = currentAccent;
                 card.style.borderColor = currentAccent;
-                card.style.boxShadow = `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 10px ${currentAccent}15`;
+                card.style.boxShadow = `0 4px 15px rgba(0, 0, 0, 0.4), 0 0 12px ${currentAccent}22`;
                 statusEl.style.backgroundColor = currentAccent;
                 if(wheel) wheel.style.color = currentAccent;
             }
 
-            // Spin water wheel dynamically
+            // Spin water wheel dynamically - slower rotation during relax!
             if(wheel) {
-                const rpm = 5;
+                const rpm = dragon.mode === 'relax' ? 0.8 : 5;
                 const degrees = (now.getTime() / 1000) * (rpm * 6) + (offset * 15);
                 wheel.style.transform = `rotate(${degrees % 360}deg)`;
             }
