@@ -1130,9 +1130,42 @@ document.getElementById('btn-audio').addEventListener('click', () => {
     }
 });
 
+// Bind Mobile Touch Control Buttons
+function setupMobileControls() {
+    const bindBtn = (id, keyCode) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const onPress = (e) => {
+            e.preventDefault();
+            keys[keyCode] = true;
+        };
+        const onRelease = (e) => {
+            e.preventDefault();
+            keys[keyCode] = false;
+        };
+
+        // Touch events
+        el.addEventListener('touchstart', onPress, { passive: false });
+        el.addEventListener('touchend', onRelease, { passive: false });
+        el.addEventListener('touchcancel', onRelease, { passive: false });
+
+        // Mouse fallbacks
+        el.addEventListener('mousedown', onPress);
+        el.addEventListener('mouseup', onRelease);
+        el.addEventListener('mouseleave', onRelease);
+    };
+
+    bindBtn('ctrl-left', 'ArrowLeft');
+    bindBtn('ctrl-right', 'ArrowRight');
+    bindBtn('ctrl-down', 'ArrowDown');
+    bindBtn('ctrl-up', 'ArrowUp');
+}
+
 // Start initialization
 window.addEventListener('DOMContentLoaded', () => {
     initThree();
+    setupMobileControls();
     
     // Pre-sync D9 alignment state
     syncWithParentD9Clock();
