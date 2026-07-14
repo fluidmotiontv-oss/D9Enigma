@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Sovereign Community Portal</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050a14;
+            --panel-bg: rgba(10, 15, 25, 0.75);
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #8c85a3;
+            --accent: #00e5ff;
+            --accent-glow: rgba(0, 229, 255, 0.2);
+            --pastel-pink: rgba(255, 182, 193, 0.06);
+            --pastel-blue: rgba(173, 216, 230, 0.06);
+            --pastel-purple: rgba(221, 160, 221, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: linear-gradient(135deg, #050a14 0%, #1a1a1a 100%);
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Iridescent Ambient Shimmer Background Blobs */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.005) 1px, transparent 1px);
+            background-size: 35px 35px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: -20%; left: -20%; width: 140%; height: 140%;
+            background: radial-gradient(circle, rgba(255, 182, 193, 0.02) 0%, rgba(173, 216, 230, 0.02) 40%, rgba(221, 160, 221, 0.02) 80%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            width: 100%;
+            padding: 15px 30px;
+            border-bottom: 1.5px solid var(--gold);
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 15px var(--gold-glow);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--gold-glow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--gold);
+        }
+
+        .nav-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        /* Wallet Display */
+        .harmony-wallet {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 14px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1.5px solid var(--gold);
+            border-radius: 20px;
+            color: #fff;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px var(--gold-glow);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .wallet-icon {
+            font-size: 1.1rem;
+            color: var(--gold);
+            text-shadow: 0 0 8px var(--gold-glow);
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        .wallet-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wallet-balance {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fce883;
+            letter-spacing: 0.5px;
+        }
+
+        /* Layout Grid */
+        .portal-grid {
+            max-width: 1400px;
+            margin: 30px auto;
+            width: 100%;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 30px;
+            z-index: 10;
+            position: relative;
+        }
+
+        @media (max-width: 1024px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Content Panel Rooms */
+        .content-room {
+            background: linear-gradient(135deg, var(--pastel-pink) 0%, var(--pastel-blue) 50%, var(--pastel-purple) 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .content-room:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 15px rgba(212,175,55,0.08);
+        }
+
+        /* Tab System */
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-btn.active {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+            border-color: var(--gold);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Temporal Core Iframe Frame */
+        .temporal-hud {
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 4px 15px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .temporal-hud iframe {
+            width: 100%;
+            height: 160px;
+            border: none;
+            display: block;
+        }
+
+        .temporal-banner {
+            background: rgba(212, 175, 55, 0.08);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 6px 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Resonant Gallery Cards */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .video-card {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .video-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 15px rgba(212,175,55,0.06);
+        }
+
+        .video-frame-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .video-frame-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: none;
+        }
+
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-meta {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--gold);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .card-actions {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .resonance-counter {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: #fce883;
+            text-shadow: 0 0 8px rgba(212,175,55,0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background: var(--gold);
+            border: none;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.25);
+        }
+
+        .action-btn:hover {
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+        }
+
+        .action-btn.disabled {
+            background: #2a2a2a;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Sidebar Ledger */
+        .ledger-panel {
+            background: rgba(10, 10, 15, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+        }
+
+        .panel-heading {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #fff;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ledger-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+        }
+
+        .ledger-item {
+            border-bottom: 1px dashed rgba(255,255,255,0.04);
+            padding-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .ledger-item .meta-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ledger-item .type-add { color: #00ff41; }
+        .ledger-item .type-sub { color: #ff0055; }
+        .ledger-item .type-split { color: var(--gold); }
+
+        /* Form Controls */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* Promoted Flow Simulated Box */
+        .ad-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px dashed var(--gold);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ad-video-mock {
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 16/9;
+            background: radial-gradient(circle, #102030 0%, #02050a 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ad-countdown {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--gold);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58rem;
+            color: var(--gold);
+        }
+
+        /* Systems Gate Authorization Overlay */
+        #systemsGateOverlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: #020205; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+            font-family: 'Orbitron', sans-serif; color: #fff;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Systems Gate Authorization Overlay -->
+    <div id="systemsGateOverlay">
+        <span style="font-size: 4rem; filter: drop-shadow(0 0 15px rgba(255, 0, 85, 0.4));">🔒</span>
+        <h2 style="letter-spacing: 3px; color: #ff0055;">SECURE ACCESS RESTRICTED</h2>
+        <p style="font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #8c85a3; max-width: 400px; text-align: center; line-height: 1.5;">This node is decoupled. You must authenticate at the Systems Console to activate this interface.</p>
+        <a href="../systems.html" style="padding: 12px 24px; border: 1.5px solid #00e5ff; background: rgba(0, 229, 255, 0.08); color: #fff; text-decoration: none; border-radius: 8px; font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; box-shadow: 0 0 15px rgba(0, 229, 255, 0.25); transition: all 0.3s;">🔑 Authenticate Hub</a>
+    </div>
+
+    <script>
+        (function() {
+            if (sessionStorage.getItem('systems_auth') === 'granted') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const gate = document.getElementById('systemsGateOverlay');
+                    if (gate) gate.style.display = 'none';
+                });
+            } else {
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+        })();
+    </script>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">Sovereign <span>Community Portal</span></div>
+        
+        <div class="nav-group">
+            <!-- Harmony Wallet -->
+            <div class="harmony-wallet">
+                <div class="wallet-icon">◈</div>
+                <div class="wallet-label">
+                    <span>Harmony Wallet</span>
+                    <span class="wallet-balance" id="display-balance">◈ 10.00</span>
+                </div>
+            </div>
+            
+            <a href="../creative.html" class="nav-btn">← Creative Hub</a>
+            <a href="../systems.html" class="nav-btn">Systems</a>
+        </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="portal-grid">
+        
+        <!-- Left Column: Master Iframe Clock & Active Tab Room -->
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            
+            <!-- 1. The Temporal Core: Master GitHub Clock Embed -->
+            <div class="temporal-hud">
+                <div class="temporal-banner">
+                    <span>⏱️ Temporal Core Master Synced</span>
+                    <span style="color:#00ff41;">● ONLINE</span>
+                </div>
+                <iframe src="https://fluidmotiontv-oss.github.io/Fluidmotiontv-clock/" title="Fluid Motion Clock"></iframe>
+            </div>
+
+            <!-- 2. Main Content Room Container -->
+            <div class="content-room">
+                
+                <!-- Tab Switching Bar -->
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('organic')">Resonant Gallery</button>
+                    <button class="tab-btn" onclick="switchTab('promoted')">Promoted Flows</button>
+                    <button class="tab-btn" onclick="switchTab('upload')">Add Your Light</button>
+                </div>
+
+                <!-- Tab A: Resonant Gallery (Organic Art) -->
+                <div class="tab-content active" id="tab-organic">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <h2 style="font-family:'Orbitron', sans-serif; font-size:1rem; letter-spacing:1px;">Resonant Gallery</h2>
+                        <p style="font-size:0.75rem; color:var(--text-muted);">Community contributions valued for their creative depth. 90% goes to the artist; 10% supports the ecosystem.</p>
+                    </div>
+
+                    <!-- Organic Video List -->
+                    <div class="gallery-grid" id="organic-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Tab B: Promoted Flows (Commercial Attention) -->
+                <div class="tab-content" id="tab-promoted">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <h2 style="font-family:'Orbitron', sans-serif; font-size:1rem; letter-spacing:1px;">Promoted Flows</h2>
+                        <p style="font-size:0.75rem; color:var(--text-muted);">Advertisers staking Harmony Notes to purchase attention. Watch the video below to earn notes directly to your wallet.</p>
+                    </div>
+
+                    <div class="ad-box">
+                        <div class="ad-video-mock">
+                            <span style="font-size: 3rem;" id="ad-status-emoji">📺</span>
+                            <div class="ad-countdown" id="ad-timer" style="display: none;">COUNTDOWN: 10s</div>
+                            <div style="position: absolute; bottom: 15px; font-family:'Share Tech Mono'; font-size:0.6rem; color:#fff;" id="ad-title">SOLARIS BRANDS SPONSORSHIP</div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; text-align: center; max-width: 400px;">
+                            <h3 style="font-size: 0.85rem; color:#fff;">Solaris Off-Grid Batteries</h3>
+                            <p style="font-size: 0.72rem; color: var(--text-muted);">Simulate watching this 10-second sponsor spot to inject advertising capital into your wallet.</p>
+                        </div>
+
+                        <button class="action-btn" id="btn-watch-ad" onclick="startAdSimulation()">Simulate Watch (Earn ◈0.20)</button>
+                    </div>
+                </div>
+
+                <!-- Tab C: Upload / Submit Form -->
+                <div class="tab-content" id="tab-upload">
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <h2 style="font-family:'Orbitron', sans-serif; font-size:1rem; letter-spacing:1px;">Add Your Light</h2>
+                        <p style="font-size:0.75rem; color:var(--text-muted);">Deposit a creative video into the Resonant Gallery. Your baseline reward is calculated directly from duration effort (1 min = ◈1.00).</p>
+                    </div>
+
+                    <form id="upload-form" onsubmit="handleFormSubmit(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Video URL (YouTube)</label>
+                            <input type="text" class="form-input" id="inp-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Creator Name</label>
+                            <input type="text" class="form-input" id="inp-creator" placeholder="e.g. Mary Dwen" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Video Duration (Minutes)</label>
+                            <input type="number" class="form-input" id="inp-duration" min="1" max="120" value="3" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description & Context</label>
+                            <textarea class="form-input" id="inp-desc" placeholder="Explain the creative focus or community message..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="action-btn" style="width: 100%; padding: 12px; margin-top: 10px;">Submit Video & Claim Baseline Reward</button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Right Column: Ledger Panel & Wallet Auditing -->
+        <div class="ledger-panel">
+            <div class="panel-heading">
+                <span>📊 Transaction Ledger</span>
+                <span style="font-size:0.55rem; color:var(--gold);">90/10 RULE</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-family:'Share Tech Mono'; font-size:0.58rem; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                <div>PORTAL UPKEEP FEE:<br><span style="font-size:0.8rem; color:#fff;" id="upkeep-balance">◈ 0.00</span></div>
+                <div>ECO SYSTEM VIEWS:<br><span style="font-size:0.8rem; color:#fff;" id="views-counter">124</span></div>
+            </div>
+
+            <div class="ledger-list" id="ledger-list-box">
+                <!-- Log entries populated by JS -->
+            </div>
+
+            <button class="action-btn" style="background:transparent; border: 1px solid rgba(255,255,255,0.1); color:var(--text-muted); font-size:0.55rem;" onclick="resetWalletStorage()">Reset Ledger Data</button>
+        </div>
+
+    </div>
+
+    <!-- Economy Logic Script -->
+    <script>
+        // Default Local Storage Setups
+        let balance = parseFloat(localStorage.getItem('harmony_wallet_balance'));
+        if (isNaN(balance)) {
+            balance = 10.00;
+            localStorage.setItem('harmony_wallet_balance', balance.toFixed(2));
+        }
+
+        let upkeepBalance = parseFloat(localStorage.getItem('harmony_upkeep_balance'));
+        if (isNaN(upkeepBalance)) {
+            upkeepBalance = 0.00;
+            localStorage.setItem('harmony_upkeep_balance', upkeepBalance.toFixed(2));
+        }
+
+        let totalViews = parseInt(localStorage.getItem('harmony_total_views'));
+        if (isNaN(totalViews)) {
+            totalViews = 124;
+            localStorage.setItem('harmony_total_views', totalViews);
+        }
+
+        // Ledger Transactions log
+        let ledgerLogs = JSON.parse(localStorage.getItem('harmony_ledger_logs'));
+        if (!ledgerLogs) {
+            ledgerLogs = [
+                { time: "System Init", type: "INIT", desc: "Seed Capital Deposited", amount: 10.00 },
+                { time: "System Init", type: "FEE", desc: "Genesis block allocation", amount: 0.00 }
+            ];
+            localStorage.setItem('harmony_ledger_logs', JSON.stringify(ledgerLogs));
+        }
+
+        // Video Repository inside Local Storage
+        let communityVideos = JSON.parse(localStorage.getItem('harmony_community_videos'));
+        if (!communityVideos) {
+            communityVideos = [
+                {
+                    id: "be-your-light",
+                    title: "Be Your Light: A New Zealand Project",
+                    creator: "fluidmotiontv (Mary Dwen & Tim Dwen)",
+                    duration: 3,
+                    desc: "Collaborating on a project like 'Be Your Light' clearly reflects the deep connection you have with your mother, Mary Dwen, and her involvement in the Our New Eden community. Igniting the light in ourselves ignites the light in others.",
+                    videoUrl: "https://www.youtube.com/embed/JgKmAs4Xa54",
+                    resonance: 3.00
+                }
+            ];
+            localStorage.setItem('harmony_community_videos', JSON.stringify(communityVideos));
+        }
+
+        // Updates Displays
+        function updateUI() {
+            document.getElementById('display-balance').innerText = `◈ ${balance.toFixed(2)}`;
+            document.getElementById('upkeep-balance').innerText = `◈ ${upkeepBalance.toFixed(2)}`;
+            document.getElementById('views-counter').innerText = totalViews;
+
+            // Render Ledger Logs
+            const logBox = document.getElementById('ledger-list-box');
+            logBox.innerHTML = '';
+            ledgerLogs.slice().reverse().forEach(log => {
+                const item = document.createElement('div');
+                item.className = 'ledger-item';
+                
+                let typeClass = 'type-split';
+                let typeSign = '';
+                if (log.type === 'INIT' || log.type === 'EARN') {
+                    typeClass = 'type-add';
+                    typeSign = '+';
+                } else if (log.type === 'SPEND') {
+                    typeClass = 'type-sub';
+                    typeSign = '-';
+                }
+
+                item.innerHTML = `
+                    <div class="meta-row">
+                        <span style="color:#fff;">${log.desc}</span>
+                        <span class="${typeClass}">${typeSign}◈${log.amount.toFixed(2)}</span>
+                    </div>
+                    <div class="meta-row" style="color:var(--text-muted); font-size:0.5rem;">
+                        <span>${log.time}</span>
+                        <span>[${log.type}]</span>
+                    </div>
+                `;
+                logBox.appendChild(item);
+            });
+
+            // Render Videos
+            renderVideos();
+        }
+
+        // Switch Rooms/Tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        // Add log helper
+        function addLog(type, desc, amount) {
+            const timeString = new Date().toLocaleTimeString();
+            ledgerLogs.push({ time: timeString, type, desc, amount });
+            localStorage.setItem('harmony_ledger_logs', JSON.stringify(ledgerLogs));
+        }
+
+        // Support Video Split (90/10 Rule)
+        function supportVideo(videoId) {
+            const supportAmount = 1.00;
+            if (balance < supportAmount) {
+                alert("Insufficient Harmony Notes in your wallet! Visit 'Promoted Flows' to earn more attention credits.");
+                return;
+            }
+
+            // Deduct
+            balance -= supportAmount;
+            localStorage.setItem('harmony_wallet_balance', balance.toFixed(2));
+            addLog('SPEND', `Supported Video #${videoId}`, supportAmount);
+
+            // Split Calculations
+            const artistShare = supportAmount * 0.90;
+            const feeShare = supportAmount * 0.10;
+
+            upkeepBalance += feeShare;
+            localStorage.setItem('harmony_upkeep_balance', upkeepBalance.toFixed(2));
+            addLog('FEE', `Upkeep hold for #${videoId}`, feeShare);
+
+            // Increment Video Resonance
+            const index = communityVideos.findIndex(v => v.id === videoId);
+            if (index !== -1) {
+                communityVideos[index].resonance += artistShare;
+                localStorage.setItem('harmony_community_videos', JSON.stringify(communityVideos));
+            }
+
+            // View Increment
+            totalViews += 1;
+            localStorage.setItem('harmony_total_views', totalViews);
+
+            updateUI();
+        }
+
+        // Render Videos in gallery
+        function renderVideos() {
+            const container = document.getElementById('organic-list');
+            container.innerHTML = '';
+
+            communityVideos.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="video-frame-wrapper">
+                        <iframe src="${video.videoUrl}" allowfullscreen></iframe>
+                    </div>
+                    <div class="card-details">
+                        <div class="card-title">${video.title}</div>
+                        <div class="card-meta">
+                            <span>CREATOR: ${video.creator}</span>
+                            <span>LENGTH: ${video.duration} MINS</span>
+                        </div>
+                        <p class="card-desc">${video.desc}</p>
+                    </div>
+                    <div class="card-actions">
+                        <div class="resonance-score">
+                            <span>◈ Resonance:</span>
+                            <span class="resonance-counter" style="display:inline-block;">◈ ${video.resonance.toFixed(2)}</span>
+                        </div>
+                        <button class="action-btn" onclick="supportVideo('${video.id}')">Support (◈ 1.00)</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Ads Simulation Watch Flow
+        let adInterval = null;
+        function startAdSimulation() {
+            const btn = document.getElementById('btn-watch-ad');
+            const timer = document.getElementById('ad-timer');
+            const emoji = document.getElementById('ad-status-emoji');
+
+            btn.classList.add('disabled');
+            btn.disabled = true;
+            timer.style.display = 'block';
+            emoji.innerText = '⚡';
+
+            let count = 10;
+            timer.innerText = `COUNTDOWN: ${count}s`;
+
+            adInterval = setInterval(() => {
+                count--;
+                timer.innerText = `COUNTDOWN: ${count}s`;
+                
+                if (count <= 0) {
+                    clearInterval(adInterval);
+                    adInterval = null;
+                    
+                    // Ad completed: pay viewer
+                    const viewerEarnings = 0.20;
+                    const artistShare = 0.70;
+                    const feeShare = 0.10;
+
+                    balance += viewerEarnings;
+                    localStorage.setItem('harmony_wallet_balance', balance.toFixed(2));
+                    addLog('EARN', 'Watched Promoted Flow ad', viewerEarnings);
+
+                    upkeepBalance += feeShare;
+                    localStorage.setItem('harmony_upkeep_balance', upkeepBalance.toFixed(2));
+                    addLog('FEE', 'Portal ad revenue split hold', feeShare);
+
+                    emoji.innerText = '✅';
+                    timer.innerText = 'EARNED ◈0.20!';
+                    
+                    btn.classList.remove('disabled');
+                    btn.disabled = false;
+                    btn.innerText = 'Simulate Watch (Earn ◈0.20)';
+
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // Form Submit
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const urlInput = document.getElementById('inp-url').value;
+            const creator = document.getElementById('inp-creator').value;
+            const duration = parseInt(document.getElementById('inp-duration').value);
+            const desc = document.getElementById('inp-desc').value;
+
+            // Simple YouTube Parser
+            let embedUrl = urlInput;
+            const youtubeReg = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = urlInput.match(youtubeReg);
+            if (match && match[1]) {
+                embedUrl = `https://www.youtube.com/embed/${match[1]}`;
+            }
+
+            // Create Video Object
+            const newVideo = {
+                id: `video-${Date.now()}`,
+                title: `Contribution: ${creator} Studio`,
+                creator,
+                duration,
+                desc,
+                videoUrl: embedUrl,
+                resonance: duration * 1.00 // Baseline effort reward
+            };
+
+            communityVideos.push(newVideo);
+            localStorage.setItem('harmony_community_videos', JSON.stringify(communityVideos));
+
+            // Reward creator baseline (mocked: artist gets their reward in notes balance)
+            addLog('INIT', `Video #${newVideo.id} claimed baseline`, newVideo.resonance);
+
+            document.getElementById('upload-form').reset();
+            alert("Video successfully added to the Resonant Gallery!");
+            switchTab('organic');
+            updateUI();
+        }
+
+        // Reset
+        function resetWalletStorage() {
+            if (confirm("Reset wallet balances, ledger entries, and community videos back to system default?")) {
+                localStorage.removeItem('harmony_wallet_balance');
+                localStorage.removeItem('harmony_upkeep_balance');
+                localStorage.removeItem('harmony_total_views');
+                localStorage.removeItem('harmony_ledger_logs');
+                localStorage.removeItem('harmony_community_videos');
+                location.reload();
+            }
+        }
+
+        // Init UI
+        updateUI();
+    </script>
+</body>
+</html>

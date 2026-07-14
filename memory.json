@@ -100,6 +100,10 @@
       "file": "plasma/index.html",
       "description": "An interactive 3D/2D plasma globe filament sandbox featuring Midpoint Displacement fractal lightning math, simulated magnetic EMF steering, and audio frequency/tone sync."
     },
+    "sovereign_portal": {
+      "file": "portal/index.html",
+      "description": "The Sovereign Community Portal and Resonant Gallery hosting the 'Be Your Light' video, managing Harmony Note transactions, 90/10 artist split payouts, advertiser promoted flows, and user content submissions."
+    },
     "sitemap": {
       "file": "sitemap.html",
       "pdf": "sitemap.pdf",
@@ -314,6 +318,10 @@
     {
       "timestamp": "2026-07-14T20:45:00+12:00",
       "summary": "Built the brand-new Sovereign Plasma Globe & Filament Sandbox app (plasma/index.html), integrated it into vision.html and sitemap.html, and implemented dynamic active/relax visual pacing sync to the Dragon 9 clock."
+    },
+    {
+      "timestamp": "2026-07-14T21:05:00+12:00",
+      "summary": "Designed and built the Sovereign Community Portal & Resonant Gallery app (portal/index.html) integrating the 'Be Your Light' New Zealand project video. Set up the gold telluride/iridescent pastel coastal sand aesthetic, a persistent local-storage wallet keeping track of Harmony Notes, support splits (90/10 split), ad promoted flow pay-to-watch mechanics, and the 'Add Your Light' content submission form. Registered access in creative.html, sitemap.html, and registry logs."
     }
   ]
 }
