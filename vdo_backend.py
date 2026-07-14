@@ -142,6 +142,50 @@ class Dragon9BackendHandler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
+        if self.path.startswith('/api/upload-media'):
+            from urllib.parse import urlparse, parse_qs
+            parsed_url = urlparse(self.path)
+            query_params = parse_qs(parsed_url.query)
+            crew = query_params.get('crew', [''])[0].strip().lower()
+            m_type = query_params.get('type', [''])[0].strip().lower()
+            filename = query_params.get('filename', [''])[0].strip()
+            
+            if not crew or not m_type or not filename:
+                self.send_error_response("Missing crew, type, or filename parameter.")
+                return
+            
+            if m_type not in ['audio', 'video', 'images']:
+                self.send_error_response("Invalid media type. Must be audio, video, or images.")
+                return
+                
+            # Sanitize filename
+            filename = os.path.basename(filename)
+            
+            base_crew_dir = os.path.join(DIRECTORY, 'assets', 'crew')
+            target_dir = os.path.join(base_crew_dir, crew, m_type)
+            os.makedirs(target_dir, exist_ok=True)
+            
+            filepath = os.path.join(target_dir, filename)
+            
+            content_length = int(self.headers['Content-Length'])
+            try:
+                # Read raw file data from request body
+                data = self.rfile.read(content_length)
+                with open(filepath, 'wb') as f:
+                    f.write(data)
+                
+                # Relative web URL path
+                web_path = f"assets/crew/{crew}/{m_type}/{filename}"
+                self.send_success_response({
+                    "status": "success",
+                    "name": filename,
+                    "path": web_path,
+                    "size": len(data)
+                })
+            except Exception as e:
+                self.send_error_response(f"Upload failed: {str(e)}")
+            return
+
         if self.path == '/api/download-reel':
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)

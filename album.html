@@ -815,8 +815,12 @@
                 <div class="admin-row">
                     <input type="text" id="new-video-title" class="admin-input" placeholder="Track Title (e.g. Future Forward 1)">
                 </div>
-                <div class="admin-row">
-                    <input type="text" id="new-video-url" class="admin-input" placeholder="Audio path (.mp3/.wav) or Video URL">
+                <div class="admin-row" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" id="new-video-url" class="admin-input" style="flex: 1; margin-bottom: 0;" placeholder="Audio path (.mp3/.wav) or Video URL">
+                    <label class="chat-btn" style="padding: 6px 10px; font-size: 0.6rem; border-color: var(--accent); background: rgba(0,0,0,0.5); cursor:pointer; font-family:'Orbitron'; margin-bottom:0; display: inline-flex; align-items: center; justify-content: center; height: 32px; white-space: nowrap;">
+                        📁 SELECT
+                        <input type="file" accept="audio/*,video/*" style="display: none;" onchange="handleMediaUpload(this, 'new-video-url', 'audio')">
+                    </label>
                 </div>
                 <div class="admin-row">
                     <input type="text" id="new-video-desc" class="admin-input" placeholder="Track Description / Notes">
@@ -824,15 +828,23 @@
                 <div class="admin-row">
                     <input type="text" id="new-video-youtube" class="admin-input" placeholder="YouTube Video URL (Optional, e.g. https://youtube.com/watch?v=...)">
                 </div>
-                <div class="admin-row">
-                    <input type="text" id="new-video-image" class="admin-input" placeholder="Cover Image URL / Picture Path (Optional)">
+                <div class="admin-row" style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" id="new-video-image" class="admin-input" style="flex: 1; margin-bottom: 0;" placeholder="Cover Image URL / Picture Path (Optional)">
+                    <label class="chat-btn" style="padding: 6px 10px; font-size: 0.6rem; border-color: var(--accent); background: rgba(0,0,0,0.5); cursor:pointer; font-family:'Orbitron'; margin-bottom:0; display: inline-flex; align-items: center; justify-content: center; height: 32px; white-space: nowrap;">
+                        📁 SELECT
+                        <input type="file" accept="image/*" style="display: none;" onchange="handleMediaUpload(this, 'new-video-image', 'images')">
+                    </label>
                 </div>
                 <div class="admin-row" style="display: flex; gap: 8px;">
                     <input type="text" id="new-video-link-url" class="admin-input" style="flex: 2; margin-bottom: 0;" placeholder="Custom Link URL (Optional)">
                     <input type="text" id="new-video-link-label" class="admin-input" style="flex: 1; margin-bottom: 0;" placeholder="Label (e.g. Spotify)">
                 </div>
-                <div class="admin-row" style="margin-top: 10px;">
-                    <input type="text" id="new-video-download-url" class="admin-input" placeholder="Downloadable File/Stem ZIP URL (Unlocked Only)">
+                <div class="admin-row" style="display: flex; gap: 8px; align-items: center; margin-top: 10px;">
+                    <input type="text" id="new-video-download-url" class="admin-input" style="flex: 1; margin-bottom: 0;" placeholder="Downloadable File/Stem ZIP URL (Unlocked Only)">
+                    <label class="chat-btn" style="padding: 6px 10px; font-size: 0.6rem; border-color: var(--accent); background: rgba(0,0,0,0.5); cursor:pointer; font-family:'Orbitron'; margin-bottom:0; display: inline-flex; align-items: center; justify-content: center; height: 32px; white-space: nowrap;">
+                        📁 SELECT
+                        <input type="file" accept="*/*" style="display: none;" onchange="handleMediaUpload(this, 'new-video-download-url', 'audio')">
+                    </label>
                 </div>
 
                 <!-- Track sale configuration -->
@@ -1418,6 +1430,80 @@
                     currentSettings.tracks.splice(index, 1);
                 }
                 renderAdminVideosList();
+            }
+        }
+
+        async function handleMediaUpload(inputElement, targetInputId, mediaType) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            const originalButton = inputElement.parentElement;
+            const originalButtonText = originalButton.firstChild.textContent.trim();
+            originalButton.firstChild.textContent = "⌛ UPLOADING...";
+            originalButton.style.pointerEvents = "none";
+
+            const targetInput = document.getElementById(targetInputId);
+            const titleInput = document.getElementById('new-video-title');
+            
+            // Auto-populate title if empty
+            if (titleInput && !titleInput.value.trim() && targetInputId === 'new-video-url') {
+                titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+            }
+
+            const artistInput = document.getElementById('artist-name');
+            const artistName = (artistInput ? artistInput.value.trim() : "") || "independent_artist";
+            const sanitizedArtistName = artistName.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+
+            try {
+                // Try uploading to local backend first
+                const uploadUrl = `/api/upload-media?crew=${encodeURIComponent(sanitizedArtistName)}&type=${mediaType}&filename=${encodeURIComponent(file.name)}`;
+                
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/octet-stream'
+                    },
+                    body: file
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.status === 'success' && result.path) {
+                        targetInput.value = result.path;
+                        originalButton.firstChild.textContent = "✅ DONE";
+                        // Re-trigger asset scan to update scanned list
+                        fetchCrewAssets(artistName);
+                        setTimeout(() => {
+                            originalButton.firstChild.textContent = "📁 SELECT";
+                            originalButton.style.pointerEvents = "auto";
+                        }, 2000);
+                        return;
+                    }
+                }
+                throw new Error("Local backend unavailable or error occurred");
+            } catch (err) {
+                console.log("Local backend upload failed/unavailable, falling back to offline Base64 embed.", err);
+                originalButton.firstChild.textContent = "⌛ ENCODING...";
+                
+                // Fallback to reading file as Data URL (base64)
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    targetInput.value = e.target.result;
+                    originalButton.firstChild.textContent = "✅ EMBEDDED";
+                    setTimeout(() => {
+                        originalButton.firstChild.textContent = "📁 SELECT";
+                        originalButton.style.pointerEvents = "auto";
+                    }, 2000);
+                };
+                reader.onerror = function() {
+                    alert("Failed to read file!");
+                    originalButton.firstChild.textContent = "❌ ERROR";
+                    setTimeout(() => {
+                        originalButton.firstChild.textContent = "📁 SELECT";
+                        originalButton.style.pointerEvents = "auto";
+                    }, 2000);
+                };
+                reader.readAsDataURL(file);
             }
         }
 
