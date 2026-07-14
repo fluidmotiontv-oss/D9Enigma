@@ -38,5 +38,15 @@
         "description": "Cooperative audio release featuring high-fidelity hip-hop loops, ambient synths, and breakbeats mixed for off-grid calibration sessions.",
         "timestamp": 1784030003,
         "sales_count": 5
+    },
+    {
+        "title": "Dragon 9 'Time's Up' Custom Cap",
+        "artist": "Timothy Dwen",
+        "url": "https://fluidmotiontv-oss.github.io/Fluidmotiontv-clock/",
+        "price": "$35.00 USD",
+        "payment": "fluidmotiontv@gmail.com",
+        "description": "Custom embroidered structural cap featuring the 'Time's Up' alignment logo. Perfect for citizen journalists and sovereign builders alike.",
+        "timestamp": 1784030004,
+        "sales_count": 55
     }
 ]
