@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <script 
+  src="https://www.paypal.com/sdk/js?client-id=BAAaG0RpHzOcYLeZkue1kKeMvJr2hecDw69liUm9sr8tP8VgILuo3gW9--KYzacCMATKv0V-Kmg-L00JTw&components=hosted-buttons&disable-funding=venmo&currency=NZD">
+</script>
+    meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dragon 9 | Creative Suite Hub</title>
     <!-- Google Fonts Integration -->
@@ -213,6 +216,12 @@
                 gap: 16px;
             }
         }
+        <div id="paypal-container-NYJVEKAQZXM3Q"></div>
+<script>
+  paypal.HostedButtons({
+    hostedButtonId: "NYJVEKAQZXM3Q",
+  }).render("#paypal-container-NYJVEKAQZXM3Q")
+</script>
 
         .app-card {
             background: var(--card-bg);
