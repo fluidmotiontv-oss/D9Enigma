@@ -199,6 +199,11 @@ function triggerNoteOn(midi) {
     const voice = new SynthVoice(midi);
     activeVoices.set(midi, voice);
     
+    // Loop Record
+    if (isRecording) {
+        recordedSequence[recordStep] = midi;
+    }
+    
     // Visual Updates
     const key = document.querySelector(`.key[data-midi="${midi}"]`);
     if (key) key.classList.add('active');
@@ -448,3 +453,125 @@ function animateWaterfall() {
 generateKeyboard();
 initMIDI();
 animateWaterfall();
+
+// --- Loop Recorder & Metronome ---
+let isRecording = false;
+let isPlayingLoop = false;
+let recordStep = 0;
+let recordTimer = null;
+let recordedSequence = new Array(16).fill(null);
+let bpm = 120;
+
+const stepIndicator = document.getElementById('step-indicator');
+function generateSteps() {
+    stepIndicator.innerHTML = "";
+    for (let i = 0; i < 16; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'step-dot';
+        stepIndicator.appendChild(dot);
+    }
+}
+
+function playMetronomeClick(accented) {
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.frequency.setValueAtTime(accented ? 900 : 500, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.06);
+}
+
+function startRecordingLoop() {
+    initAudio();
+    clearInterval(recordTimer);
+    
+    const stepTime = (60 / bpm) * 1000 / 2; // eighth notes
+    
+    recordTimer = setInterval(() => {
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => d.classList.remove('active', 'recording-active'));
+        
+        if (dots[recordStep]) {
+            dots[recordStep].classList.add(isRecording ? 'recording-active' : 'active');
+        }
+
+        if (isRecording && recordStep % 2 === 0) {
+            playMetronomeClick(recordStep === 0);
+        }
+
+        if (isPlayingLoop || isRecording) {
+            const recordedMidi = recordedSequence[recordStep];
+            if (recordedMidi) {
+                const voice = new SynthVoice(recordedMidi);
+                voice.gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                setTimeout(() => voice.release(), stepTime - 20);
+                
+                const key = document.querySelector(`.key[data-midi="${recordedMidi}"]`);
+                if (key) {
+                    key.classList.add('active');
+                    setTimeout(() => key.classList.remove('active'), stepTime - 20);
+                }
+            }
+        }
+
+        recordStep = (recordStep + 1) % 16;
+    }, stepTime);
+}
+
+const recordBtn = document.getElementById('btn-record-toggle');
+const playBtn = document.getElementById('btn-play-toggle');
+
+recordBtn.addEventListener('click', () => {
+    isRecording = !isRecording;
+    if (isRecording) {
+        isPlayingLoop = false;
+        recordedSequence.fill(null);
+        recordStep = 0;
+        recordBtn.textContent = '⏹️ Stop';
+        recordBtn.classList.add('recording');
+        playBtn.disabled = true;
+        startRecordingLoop();
+    } else {
+        recordBtn.textContent = '🔴 Record';
+        recordBtn.classList.remove('recording');
+        playBtn.disabled = false;
+        clearInterval(recordTimer);
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => d.classList.remove('active', 'recording-active'));
+        
+        localStorage.setItem('d9_recorded_pianola_sequence', JSON.stringify(recordedSequence));
+        console.log("Saved live Pianola recorded track:", recordedSequence);
+    }
+});
+
+playBtn.addEventListener('click', () => {
+    isPlayingLoop = !isPlayingLoop;
+    if (isPlayingLoop) {
+        isRecording = false;
+        recordStep = 0;
+        playBtn.textContent = '⏹️ Stop';
+        startRecordingLoop();
+    } else {
+        playBtn.textContent = '▶ Play';
+        clearInterval(recordTimer);
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => d.classList.remove('active', 'recording-active'));
+    }
+});
+
+document.getElementById('recordTempo').addEventListener('input', (e) => {
+    bpm = parseInt(e.target.value);
+    document.getElementById('tempoVal').textContent = bpm;
+    if (isRecording || isPlayingLoop) {
+        startRecordingLoop();
+    }
+});
+
+generateSteps();

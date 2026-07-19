@@ -1,4 +1,4 @@
-const cacheName = 'fluidmotion-v25';
+const cacheName = 'fluidmotion-v26';
 const staticAssets = [
   './',
   './index.html',
@@ -33,7 +33,30 @@ const staticAssets = [
   './lib/jsQR.js',
   './lib/images/marker-icon.png',
   './lib/images/marker-icon-2x.png',
-  './lib/images/marker-shadow.png'
+  './lib/images/marker-shadow.png',
+  './creative.html',
+  './systems.html',
+  './sound.html',
+  './nature.html',
+  './vision.html',
+  './lotus-spinner.html',
+  './album.html',
+  './album-builder/index.html',
+  './album-builder/landing.html',
+  './exhibition/index.html',
+  './exhibition/script.js',
+  './organ/index.html',
+  './organ/script.js',
+  './pianola/index.html',
+  './pianola/script.js',
+  './plasma/index.html',
+  './plasmaxracer/index.html',
+  './plasmaxracer/script.js',
+  './portal/index.html',
+  './sequencer/index.html',
+  './sequencer/script.js',
+  './ukulele/index.html',
+  './ukulele/script.js'
 ];
 
 // Cache core assets on install

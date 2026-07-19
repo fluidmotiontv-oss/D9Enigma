@@ -7,7 +7,7 @@ let isLooping = true;
 let isMetronomeOn = false;
 
 // Audio parameters
-const NUM_TRACKS = 4;
+const NUM_TRACKS = 7;
 const NUM_STEPS = 16;
 let currentStep = 0;
 let nextStepTime = 0.0;
@@ -19,7 +19,7 @@ let schedulerTimer = null;
 const trackBuffers = new Array(NUM_TRACKS).fill(null);
 const trackMutes = new Array(NUM_TRACKS).fill(false);
 const trackSolos = new Array(NUM_TRACKS).fill(false);
-const trackVolumes = [0.8, 0.7, 0.7, 0.6]; // default volumes
+const trackVolumes = [0.8, 0.7, 0.7, 0.6, 0.7, 0.7, 0.75]; // default volumes
 
 // Grid State: 2D array [track][step]
 const gridState = Array.from({ length: NUM_TRACKS }, () => new Array(NUM_STEPS).fill(false));
@@ -100,13 +100,100 @@ function initAudio() {
 
 // --- SEQUENCER PLAYER ENGINE ---
 
-function playSample(buffer, time, trackIndex) {
-    if (!buffer) return;
+// MIDI to Frequency conversion
+function midiToFreq(midi) {
+    return 440 * Math.pow(2, (midi - 69) / 12);
+}
 
-    // Create play source
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
+// Strum G4, C4, E4, A4 for Ukulele chords
+const baseStringFreqs = [392.00, 261.63, 329.63, 440.00];
+const ukeChords = {
+    "C": [0, 0, 0, 3],
+    "G": [0, 2, 3, 2],
+    "Am": [2, 0, 0, 0],
+    "F": [2, 0, 1, 0],
+    "D": [2, 2, 2, 0],
+    "Em": [0, 4, 3, 2],
+    "A": [2, 1, 0, 0],
+    "Dm": [2, 2, 1, 0],
+    "G7": [0, 2, 1, 2],
+    "C7": [0, 0, 0, 1],
+    "Fmaj7": [2, 4, 1, 0]
+};
 
+// Play dynamic synthesizers for recorded tracks
+function playLiveSynthNote(trackIndex, stepIndex, time, gainNode) {
+    if (trackIndex === 4) {
+        // 🎹 Recorded Pianola
+        const seq = JSON.parse(localStorage.getItem('d9_recorded_pianola_sequence') || '[]');
+        const midi = seq[stepIndex];
+        if (!midi) return;
+        const freq = midiToFreq(midi);
+
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, time);
+
+        // Envelope
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(0.5, time + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, time + 0.5);
+
+        osc.connect(gainNode);
+        osc.start(time);
+        osc.stop(time + 0.55);
+    } else if (trackIndex === 5) {
+        // ⛪ Recorded Cathedral Organ
+        const seq = JSON.parse(localStorage.getItem('d9_recorded_organ_sequence') || '[]');
+        const midi = seq[stepIndex];
+        if (!midi) return;
+        const freq = midiToFreq(midi);
+
+        // Mix fundamental (Principal Stop) and octave stop
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, time);
+
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2.0, time); // Octave stop
+
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(0.4, time + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, time + 0.85);
+
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        osc1.start(time);
+        osc2.start(time);
+        osc1.stop(time + 0.9);
+        osc2.stop(time + 0.9);
+    } else if (trackIndex === 6) {
+        // 🎸 Recorded Ukulele Strum
+        const seq = JSON.parse(localStorage.getItem('d9_recorded_ukulele_sequence') || '[]');
+        const chord = seq[stepIndex];
+        if (!chord) return;
+        const frets = ukeChords[chord] || [0, 0, 0, 0];
+        const strumSpeed = 0.035;
+
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(0.6, time + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, time + 1.0);
+
+        for (let i = 0; i < 4; i++) {
+            const osc = audioCtx.createOscillator();
+            osc.type = 'triangle';
+            const stringFreq = baseStringFreqs[i] * Math.pow(2, frets[i] / 12);
+            osc.frequency.setValueAtTime(stringFreq, time + i * strumSpeed);
+
+            osc.connect(gainNode);
+            osc.start(time + i * strumSpeed);
+            osc.stop(time + 1.1);
+        }
+    }
+}
+
+function playSample(buffer, time, trackIndex, stepIndex) {
     // Route: Source -> Mute/Solo Gain -> Volume Gain -> Destination
     const trackGain = audioCtx.createGain();
     
@@ -115,18 +202,24 @@ function playSample(buffer, time, trackIndex) {
     if (trackMutes[trackIndex]) {
         activeVol = 0;
     }
-    // If there's any active solo, non-solo tracks are muted
     const anySoloActive = trackSolos.some(s => s);
     if (anySoloActive && !trackSolos[trackIndex]) {
         activeVol = 0;
     }
 
     trackGain.gain.setValueAtTime(activeVol, time);
-    
-    source.connect(trackGain);
     trackGain.connect(audioCtx.destination);
-    
-    source.start(time);
+
+    if (trackIndex < 4) {
+        if (!buffer) return;
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(trackGain);
+        source.start(time);
+    } else {
+        // Live synthesized tracks
+        playLiveSynthNote(trackIndex, stepIndex, time, trackGain);
+    }
 }
 
 // High-precision Scheduler
@@ -141,7 +234,7 @@ function scheduleNextStep(step, time) {
     // 1. Play active steps
     for (let track = 0; track < NUM_TRACKS; track++) {
         if (gridState[track][step]) {
-            playSample(trackBuffers[track], time, track);
+            playSample(trackBuffers[track], time, track, step);
         }
     }
 
@@ -269,7 +362,7 @@ function toggleStep(track, step, element) {
         element.classList.add('selected');
         // Play sample instantly as a feedback sound
         initAudio();
-        playSample(trackBuffers[track], audioCtx.currentTime, track);
+        playSample(trackBuffers[track], audioCtx.currentTime, track, step);
     } else {
         element.classList.remove('selected');
     }
@@ -277,8 +370,9 @@ function toggleStep(track, step, element) {
 
 // Setup file loaders
 function setupFileLoaders() {
-    for (let track = 0; track < NUM_TRACKS; track++) {
+    for (let track = 0; track < 4; track++) {
         const fileInput = document.getElementById(`fileInput-${track}`);
+        if (!fileInput) continue;
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -519,9 +613,51 @@ function writeString(view, offset, string) {
     }
 }
 
+function loadLiveSyncSequences() {
+    try {
+        // 1. Pianola
+        const pianolaSeq = JSON.parse(localStorage.getItem('d9_recorded_pianola_sequence') || '[]');
+        // 2. Organ
+        const organSeq = JSON.parse(localStorage.getItem('d9_recorded_organ_sequence') || '[]');
+        // 3. Ukulele
+        const ukeSeq = JSON.parse(localStorage.getItem('d9_recorded_ukulele_sequence') || '[]');
+
+        const pairs = [
+            { track: 4, seq: pianolaSeq },
+            { track: 5, seq: organSeq },
+            { track: 6, seq: ukeSeq }
+        ];
+
+        pairs.forEach(pair => {
+            const { track, seq } = pair;
+            for (let step = 0; step < 16; step++) {
+                const blockVal = (seq[step] !== null && seq[step] !== undefined);
+                gridState[track][step] = blockVal;
+                
+                // Highlight step block in UI
+                const block = document.querySelector(`.step-block[data-track="${track}"][data-step="${step}"]`);
+                if (block) {
+                    if (blockVal) {
+                        block.classList.add('selected');
+                    } else {
+                        block.classList.remove('selected');
+                    }
+                }
+            }
+        });
+        updateStatus("Synced recorded instrument tracks successfully!");
+    } catch (e) {
+        console.error("Error loading sync tracks:", e);
+    }
+}
+
 // Initialise
 createGrid();
 setupFileLoaders();
+loadLiveSyncSequences();
+
+// Re-sync recorded sequences whenever tab gains focus for live linking
+window.addEventListener('focus', loadLiveSyncSequences);
 
 // Trigger synthesizing default audio samples on click/interaction to satisfy browser security policies
 window.addEventListener('click', () => {

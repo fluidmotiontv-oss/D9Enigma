@@ -103,6 +103,11 @@ function pluckString(stringIndex, fret, delayTime = 0) {
 function strumActiveChord() {
     const frets = ukeChords[activeChord] || [0, 0, 0, 0];
     
+    // Loop Record
+    if (isRecording) {
+        recordedSequence[recordStep] = activeChord;
+    }
+
     // Strum from top string (G, index 0) to bottom string (A, index 3)
     const strumSpeed = 0.035; // 35ms delay between string plucks
     for (let i = 0; i < 4; i++) {
@@ -320,8 +325,10 @@ function startMetronome() {
     initAudio();
     isMetronomeRunning = true;
     currentBeat = 0;
-    metronomeToggle.textContent = "⏹️ Stop Metronome";
-    metronomeToggle.classList.add('active');
+    if (metronomeToggle) {
+        metronomeToggle.textContent = "⏹️ Stop Metronome";
+        metronomeToggle.classList.add('active');
+    }
     
     runMetronomeTick();
 }
@@ -332,8 +339,10 @@ function stopMetronome() {
         clearInterval(metronomeInterval);
         metronomeInterval = null;
     }
-    metronomeToggle.textContent = "🔊 Start Metronome";
-    metronomeToggle.classList.remove('active');
+    if (metronomeToggle) {
+        metronomeToggle.textContent = "🔊 Start Metronome";
+        metronomeToggle.classList.remove('active');
+    }
     
     // Reset visuals
     resetTimeline();
@@ -458,23 +467,18 @@ function transitionProgressionChord() {
 metronomeBpm.addEventListener('input', (e) => {
     bpm = parseInt(e.target.value);
     if (metronomeBpmVal) metronomeBpmVal.textContent = `${bpm} BPM`;
-    
-    // Dynamic tempo adjustment while running
-    if (isMetronomeRunning) {
-        clearInterval(metronomeInterval);
-        runMetronomeTick();
+    if (isRecording || isPlayingLoop) {
+        startRecordingLoop();
     }
 });
 
 // Event Triggers
-metronomeToggle.addEventListener('click', toggleMetronome);
 progressionToggle.addEventListener('click', toggleProgressionPractice);
 strumBtn.addEventListener('click', strumActiveChord);
 
 // Progression dropdown update
 progressionSelect.addEventListener('change', () => {
     if (isProgressionActive) {
-        // Deactivate active progression practice loop if sequence changes
         toggleProgressionPractice();
     }
 });
@@ -482,7 +486,123 @@ progressionSelect.addEventListener('change', () => {
 // Strum on fretboard click triggers
 fretSvg.addEventListener('click', strumActiveChord);
 
+// --- Loop Recorder & Metronome ---
+let isRecording = false;
+let isPlayingLoop = false;
+let recordStep = 0;
+let recordTimer = null;
+let recordedSequence = new Array(16).fill(null);
+
+const stepIndicator = document.getElementById('step-indicator');
+function generateSteps() {
+    stepIndicator.innerHTML = "";
+    for (let i = 0; i < 16; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'step-dot';
+        stepIndicator.appendChild(dot);
+    }
+}
+
+function playMetronomeClick(accented) {
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.frequency.setValueAtTime(accented ? 900 : 500, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.06);
+}
+
+function startRecordingLoop() {
+    initAudio();
+    clearInterval(recordTimer);
+    
+    const stepTime = (60 / bpm) * 1000 / 2; // eighth notes
+    
+    recordTimer = setInterval(() => {
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => d.classList.remove('active', 'recording-active'));
+        
+        if (dots[recordStep]) {
+            dots[recordStep].classList.add(isRecording ? 'recording-active' : 'active');
+        }
+
+        if (isRecording && recordStep % 2 === 0) {
+            playMetronomeClick(recordStep === 0);
+        }
+
+        if (isPlayingLoop || isRecording) {
+            const recordedChord = recordedSequence[recordStep];
+            if (recordedChord) {
+                // Strum the recorded chord
+                const frets = ukeChords[recordedChord] || [0, 0, 0, 0];
+                const strumSpeed = 0.035;
+                for (let i = 0; i < 4; i++) {
+                    pluckString(i, frets[i], i * strumSpeed);
+                }
+                
+                // Highlight the chord button visually during playback if visible
+                const btn = document.querySelector(`.chord-btn[data-chord="${recordedChord}"]`);
+                if (btn) {
+                    btn.classList.add('active');
+                    setTimeout(() => btn.classList.remove('active'), stepTime - 20);
+                }
+            }
+        }
+
+        recordStep = (recordStep + 1) % 16;
+    }, stepTime);
+}
+
+const recordBtn = document.getElementById('btn-record-toggle');
+const playBtn = document.getElementById('btn-play-toggle');
+
+recordBtn.addEventListener('click', () => {
+    isRecording = !isRecording;
+    if (isRecording) {
+        isPlayingLoop = false;
+        recordedSequence.fill(null);
+        recordStep = 0;
+        recordBtn.textContent = '⏹️ Stop';
+        recordBtn.style.background = '#ff0055';
+        playBtn.disabled = true;
+        startRecordingLoop();
+    } else {
+        recordBtn.textContent = '🔴 Record';
+        recordBtn.style.background = 'rgba(255,0,85,0.08)';
+        playBtn.disabled = false;
+        clearInterval(recordTimer);
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => d.classList.remove('active', 'recording-active'));
+        
+        localStorage.setItem('d9_recorded_ukulele_sequence', JSON.stringify(recordedSequence));
+        console.log("Saved live Ukulele recorded track:", recordedSequence);
+    }
+});
+
+playBtn.addEventListener('click', () => {
+    isPlayingLoop = !isPlayingLoop;
+    if (isPlayingLoop) {
+        isRecording = false;
+        recordStep = 0;
+        playBtn.textContent = '⏹️ Stop';
+        startRecordingLoop();
+    } else {
+        playBtn.textContent = '▶ Play';
+        clearInterval(recordTimer);
+        const dots = document.querySelectorAll('.step-dot');
+        dots.forEach(d => d.classList.remove('active', 'recording-active'));
+    }
+});
+
 // Render initial state
 renderFretboard();
 renderChordButtons();
 resetTimeline();
+generateSteps();

@@ -298,6 +298,43 @@
             0%, 100% { opacity: 0.3; transform: scale(0.9); }
             50% { opacity: 1; transform: scale(1.15); }
         }
+
+        /* Fullscreen styles */
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1.5px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.3s;
+            z-index: 20;
+            text-transform: uppercase;
+        }
+        .fullscreen-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .canvas-container.fullscreen-mode {
+            position: fixed !important;
+            top: 0; left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            background: #020205 !important;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -345,6 +382,10 @@
                 ⏱️ Dragon 9 Time Sync <span id="sync-status">ON</span>
             </button>
 
+            <button class="toggle-btn" id="mascot-toggle" onclick="toggleMascot()">
+                👾 Plasma Mascot Sparks <span id="mascot-status">OFF</span>
+            </button>
+
             <div style="font-family:'Share Tech Mono'; font-size:0.6rem; color:var(--text-muted); line-height: 1.4; border: 1px dashed rgba(255,255,255,0.06); padding: 10px; border-radius: 6px; margin-top: 10px;">
                 <span style="color:var(--accent);">INFO:</span> Charged plasma responds to electromagnetic fields. Toggle the Magnetic Steer to curl filaments into containment spirals.
             </div>
@@ -356,6 +397,7 @@
                 <div class="sync-dot" id="indicator-dot"></div>
                 <span id="indicator-text">D9 CLOCK: ACTIVE (FOCUS)</span>
             </div>
+            <button id="fullscreen-toggle" class="fullscreen-btn" onclick="toggleFullscreen()">📺 Fullscreen</button>
             <canvas id="plasma-canvas"></canvas>
         </div>
 
@@ -416,7 +458,8 @@
             emf: false,
             clockSync: true,
             audioSync: false,
-            audioLevel: 0
+            audioLevel: 0,
+            mascot: false
         };
 
         // Presets configuration
@@ -439,10 +482,13 @@
         let oscGain = null;
         let audioDataArray = null;
 
-        // Auto-sizing
+        // Auto-sizing & Fullscreen Mode State
+        let isFullscreen = false;
+
         function resizeCanvas() {
             const container = canvas.parentElement;
-            const size = Math.min(container.clientWidth - 60, container.clientHeight - 60, 500);
+            const maxVal = isFullscreen ? 1200 : 500;
+            const size = Math.min(container.clientWidth - 40, container.clientHeight - 40, maxVal);
             canvas.width = size;
             canvas.height = size;
             sphere.x = size / 2;
@@ -450,6 +496,36 @@
             sphere.radius = size * 0.44;
             sphere.innerRadius = size * 0.06;
         }
+
+        function toggleFullscreen() {
+            const container = document.querySelector('.canvas-container');
+            isFullscreen = !isFullscreen;
+
+            if (isFullscreen) {
+                container.classList.add('fullscreen-mode');
+                document.getElementById('fullscreen-toggle').textContent = "📺 Normal";
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(() => {});
+                }
+            } else {
+                container.classList.remove('fullscreen-mode');
+                document.getElementById('fullscreen-toggle').textContent = "📺 Fullscreen";
+                if (document.exitFullscreen && document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+            setTimeout(resizeCanvas, 60);
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const container = document.querySelector('.canvas-container');
+            if (!document.fullscreenElement) {
+                isFullscreen = false;
+                container.classList.remove('fullscreen-mode');
+                document.getElementById('fullscreen-toggle').textContent = "📺 Fullscreen";
+                resizeCanvas();
+            }
+        });
 
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -526,6 +602,13 @@
             btn.classList.toggle('active', params.clockSync);
             document.getElementById('sync-status').innerText = params.clockSync ? 'ON' : 'OFF';
             document.getElementById('clock-indicator').style.display = params.clockSync ? 'flex' : 'none';
+        }
+
+        function toggleMascot() {
+            params.mascot = !params.mascot;
+            const btn = document.getElementById('mascot-toggle');
+            btn.classList.toggle('active', params.mascot);
+            document.getElementById('mascot-status').innerText = params.mascot ? 'ON' : 'OFF';
         }
 
         // D9 Clock checks

@@ -415,6 +415,79 @@
             top: auto;
             bottom: 30px;
         }
+
+        /* Loop Recorder Panel Styles */
+        .record-panel {
+            background: rgba(255, 0, 85, 0.03);
+            border: 1px solid rgba(255, 0, 85, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .record-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .record-btn {
+            flex: 1;
+            background: rgba(255, 0, 85, 0.08);
+            border: 1px solid #ff0055;
+            color: #fff;
+            padding: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .record-btn:hover {
+            background: #ff0055;
+            box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
+        }
+
+        .record-btn.recording {
+            animation: pulse-record 1s infinite alternate;
+        }
+
+        @keyframes pulse-record {
+            0% { background: rgba(255, 0, 85, 0.2); box-shadow: 0 0 4px rgba(255, 0, 85, 0.2); }
+            100% { background: rgba(255, 0, 85, 0.5); box-shadow: 0 0 15px rgba(255, 0, 85, 0.6); }
+        }
+
+        .record-step-indicator {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 3px;
+            margin-top: 4px;
+        }
+
+        .step-dot {
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+        }
+
+        .step-dot.active {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 6px var(--accent-cyan);
+        }
+
+        .step-dot.recording-active {
+            background: #ff0055;
+            box-shadow: 0 0 6px #ff0055;
+        }
     </style>
 </head>
 <body>
@@ -497,6 +570,24 @@
                 
                 <label>Wet Mix <span id="delayMixVal">0.2</span></label>
                 <input type="range" id="delayMix" class="slider-input" min="0" max="1" step="0.01" value="0.2">
+            </div>
+
+            <!-- Loop Recorder -->
+            <div class="control-group" style="margin-top: 15px;">
+                <h2 class="panel-title">🔴 Metronome & Record</h2>
+                <div class="record-panel">
+                    <label>Metronome BPM <span id="tempoVal">120</span></label>
+                    <input type="range" id="recordTempo" class="slider-input" min="60" max="200" step="1" value="120">
+                    
+                    <div class="record-buttons">
+                        <button class="record-btn" id="btn-record-toggle">🔴 Record</button>
+                        <button class="record-btn" id="btn-play-toggle" style="border-color:var(--accent-cyan); background:rgba(0,229,255,0.08);">▶ Play</button>
+                    </div>
+                    
+                    <div class="record-step-indicator" id="step-indicator">
+                        <!-- 16 dots -->
+                    </div>
+                </div>
             </div>
 
             <!-- MIDI Module status card -->
