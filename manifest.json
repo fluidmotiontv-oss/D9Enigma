@@ -1,0 +1,26 @@
+{
+  "short_name": "Synchronise",
+  "name": "Sovereign Sanctuary - My Inheritance",
+  "description": "Visualizing the decoupling of terrestrial perception with the fluid motion of the future.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "./",
+  "categories": ["music", "utilities"]
+}

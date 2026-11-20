@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Sovereign Accountant</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020205;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --highlight: #00e5ff;
+            --highlight-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6b5c82;
+            --card-bg: rgba(10, 10, 15, 0.7);
+            --border-color: rgba(0, 229, 255, 0.15);
+            --red: #ff0055;
+            --red-glow: rgba(255, 0, 85, 0.25);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            z-index: 1;
+            background-size: 100% 4px, 30px 30px, 30px 30px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(5, 5, 8, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 25px var(--highlight-glow);
+            position: relative;
+        }
+
+        .hub-switch-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .hub-switch-link:hover {
+            border-color: var(--highlight);
+            color: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px var(--highlight-glow);
+        }
+
+        .header-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Balance Cards */
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .balance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .balance-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .balance-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .balance-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        /* Tabs Navigation */
+        .tabs-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            border-color: var(--highlight);
+            color: #fff;
+            background: rgba(0, 229, 255, 0.05);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        .tab-panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Form styling */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+        }
+
+        .form-input {
+            background: rgba(0,0,0,0.5);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-transform: uppercase;
+            border: 1.5px solid var(--border-color);
+            background: transparent;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            border-color: var(--highlight);
+            background: rgba(0, 229, 255, 0.08);
+        }
+
+        .btn-primary:hover {
+            background: var(--highlight);
+            color: #000;
+            box-shadow: 0 0 15px var(--highlight-glow);
+        }
+
+        /* Table Styling */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        th {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            border-bottom: 2px solid rgba(255,255,255,0.08);
+            padding: 12px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.85);
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.01);
+            color: #fff;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn:hover {
+            text-shadow: 0 0 8px var(--red-glow);
+        }
+
+        /* Timecard Matrix Layout */
+        .timecard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .timecard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Systems Gate Authorization Overlay -->
+    <div id="systemsGateOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #020205; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; font-family: 'Orbitron', sans-serif; color: #fff;">
+        <span style="font-size: 4rem; filter: drop-shadow(0 0 15px rgba(255, 0, 85, 0.4));">🔒</span>
+        <h2 style="letter-spacing: 3px; color: #ff0055;">SECURE ACCESS RESTRICTED</h2>
+        <p style="font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #8c85a3; max-width: 400px; text-align: center; line-height: 1.5;">This node is decoupled. You must authenticate at the Systems Console to activate this interface.</p>
+        <a href="../systems.html" style="padding: 12px 24px; border: 1.5px solid #00e5ff; background: rgba(0, 229, 255, 0.08); color: #fff; text-decoration: none; border-radius: 8px; font-size: 0.8rem; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; box-shadow: 0 0 15px rgba(0, 229, 255, 0.25); transition: all 0.3s;">🔑 Authenticate Hub</a>
+    </div>
+
+    <script>
+        (function() {
+            if (sessionStorage.getItem('systems_auth') === 'granted') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const gate = document.getElementById('systemsGateOverlay');
+                    if (gate) gate.style.display = 'none';
+                });
+            } else {
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+        })();
+    </script>
+
+    <div class="container">
+        <header>
+            <a href="../systems.html" class="hub-switch-link">🌌 Systems Hub</a>
+            <h1 class="header-title">Sovereign Accountant</h1>
+            <p class="header-subtitle">Double-entry bookkeeping, barter trades, and work credits</p>
+        </header>
+
+        <!-- Balance Metrics Grid -->
+        <div class="balance-grid">
+            <div class="balance-card">
+                <div class="balance-label">Cash Reserves</div>
+                <div id="metric-cash" class="balance-val">$0.00</div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-label">Barter Assets</div>
+                <div id="metric-barter" class="balance-val">0 Units</div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-label">Harmony Notes</div>
+                <div id="metric-notes" class="balance-val">0.00 HN</div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-label">Liabilities</div>
+                <div id="metric-liabilities" class="balance-val" style="color:var(--red);">$0.00</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs-bar">
+            <button class="tab-btn active" data-tab="ledger">📝 Ledger</button>
+            <button class="tab-btn" data-tab="barter">🔄 Barter swaps</button>
+            <button class="tab-btn" data-tab="timecard">⏱️ Timecard</button>
+            <button class="tab-btn" data-tab="settings">⚙️ backup/import</button>
+        </div>
+
+        <!-- Panel 1: Ledger -->
+        <div class="tab-panel active" id="panel-ledger">
+            <h3 style="font-family:'Orbitron',sans-serif; font-size:1.1rem; margin-bottom: 20px;">Standard Transaction Input</h3>
+            <form id="ledger-form" onsubmit="addTransaction(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="tx-desc">Description</label>
+                        <input type="text" id="tx-desc" class="form-input" placeholder="e.g. Sold pre-tuned Kawakawa starts" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tx-type">Transaction Type</label>
+                        <select id="tx-type" class="form-input" style="background:#000;" required>
+                            <option value="income">Income (+ Cash)</option>
+                            <option value="expense">Expense (- Cash)</option>
+                            <option value="asset">Asset Acquisition (+ Equity)</option>
+                            <option value="liability">Liability (+ Debt)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tx-amount">Amount (USD/NZD)</label>
+                        <input type="number" step="0.01" min="0.01" id="tx-amount" class="form-input" placeholder="0.00" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">➕ Post Transaction</button>
+            </form>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-table-body">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel 2: Barter Swaps -->
+        <div class="tab-panel" id="panel-barter">
+            <h3 style="font-family:'Orbitron',sans-serif; font-size:1.1rem; margin-bottom: 20px;">Non-Monetary Swap Trade Ledger</h3>
+            <form id="barter-form" onsubmit="addBarter(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="bt-party">Counterparty Node</label>
+                        <input type="text" id="bt-party" class="form-input" placeholder="e.g. Northland Permaculture Node" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="bt-give">What you offered (Asset/Service)</label>
+                        <input type="text" id="bt-give" class="form-input" placeholder="e.g. 3 Hours arborist pruning" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="bt-take">What you received (Asset/Service)</label>
+                        <input type="text" id="bt-take" class="form-input" placeholder="e.g. 2 Seed Trays of Māori Kūmara" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">🔄 Log Barter Swap</button>
+            </form>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Counterparty</th>
+                            <th>Offered</th>
+                            <th>Received</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="barter-table-body">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel 3: Temporal Timecard -->
+        <div class="tab-panel" id="panel-timecard">
+            <div class="timecard-grid">
+                <div>
+                    <h3 style="font-family:'Orbitron',sans-serif; font-size:1.1rem; margin-bottom: 20px;">Temporal Hour Credit Calculator</h3>
+                    <p style="font-size: 0.75rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 20px;">
+                        Convert metric work blocks into Harmony Notes credits. Under the Dragon 9 model, a work cycle is exactly **54 minutes**. Every completed cycle credits **10 Harmony Notes (HN)**.
+                    </p>
+                    <form id="timecard-form" onsubmit="calculateHours(event)">
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label" for="tc-task">Development / Creative Task</label>
+                            <input type="text" id="tc-task" class="form-input" placeholder="e.g. Coding steps sequencer offline context" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label" for="tc-blocks">Completed Work Blocks (54m each)</label>
+                            <input type="number" min="1" id="tc-blocks" class="form-input" placeholder="e.g. 5" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">⏱️ Credit Temporal Notes</button>
+                    </form>
+                </div>
+                <div>
+                    <h3 style="font-family:'Orbitron',sans-serif; font-size:1.1rem; margin-bottom: 20px;">Temporal Log Index</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Blocks</th>
+                                    <th>Credits</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timecard-table-body">
+                                <!-- Filled dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 4: Backup/Restore Settings -->
+        <div class="tab-panel" id="panel-settings">
+            <h3 style="font-family:'Orbitron',sans-serif; font-size:1.1rem; margin-bottom: 20px;">Ledger Security &amp; Fluid Crate Backup</h3>
+            <p style="font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 30px;">
+                Since Dragon 9 operates offline-first, your financial registers are saved locally on this browser sandbox. Download backups to copy them into your physical archive drive or Fluid Crate vault.
+            </p>
+
+            <div style="display:flex; gap:15px;">
+                <button onclick="exportData()" class="btn btn-primary">📥 Export Ledger Data (.json)</button>
+                <label for="import-file" class="btn" style="border-color:var(--accent); background:rgba(212,175,55,0.06); cursor:pointer;">
+                    📤 Import Ledger Data (.json)
+                    <input type="file" id="import-file" style="display:none;" onchange="importData(event)">
+                </label>
+                <button onclick="clearAllData()" class="btn" style="border-color:var(--red); color:var(--red); background:rgba(255,0,85,0.05);">⚠️ Reset Ledger</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+            });
+        });
+
+        // Store ledger state
+        let ledger = JSON.parse(localStorage.getItem('d9_ledger')) || {
+            transactions: [],
+            barters: [],
+            timecards: []
+        };
+
+        function saveData() {
+            localStorage.setItem('d9_ledger', JSON.stringify(ledger));
+            renderAll();
+        }
+
+        function renderAll() {
+            renderMetrics();
+            renderLedgerTable();
+            renderBarterTable();
+            renderTimecardTable();
+        }
+
+        function renderMetrics() {
+            let cash = 0;
+            let liabilities = 0;
+            let notes = 0;
+
+            ledger.transactions.forEach(tx => {
+                if (tx.type === 'income') cash += tx.amount;
+                if (tx.type === 'expense') cash -= tx.amount;
+                if (tx.type === 'liability') liabilities += tx.amount;
+            });
+
+            ledger.timecards.forEach(tc => {
+                notes += tc.credits;
+            });
+
+            document.getElementById('metric-cash').textContent = `$${cash.toFixed(2)}`;
+            document.getElementById('metric-barter').textContent = `${ledger.barters.length} Swaps`;
+            document.getElementById('metric-notes').textContent = `${notes.toFixed(2)} HN`;
+            document.getElementById('metric-liabilities').textContent = `$${liabilities.toFixed(2)}`;
+        }
+
+        function renderLedgerTable() {
+            const body = document.getElementById('ledger-table-body');
+            body.innerHTML = '';
+            ledger.transactions.forEach((tx, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:var(--text-muted); font-size:0.7rem;">${tx.date}</td>
+                    <td>${tx.desc}</td>
+                    <td style="text-transform:uppercase; font-weight:bold; color:${tx.type==='income'?'var(--highlight)':tx.type==='expense'?'var(--red)':'var(--accent)'}">${tx.type}</td>
+                    <td>$${tx.amount.toFixed(2)}</td>
+                    <td><button onclick="deleteTx(${idx})" class="delete-btn">DEL</button></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderBarterTable() {
+            const body = document.getElementById('barter-table-body');
+            body.innerHTML = '';
+            ledger.barters.forEach((bt, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:var(--text-muted); font-size:0.7rem;">${bt.date}</td>
+                    <td>${bt.party}</td>
+                    <td style="color:var(--accent);">${bt.give}</td>
+                    <td style="color:var(--highlight);">${bt.take}</td>
+                    <td><button onclick="deleteBarter(${idx})" class="delete-btn">DEL</button></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderTimecardTable() {
+            const body = document.getElementById('timecard-table-body');
+            body.innerHTML = '';
+            ledger.timecards.forEach((tc, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${tc.task}</td>
+                    <td>${tc.blocks}</td>
+                    <td style="color:var(--highlight); font-weight:bold;">${tc.credits} HN</td>
+                    <td><button onclick="deleteTimecard(${idx})" class="delete-btn">DEL</button></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // Inputs
+        function addTransaction(e) {
+            e.preventDefault();
+            const desc = document.getElementById('tx-desc').value;
+            const type = document.getElementById('tx-type').value;
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+
+            ledger.transactions.push({
+                date: new Date().toLocaleString(),
+                desc,
+                type,
+                amount
+            });
+
+            document.getElementById('ledger-form').reset();
+            saveData();
+        }
+
+        function addBarter(e) {
+            e.preventDefault();
+            const party = document.getElementById('bt-party').value;
+            const give = document.getElementById('bt-give').value;
+            const take = document.getElementById('bt-take').value;
+
+            ledger.barters.push({
+                date: new Date().toLocaleString(),
+                party,
+                give,
+                take
+            });
+
+            document.getElementById('barter-form').reset();
+            saveData();
+        }
+
+        function calculateHours(e) {
+            e.preventDefault();
+            const task = document.getElementById('tc-task').value;
+            const blocks = parseInt(document.getElementById('tc-blocks').value);
+            const credits = blocks * 10; // 10 HN per block
+
+            ledger.timecards.push({
+                task,
+                blocks,
+                credits
+            });
+
+            document.getElementById('timecard-form').reset();
+            saveData();
+        }
+
+        // Deletions
+        function deleteTx(idx) {
+            ledger.transactions.splice(idx, 1);
+            saveData();
+        }
+
+        function deleteBarter(idx) {
+            ledger.barters.splice(idx, 1);
+            saveData();
+        }
+
+        function deleteTimecard(idx) {
+            ledger.timecards.splice(idx, 1);
+            saveData();
+        }
+
+        // Settings / Export / Import
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ledger, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `dragon9_sovereign_ledger_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    if (imported.transactions && imported.barters && imported.timecards) {
+                        ledger = imported;
+                        saveData();
+                        alert("Sovereign Ledger imported successfully!");
+                    } else {
+                        alert("Invalid file format. Import rejected.");
+                    }
+                } catch (err) {
+                    alert("Error parsing JSON file.");
+                }
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        function clearAllData() {
+            if (confirm("⚠️ CAUTION: Are you sure you want to reset all ledger entries? This action is irreversible.")) {
+                ledger = { transactions: [], barters: [], timecards: [] };
+                saveData();
+            }
+        }
+
+        // Initial render
+        renderAll();
+    </script>
+</body>
+</html>

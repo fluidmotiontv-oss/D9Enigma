@@ -1,0 +1,336 @@
+{
+  "project": {
+    "name": "The Fluid Motion of the Future",
+    "description": "Visualizing the decoupling of terrestrial perception.",
+    "repository": "https://github.com/fluidmotiontv-oss/Fluidmotiontv-clock",
+    "manifest_sync_link": "https://www.facebook.com/share/p/19A7yZHZCF/",
+    "phase": "Sovereign Phase Catalyst",
+    "core_mission": "A standalone independent digital enigma to shield and nurture; spreading a true stable instrument for harmonious creations and creators with positive results and generous opportunities for all."
+  },
+  "dev_environment": {
+    "local_server_command": "python3 vdo_backend.py",
+    "local_url": "http://localhost:8000",
+    "tuner_url": "http://localhost:8000/tuner/",
+    "fabric_server_command": "python3 nodefabric/fabric_server.py",
+    "fabric_tcp_port": 9099,
+    "fabric_ws_port": 9100
+  },
+  "temporal_architecture": {
+    "system_name": "Dragon 9",
+    "rules": [
+      "54-minute hours",
+      "26.66-hour days (split into two 13-hour halves)",
+      "18-minute relax periods centered exactly at standard midday and midnight positions"
+    ],
+    "constants": {
+      "HOURS_PER_HALF": 13,
+      "MIN_PER_HOUR": 54,
+      "SEC_PER_HOUR": 3240,
+      "RELAX_WINDOW_SEC": 540,
+      "MIDDAY_SEC": 43200,
+      "DAY_END_SEC": 86400
+    },
+    "calculation_rules": {
+      "first_half_active_window": "From 540 to 42660 standard seconds",
+      "second_half_active_window": "From 43740 to 85860 standard seconds",
+      "relax_windows": [
+        "Midnight/Start of Day: 0 to 540 standard seconds",
+        "Midday: 43200 - 540 to 43200 + 540 standard seconds",
+        "Midnight/End of Day: 86400 - 540 to 86400 standard seconds"
+      ]
+    }
+  },
+  "workspace_components": {
+    "nexus_portal": {
+      "file": "index.html",
+      "logic": "scripts/app.js",
+      "assistant": "scripts/night_fish_assistant.js",
+      "description": "A 3D glassmorphic cybernetic portal displaying a Lunar Calendar grid with auto-adjusting color hues and an interactive assistant."
+    },
+    "sovereign_flow": {
+      "file": "sovereign-flow.html",
+      "description": "An entrance page displaying the 26.66-hour clock and the Apex Null Point navigation dial."
+    },
+    "fluidric_spillarkuwaii": {
+      "file": "lotus-spinner.html",
+      "description": "A 3D synesthetic lotus piano fidget instrument with multi-track loops, sample upload, audio-visualizer, and neon striker wands."
+    },
+    "video_forensics": {
+      "file": "vdo4n6/index.html",
+      "logic": "vdo4n6/script.js",
+      "backend": "vdo_backend.py",
+      "description": "Scrapes and manages video reels under the #fluidmotiontv portfolio."
+    },
+    "synesthetic_tuner": {
+      "file": "tuner/index.html",
+      "logic": "tuner/script.js",
+      "description": "A high-precision Web Audio-based Guitar Tuner & Frequency Reader/Generator featuring sub-Hz autocorrelation pitch detection and neon visualizers."
+    },
+    "resonance_shop": {
+      "file": "shop.html",
+      "description": "A replicated 3D cybernetic portal showing the Lunar Calendar grid, acting as a portal for supporting app development via tips and Koha."
+    },
+    "synesthetic_pianola": {
+      "file": "pianola/index.html",
+      "logic": "pianola/script.js",
+      "landing": "sound.html#pianola",
+      "description": "A synthesized digital pianola and MIDI keyboard featuring multi-waveform ADSR envelopes, lowpass resonance filters, space delay, and plug-and-play USB MIDI support."
+    },
+    "ukulele_instructor": {
+      "file": "ukulele/index.html",
+      "logic": "ukulele/script.js",
+      "landing": "sound.html#ukulele",
+      "description": "An interactive ukulele fretboard visualizer and rhythm progression guide with synthesized string modeling plucks/strums and tempo-metronome synchronization."
+    },
+    "creative_hub": {
+      "file": "creative.html",
+      "description": "A curated apps directory showing only creative tools (music, art, and gardens) for public visitors and artists."
+    },
+    "systems_hub": {
+      "file": "systems.html",
+      "description": "A separate tech console showing operational tools (bridges, torrent exchange, video forensics, and shell modules) for developers."
+    },
+    "sovereign_sequencer": {
+      "file": "sequencer/index.html",
+      "logic": "sequencer/script.js",
+      "landing": "sound.html#sequencer",
+      "description": "An offline multi-track song compiler and step sequencer with pre-synthesized creative loops, custom audio loading, individual track mutes/solos/volume mixing, and client-side WAV export."
+    },
+    "sovereign_plasma": {
+      "file": "plasma/index.html",
+      "description": "An interactive 3D/2D plasma globe filament sandbox featuring Midpoint Displacement fractal lightning math, simulated magnetic EMF steering, and audio frequency/tone sync."
+    },
+    "sovereign_portal": {
+      "file": "portal/index.html",
+      "description": "The Sovereign Community Portal and Resonant Gallery hosting the 'Be Your Light' video, managing Harmony Note transactions, 90/10 artist split payouts, advertiser promoted flows, and user content submissions."
+    },
+    "sitemap": {
+      "file": "sitemap.html",
+      "pdf": "sitemap.pdf",
+      "description": "A print-friendly accessible layout map of the entire Dragon 9 directory hierarchy and sub-applications structure."
+    },
+    "sovereign_accountant": {
+      "file": "accountant/index.html",
+      "description": "An offline-first double-entry ledger balancing Cash Reserves, Barter Swaps, and Harmony Note credits timed to the 54-minute hour model."
+    },
+    "sovereign_surf": {
+      "file": "surf/index.html",
+      "description": "An offline-resilient marine dashboard displaying tide graphs, wind vectors, swell metrics, and weather calendars with precise geolocation lookup."
+    },
+    "sovereign_wave_rider": {
+      "file": "infinity-racer/index.html",
+      "logic": "infinity-racer/script.js",
+      "description": "3D Lemniscate Wave Rider game riding a 3D ocean wave barrel in Three.js, alongside an offline 2D Drift Frequency wave carving canvas game (surf/game/index.html) and responsive mobile controls."
+    }
+  },
+  "recorded_efforts": [
+    {
+      "timestamp": "2026-07-11T16:35:00+12:00",
+      "summary": "Created structured JSON memory file (memory.json) outlining the Dragon 9 clock, project components, and temporal parameters to streamline future development."
+    },
+    {
+      "timestamp": "2026-07-11T16:41:00+12:00",
+      "summary": "Optimized PWA for Google Play Store (TWA) compliance by adding service worker registration, static file caching, manifest properties, placeholder icons, and assetlinks.json configuration."
+    },
+    {
+      "timestamp": "2026-07-11T16:56:00+12:00",
+      "summary": "Built a brand new high-precision Guitar Tuner and Frequency Generator/Reader utility inside the tuner/ directory utilizing custom Web Audio autocorrelation and lowpass filtering."
+    },
+    {
+      "timestamp": "2026-07-11T17:03:00+12:00",
+      "summary": "Started background Python HTTP server (python3 -m http.server 8000) for local testing and mapped the configuration inside memory.json."
+    },
+    {
+      "timestamp": "2026-07-11T17:15:00+12:00",
+      "summary": "Added the Tuner node link (🎸 TUNER) to the interactive 3D apps list in the central index.html Nexus homepage."
+    },
+    {
+      "timestamp": "2026-07-11T17:43:00+12:00",
+      "summary": "Expanded the Tuner Frequency Generator range from 2 kHz to 22 kHz and added a dedicated '🐾 DOG' high-frequency preset (21 kHz) for dog whistle capabilities."
+    },
+    {
+      "timestamp": "2026-07-13T12:35:00+12:00",
+      "summary": "Created 5 new glassmorphic landing pages, redesigned apps.html to focus on 9 Music & Art apps with PayPal donation banner integration, and implemented an interactive 'About & Thanks' holographic narrative and animation in the Night Fish assistant."
+    },
+    {
+      "timestamp": "2026-07-13T13:00:00+12:00",
+      "summary": "Anonymized the operator name to Timothy Dwen, configured the business PayPal email address (fluidmotion.tv@gmail.com) in apps.html, and removed the summon asset button from the Night Fish cognition panel."
+    },
+    {
+      "timestamp": "2026-07-13T15:05:00+12:00",
+      "summary": "Updated PayPal donation flows: switched apps.html to use the official cmd=_donations command instead of cmd=_xclick, and unified the hardcoded links in pyro-drummer/index.html and landing-page/lotus-spinner.html to target fluidmotion.tv@gmail.com."
+    },
+    {
+      "timestamp": "2026-07-13T15:43:00+12:00",
+      "summary": "Resolved nonprofit restriction issue on PayPal links by switching from cmd=_donations to cmd=_xclick. Added a custom prompt dialog on click to let users enter a Koha/donation amount (USD) before redirecting to PayPal."
+    },
+    {
+      "timestamp": "2026-07-13T15:46:00+12:00",
+      "summary": "Added the custom Support Koha button to all 13 app landing pages inside the .cta-buttons wrapper, enabling direct and easy supporting/tipping across the entire site ecosystem."
+    },
+    {
+      "timestamp": "2026-07-13T16:05:00+12:00",
+      "summary": "Replaced 'Upgrade to PRO' elements with 'Koha / Donate' labels in pyro-drummer/index.html and landing-page/lotus-spinner.html. Renamed header buttons, modal titles, and unlock success notification banners to refer to Donor Sessions and Koha instead of commercial upgrades."
+    },
+    {
+      "timestamp": "2026-07-13T18:05:00+12:00",
+      "summary": "Replicated the main 3D home portal into a dedicated shop interface (shop.html), mapping the 3D rotating app nodes to their respective Koha/landing pages, and integrated SHOP and HOME nav buttons."
+    },
+    {
+      "timestamp": "2026-07-13T18:30:00+12:00",
+      "summary": "Built the brand new Synesthetic Pianola (synthesizer keyboard with player piano roll and Web MIDI USB sync) and Sovereign Ukulele Instructor (fretboard finger positions, pluck/strum simulator, metronome tempo sync, and progression tutorial guides), and integrated them across the App Store, 3D home portal, shop portal, and horizontal nav headers."
+    },
+    {
+      "timestamp": "2026-07-13T18:45:00+12:00",
+      "summary": "Split the main app dashboard into two separate curated portfolios: creative.html (Creative Suite for public artists/musicians) and systems.html (Systems Suite for developers/operators). Overwrote apps.html to act as a futuristic Portal Gateway selector, and updated navigation cross-links in all 12 sub-apps."
+    },
+    {
+      "timestamp": "2026-07-13T19:05:00+12:00",
+      "summary": "Built the brand new Sovereign Sequencer (multi-track step sequencer & offline song compiler with WAV downloader), integrated it into creative.html app store, rotating carousels, and updated horizontal header menus across all sub-apps."
+    },
+    {
+      "timestamp": "2026-07-13T19:25:00+12:00",
+      "summary": "Restructured creative suite into synesthetic sensory themes (Sound, Vision, Senses/Nature). Consolidated 9 individual landing pages into unified sensory portals (sound.html, vision.html, nature.html) with PayPal Koha prompts, updating creative.html and carousel nodes."
+    },
+    {
+      "timestamp": "2026-07-13T19:40:00+12:00",
+      "summary": "Resolved PWA caching issues by incrementing the service worker cache to fluidmotion-v5, and generated a print-friendly sitemap.html which was converted into a downloadable sitemap.pdf using headless LibreOffice."
+    },
+    {
+      "timestamp": "2026-07-13T19:55:00+12:00",
+      "summary": "Implemented secure cryptographic passcode prompt gate overlay on systems.html with custom slide-up CSS and session storage, and dispersed prominent Koha donation buttons across apps.html, creative.html, systems.html, and sitemap.html/pdf."
+    },
+    {
+      "timestamp": "2026-07-13T22:45:00+12:00",
+      "summary": "Restricted direct deep-link access to all 9 Systems Console operational sub-applications (Bridge, Exchange, Forensics, Fabric, Shield, Grid, Editor, Dial Clock, Radio, and Triage) by injecting a frontend authorization gate checking session storage."
+    },
+    {
+      "timestamp": "2026-07-14T01:00:00+12:00",
+      "summary": "Initiated strategic expansion module: drafted fundraising_marketing_plan.md outlining the Sovereign Contributor Model and modular_business_plan_template.md detailing off-grid local node launching procedures."
+    },
+    {
+      "timestamp": "2026-07-14T01:10:00+12:00",
+      "summary": "Designed a customizable Lotus Garden & Tree Service business plan template (lotus_garden_tree_service_business_plan.md), integrating it as an interactive Enterprise tab inside the garden app."
+    },
+    {
+      "timestamp": "2026-07-14T01:25:00+12:00",
+      "summary": "Built the brand-new Sovereign Accountant app (accountant/index.html) enabling offline double-entry bookkeeping (fiat, barter shares, and work timecard logging), protected by systems auth gate, and registered it in sitemap and systems console."
+    },
+    {
+      "timestamp": "2026-07-14T01:30:00+12:00",
+      "summary": "Built the Sovereign Surf & Tide app (surf/index.html) integrating live marine APIs, geolocation lookup, and offline lunar-tide simulations, and linked it inside nature.html, creative.html, and sitemap."
+    },
+    {
+      "timestamp": "2026-07-14T01:45:00+12:00",
+      "summary": "Upgraded Humble Bee assistant in garden app with an animated SVG hover & wing-flap avatar, clickable suggestions cloud, and a client-side keyword parser for offline permaculture, lunar cultivation, and composting advice."
+    },
+    {
+      "timestamp": "2026-07-14T01:55:00+12:00",
+      "summary": "Resolved game-halting TypeError in Infinity Racer updateColorsFromTheme function (accessing undefined Group material) and upgraded 3D visuals using solid flat-shaded MeshPhongMaterials and extended fog draw distance."
+    },
+    {
+      "timestamp": "2026-07-14T02:05:00+12:00",
+      "summary": "Upgraded Sovereign Album Builder (album.html) to support embedding dedicated YouTube links for each audio/video track, rendering a 'WATCH VIDEO' action button on the player cards that launches inside a responsive theater-mode overlay."
+    },
+    {
+      "timestamp": "2026-07-14T02:15:00+12:00",
+      "summary": "Added a 'Start Blank Album Template' slate cleaner action inside Album Builder (album.html) to clear demo settings, and integrated a promotion/launch bridge inside the Radio Triage queue panel (triage.html)."
+    },
+    {
+      "timestamp": "2026-07-14T02:25:00+12:00",
+      "summary": "Integrated cooperative cloud-hosted album listing features into Album Builder (album.html) and Shop Portal (shop.html), enabling direct 99% / 1% payment splits and cloud URL registry endpoints in vdo_backend.py."
+    },
+    {
+      "timestamp": "2026-07-14T02:35:00+12:00",
+      "summary": "Resized and styled 'Start Blank Album Template' button inside the Album Builder (album.html) to be larger and higher visibility, and added a direct shortcut command inside the main funnel select dropdown menu at the top."
+    },
+    {
+      "timestamp": "2026-07-14T02:40:00+12:00",
+      "summary": "Added a dedicated, direct 'Create Blank Album' button on the main player header next to the funnel selection dropdown in album.html for immediate visibility."
+    },
+    {
+      "timestamp": "2026-07-14T02:45:00+12:00",
+      "summary": "Updated sitemap.html with a description of the new Cooperative Shop Catalog features and recompiled sitemap.pdf using LibreOffice headless."
+    },
+    {
+      "timestamp": "2026-07-14T03:20:00+12:00",
+      "summary": "Resolved syntax error issues and restored the holographic click asset spawner inside night_fish_assistant.js, and implemented a swooping, bubbling welcome intro animation for the Night Fish AI avatar on startup."
+    },
+    {
+      "timestamp": "2026-07-14T03:55:00+12:00",
+      "summary": "Developed the Harmonic Home Designer application, featuring 2D canvas room layout controls, dynamic Solfeggio acoustic resonance frequency calculation, a WebAudio space clear synthesizer tone loop, a Feng Shui Bagua map grid analysis diagnostic report system, and carbon sequestration ledger math."
+    },
+    {
+      "timestamp": "2026-07-14T04:10:00+12:00",
+      "summary": "Upgraded Harmonic Home Designer with an interactive 3D WebGL preview viewport plane and Orbiting camera controls, customizable X/Y/Z item dimension inputs on an active inspector board, and customized 3D meshes (Beds, Desks, Fountains, Plants, Crystals) built via Three.js."
+    },
+    {
+      "timestamp": "2026-07-14T04:15:00+12:00",
+      "summary": "Implemented in-viewport 3D adjustment handles and click selectors inside the Three.js viewport to allow users to directly click and resize room or furniture models (Length, Width, Height) in the 3D plane."
+    },
+    {
+      "timestamp": "2026-07-14T04:22:00+12:00",
+      "summary": "Added a complete Solar and Light Simulator to Harmonic Home Designer, projecting 2D sunbeam angles from windows, creating volumetric 3D light cylinders and floor patches with warm sunrise/sunset color shifts, and rendering cardinal direction guides (North, South, East, West) with billboard sprites."
+    },
+    {
+      "timestamp": "2026-07-14T04:25:00+12:00",
+      "summary": "Integrated geographical coordinates and actual solar declination calculations into Solar Simulator, adapting sun paths dynamically for Northern/Southern Hemisphere presets (Ahipara, Raglan, Dunedin, USA) and custom latitudes."
+    },
+    {
+      "timestamp": "2026-07-14T06:58:00+12:00",
+      "summary": "Downloaded CDN-hosted JS and CSS dependencies (FFmpeg, Leaflet, QRious, and jsQR) locally under the root lib/ directory and updated all references across standalone HTMLs (Resonance Video Editor, K.I.T.E. Bodyguard, Sovereign Surf, Harmony Exchange). Registered all local libraries and standalone applications in the Service Worker pre-cache configuration, incrementing cache version to fluidmotion-v25 to ensure 100% offline functionality."
+    },
+    {
+      "timestamp": "2026-07-14T07:12:00+12:00",
+      "summary": "Upgraded Sovereign Album Builder (album.html) to the next level. Added support for track cover art images, custom external links (e.g. Spotify, Bandcamp), and secure downloadable files (e.g. stems) for unlocked tracks. Enhanced the 3D coverflow carousel with floating prev/next navigation wands and active card dot indicators, enabling seamless desktop carousel browsing."
+    },
+    {
+      "timestamp": "2026-07-14T07:26:00+12:00",
+      "summary": "Implemented the 'Sovereign Guide' tutorial tab inside the Album Builder admin suite, detailing Sovereign Nodes, Direct Pay-splits, Dragon 9 Pacing, and Publishing. Updated the Cooperative Shop checkout flow to waive the 1% platform fee (providing a 100% direct payout to the artist) for the first 54 copies sold of any album, with a new backend endpoint to increment registered album sales counters."
+    },
+    {
+      "timestamp": "2026-07-14T07:35:00+12:00",
+      "summary": "Replicated the 54-sales waived commission checkout split and the guide system into the Fluid Exhibition & Shop (exhibition/index.html & script.js). Created the Art Split Checkout Modal offering dual-currency payouts (H-Notes or PayPal USD) with dynamic waiver messages, and set up backend routes (/api/get-artwork-sales & /api/record-artwork-sale) to track sales per artwork item."
+    },
+    {
+      "timestamp": "2026-07-14T07:51:00+12:00",
+      "summary": "Embedded the Sovereign Tools for the Fluid Motion of the Future presentation tutorial video as a responsive video section across the apps gateway (apps.html), the Creative Suite hub (creative.html), and the Sovereign Systems hub (systems.html)."
+    },
+    {
+      "timestamp": "2026-07-14T08:02:00+12:00",
+      "summary": "Restored the Night Fish floating AI assistant widget and holographic projection components across the entire workspace by importing scripts/night_fish_assistant.js and scripts/night_fish.css in apps.html, creative.html, systems.html, sound.html, vision.html, nature.html, and sitemap.html."
+    },
+    {
+      "timestamp": "2026-07-14T10:09:00+12:00",
+      "summary": "Implemented a '🤝 COLLABORATE' Facebook share & link sharing module inside the Album Builder (album.html), prefilled to invite Dawn Rainstar Milazzo (and other custom names) with a copy-to-clipboard invite text and automated Facebook redirect, plus custom onboarding welcome alert triggers for invited collaborators entering the URL via parameter."
+    },
+    {
+      "timestamp": "2026-07-14T10:45:00+12:00",
+      "summary": "Fixed album.html syntax error by adding a missing closing brace on the track renderer check. Improved template reset UX by automatically switching to the 'TRACKS & ONBOARD' tab (previously 'ARTIST ONBOARD') when starting a blank album template to immediately reveal the 'Add Track' inputs and buttons."
+    },
+    {
+      "timestamp": "2026-07-14T10:50:00+12:00",
+      "summary": "Expanded max-height constraints of Tab 2 (TRACKS & ONBOARD) and Tab 3 (SOVEREIGN GUIDE) to 520px inside the album.html admin panel, preventing the 'Add Track' forms, inputs, and action buttons from being blocked/hidden by small scroll bounds."
+    },
+    {
+      "timestamp": "2026-07-14T11:15:00+12:00",
+      "summary": "Created Christine's Haven (stargaze/index.html), an interactive 3D WebGL-style celestial star gazing map dedicated to Christine. Integrated links, product metadata cards, and description references across creative.html, apps.html, systems.html, sitemap.html, and nature.html."
+    },
+    {
+      "timestamp": "2026-07-14T20:25:00+12:00",
+      "summary": "Added media upload/selection controls in Sovereign Album Builder (album.html), added /api/upload-media raw upload API in vdo_backend.py with offline Base64 fallback, and drafted the concept document for 'The Daily Stir' & 'Current Offense' engine (the_daily_stir_concept.md) detailing decentralized journalism and organic community sorting."
+    },
+    {
+      "timestamp": "2026-07-14T20:45:00+12:00",
+      "summary": "Built the brand-new Sovereign Plasma Globe & Filament Sandbox app (plasma/index.html), integrated it into vision.html and sitemap.html, and implemented dynamic active/relax visual pacing sync to the Dragon 9 clock."
+    },
+    {
+      "timestamp": "2026-07-14T21:05:00+12:00",
+      "summary": "Designed and built the Sovereign Community Portal & Resonant Gallery app (portal/index.html) integrating the 'Be Your Light' New Zealand project video. Set up the gold telluride/iridescent pastel coastal sand aesthetic, a persistent local-storage wallet keeping track of Harmony Notes, support splits (90/10 split), ad promoted flow pay-to-watch mechanics, and the 'Add Your Light' content submission form. Registered access in creative.html, sitemap.html, and registry logs."
+    },
+    {
+      "timestamp": "2026-07-14T22:35:00+12:00",
+      "summary": "Built Sovereign Surf Rider: Drift Frequency, combining a 3D Lemniscate wave-riding game (infinity-racer/) with a 2D Canvas swell sandbox (surf/game/). Configured Solfeggio frequency particles, dynamic D9 clock wave height modulation, trick air spins, and dual-thumb mobile control overlays. Integrated launcher configurations into creative.html, nature.html, sitemap.html, and the surf dashboard."
+    }
+  ]
+}

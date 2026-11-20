@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script 
+  src="https://www.paypal.com/sdk/js?client-id=BAAaG0RpHzOcYLeZkue1kKeMvJr2hecDw69liUm9sr8tP8VgILuo3gW9--KYzacCMATKv0V-Kmg-L00JTw&components=hosted-buttons&disable-funding=venmo&currency=NZD">
+</script>
+    meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Creative Suite Hub</title>
+    <!-- Google Fonts Integration -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="scripts/night_fish.css">
+    <style>
+        :root {
+            --bg-color: #030306;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --highlight: #00e5ff;
+            --highlight-glow: rgba(0, 229, 255, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #6b5c82;
+            --card-bg: rgba(12, 12, 18, 0.6);
+            --border-color: rgba(212, 175, 55, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 32px 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 18px 12px;
+            }
+        }
+
+        /* Ambient scanline grids */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            z-index: 1;
+            background-size: 100% 4px, 30px 30px, 30px 30px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header design */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 40px;
+            background: rgba(10, 10, 15, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 25px var(--accent-glow);
+            position: relative;
+        }
+
+        .hub-switch-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .hub-switch-link:hover {
+            border-color: var(--highlight);
+            color: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .header-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Creator Support Banner */
+        .donation-banner {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr;
+            gap: 30px;
+            align-items: center;
+            background: rgba(212, 175, 55, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(212, 175, 55, 0.05);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .donation-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .donation-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .donation-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .donation-desc {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #d1c1a5;
+        }
+
+        .donation-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .donation-btn {
+            width: 100% !important;
+            padding: 16px !important;
+            font-size: 0.8rem !important;
+            border-color: var(--accent) !important;
+            background: rgba(212, 175, 55, 0.12) !important;
+        }
+
+        .donation-btn:hover {
+            background: var(--accent) !important;
+            color: #000 !important;
+            box-shadow: 0 0 25px var(--accent-glow) !important;
+        }
+
+        .donation-setup-hint {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* App list grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 22px;
+            margin-bottom: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+        <div id="paypal-container-NYJVEKAQZXM3Q"></div>
+<script>
+  paypal.HostedButtons({
+    hostedButtonId: "NYJVEKAQZXM3Q",
+  }).render("#paypal-container-NYJVEKAQZXM3Q")
+</script>
+
+        .app-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1.5px solid var(--border-color);
+            border-radius: 18px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            min-height: 340px;
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--highlight);
+            box-shadow: 0 14px 34px rgba(0,0,0,0.6), 0 0 20px var(--highlight-glow);
+        }
+
+        .app-card::after {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(135deg, var(--accent), transparent, var(--highlight));
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0.1;
+            transition: opacity 0.4s;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--highlight);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 20px var(--highlight-glow);
+        }
+
+        .app-card:hover::after {
+            opacity: 0.25;
+        }
+
+        .suite-section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--highlight);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 50px 0 20px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 15px;
+        }
+
+        .app-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px var(--accent-glow));
+        }
+
+        .app-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .app-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--highlight);
+            letter-spacing: 1px;
+            margin-top: 3px;
+        }
+
+        .app-desc {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #d1c1a5;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+
+        /* Action buttons */
+        .app-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: rgba(0, 229, 255, 0.08);
+            border: 1.5px solid var(--highlight);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: var(--highlight);
+            color: #000;
+            box-shadow: 0 0 20px var(--highlight-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(212, 175, 55, 0.06);
+            border: 1.5px solid var(--accent);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* Co-op Invite Box */
+        .invite-box {
+            background: rgba(10, 10, 15, 0.8);
+            border: 1.5px dashed var(--highlight);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .invite-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: #fff;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        .invite-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+
+        .invite-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 10px;
+        }
+
+        .invite-input {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            outline: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .invite-input:focus {
+            border-color: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight-glow);
+        }
+
+        .invite-btn {
+            width: auto;
+            padding: 0 24px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 12px;
+            }
+            header {
+                padding: 24px 18px;
+            }
+            .header-title {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+            .header-subtitle {
+                font-size: 0.78rem;
+                letter-spacing: 1.5px;
+            }
+            .hub-switch-link {
+                top: 12px;
+                right: 12px;
+                font-size: 0.62rem;
+                padding: 6px 10px;
+            }
+            .donation-banner {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                text-align: center;
+                padding: 22px;
+            }
+            .invite-form {
+                flex-direction: column;
+            }
+            .app-card {
+                min-height: auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; align-items: center; z-index: 100;">
+                <a href="apps.html" class="hub-switch-link" style="position: static;">🌌 Portal Gate</a>
+                <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9 Creative Tools!\n\nEnter Koha/donation amount (USD):', '10.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Dragon%209%20Creative%20Suite&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="hub-switch-link" style="position: static; border-color: rgba(212, 175, 55, 0.4); color: #fff; background: rgba(212, 175, 55, 0.08); display: inline-flex; align-items: center; gap: 5px;">☕ Support Koha</a>
+            </div>
+            <h1 class="header-title">Creative Suite</h1>
+            <p class="header-subtitle">Instruments, Audios & Visual Mathematics</p>
+        </header>
+
+        <!-- Creator Support Banner (PayPal Donations) -->
+        <section class="donation-banner">
+            <div class="donation-content">
+                <span class="donation-badge">💛 SUPPORT INDEPENDENT DEVELOPMENTS</span>
+                <h2 class="donation-title">Keep the Resonance Alive</h2>
+                <p class="donation-desc">Dragon 9 is built with passion by an independent creator. If these sovereign, off-grid creative tools assist your craft, consider sending a donation to keep the project growing. Every contribution helps!</p>
+            </div>
+            <div class="donation-action">
+                <a href="#" id="paypal-donate-btn" target="_blank" class="btn btn-secondary donation-btn">
+                    <span>☕ Support via PayPal</span>
+                </a>
+                <span class="donation-setup-hint">Donation Gateway</span>
+            </div>
+        </section>
+
+        <!-- Sovereign Tools Presentation Video -->
+        <section class="tutorial-section" style="margin-bottom: 40px; background: var(--card-bg); backdrop-filter: blur(15px); border: 2px solid var(--border-color); border-radius: 24px; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #fff; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; text-align: center; font-weight: bold;">🎥 Sovereign Tools Overview</h2>
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 0 15px rgba(0,0,0,0.8);">
+                <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="https://www.youtube.com/embed/f0PlzcLOGTU" title="Sovereign Tools Tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p style="font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 12px; letter-spacing: 1px; text-transform: uppercase;">
+                D9Enigma Creative & Operations System Walkthrough
+            </p>
+        </section>
+
+        <!-- Section: Sounds Sweet -->
+        <h2 class="suite-section-title">🔊 Sounds Sweet</h2>
+        <main class="app-grid">
+            
+            <!-- App 1: Synesthetic Pianola -->
+            <div class="app-card" id="app-pianola">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎹</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Synesthetic Pianola</h2>
+                            <span class="app-status">NODE PIANOLA v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Synthesized digital pianola and MIDI keyboard. Tweak ADSR envelope shapes, waveform frequencies, and lowpass cutoff parameters. Complete plug-and-play USB MIDI support.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="pianola/index.html" class="btn btn-primary">⚡ Launch Pianola</a>
+                    <a href="sound.html#pianola" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="pianola/index.html" download="synesthetic_pianola.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 2: Sovereign Ukulele Instructor -->
+            <div class="app-card" id="app-ukulele">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎸</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Sovereign Ukulele</h2>
+                            <span class="app-status">NODE UKULELE v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Interactive ukulele visualizer and rhythm trainer. Practice fingerings for core chord patterns on a digital fretboard and simulate strum loops using sequential Audio synthesis.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="ukulele/index.html" class="btn btn-primary">⚡ Launch Instructor</a>
+                    <a href="sound.html#ukulele" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="ukulele/index.html" download="ukulele_instructor.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App: Cathedral Organ -->
+            <div class="app-card" id="app-organ">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">⛪</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Cathedral Organ</h2>
+                            <span class="app-status">RESONANCE ORGAN v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Volumetric Gothic organ console. Combine pipe stops (Principal, Gedeckt, Octave, Mixture) and dial up stone cathedral acoustic reverb. Features direct 16-step live-sync loop recording.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="organ/index.html" class="btn btn-primary">⚡ Launch Organ</a>
+                    <a href="sound.html#organ" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="organ/index.html" download="cathedral_organ.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 3: Sovereign Sequencer -->
+            <div class="app-card" id="app-sequencer">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎛️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Sovereign Sequencer</h2>
+                            <span class="app-status">NODE SEQUENCER v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Offline multi-track sequencer and song compiler. Arrange drums, synths, ukulele chords, and meditations on a 16-step grid and export high-quality mix WAVs locally.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="sequencer/index.html" class="btn btn-primary">⚡ Launch Sequencer</a>
+                    <a href="sound.html#sequencer" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="sequencer/index.html" download="sovereign_sequencer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 4: Solfeggio Tuner -->
+            <div class="app-card" id="app-tuner">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎸</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Solfeggio Tuner</h2>
+                            <span class="app-status">RESONANCE INSTRUMENT v1.2</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Pure Solfeggio frequency generator and microtonal string tuner. Generate sine waves, track pitch deviations, and inspect FFT real-time audio graphs completely offline.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="tuner/index.html" class="btn btn-primary">⚡ Launch Solfeggio Tuner</a>
+                    <a href="sound.html#tuner" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="tuner/index.html" download="solfeggio_tuner.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 5: Frequency Healer -->
+            <div class="app-card" id="app-healer">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🧘</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Frequency Healer</h2>
+                            <span class="app-status">RESONANCE MATRIX v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Sovereign sound generator and meditation resonator. Supports pure Solfeggio frequencies, customizable binaural beats with brainwave presets, natural ambient synthesizers, and sleep timers.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="healer/index.html" class="btn btn-primary">⚡ Launch Frequency Healer</a>
+                    <a href="sound.html#healer" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="healer/index.html" download="frequency_healer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 6: Pyro Drummer Visualizer -->
+            <div class="app-card" id="app-pyro">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎆</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Pyro Drummer</h2>
+                            <span class="app-status">KINETIC VISUALIZER v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">3D kinetic drum machine and audio-reactive particle visualizer. Trigger neon light explosions, particle ribbons, and ambient layers synced directly to keystrokes and sound feeds.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="pyro-drummer/index.html" class="btn btn-primary">⚡ Launch Pyro Drummer</a>
+                    <a href="sound.html#pyro" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="pyro-drummer/index.html" download="pyro_drummer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 7: Lotus Nexus Sampler -->
+            <div class="app-card" id="app-lotus">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🌸</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Lotus Nexus</h2>
+                            <span class="app-status">3D SYNTHESIZER v3.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Procedural 3D musical spinner and 4-track looper. Custom audio/image petal sampler, real-time audio-visualizer, and connected network node triad sync gateway.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="lotus-spinner.html" class="btn btn-primary">⚡ Launch Lotus Nexus</a>
+                    <a href="sound.html#lotus" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="lotus-spinner.html" download="lotus_nexus.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 8: Stem Crate Downloader -->
+            <div class="app-card" id="app-stemcrate">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎵</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Stem Crate</h2>
+                            <span class="app-status">MULTITRACK DOWNMIX v2.1</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">High-end multitrack stems downloader, mixer, and audio track combiner. Perfect for downloading master loops, split stems, and compiling creative music reels on-demand.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="stemcrate.html" class="btn btn-primary">⚡ Launch Stem Crate</a>
+                    <a href="sound.html#stemcrate" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="stemcrate.html" download="stemcrate.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 9: Fluid Crate Album -->
+            <div class="app-card" id="app-album">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">💿</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Fluid Crate Album</h2>
+                            <span class="app-status">VAULT BUILDER v2.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">The sovereign White-Label digital album builder. Gathers audio tracks, playlist media, and custom passcodes, compiling everything into a fully portable, password-secured standalone vault.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="album-builder/index.html" class="btn btn-primary">⚡ Launch Album Builder</a>
+                    <a href="sound.html#album" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="album.html" download="album_app.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Section: Vision Suite -->
+        <h2 class="suite-section-title">👁️ Vision Suite</h2>
+        <main class="app-grid">
+
+            <!-- App 10: Holo Art Gallery -->
+            <div class="app-card" id="app-exhibition">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🎨</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Holo Art Gallery</h2>
+                            <span class="app-status">3D EXHIBITION v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Interactive 3D spatial exhibit. Drag and spin crystalline pedestals, customize neon spotlight parameters, and compile art catalog vaults inside secure sandbox canvases.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="exhibition/index.html" class="btn btn-primary">⚡ Launch Holo Gallery</a>
+                    <a href="vision.html#exhibition" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="exhibition/index.html" download="holographic_art_gallery.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 11: Artist Ledger Gallery -->
+            <div class="app-card" id="app-artist">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🌊</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Artist Ledger Gallery</h2>
+                            <span class="app-status">SIGNED PORTFOLIOS v1.1</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Cryptographically signed art portfolios and asset ledgers. Browse artist biographies, view catalog vaults, and verify digital credentials offline.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="artist-gallery/index.html" class="btn btn-primary">⚡ Launch Artist Ledger</a>
+                    <a href="vision.html#artist" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="artist-gallery/index.html" download="artist_ledger_gallery.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 16: Sovereign Plasma Globe -->
+            <div class="app-card" id="app-plasma">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">⚡</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Sovereign Plasma Globe</h2>
+                            <span class="app-status">FILAMENT SANDBOX v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Interactive high-voltage plasma sandbox. Steer fractal lightning filaments using simulated magnetic fields, sync arcs to the Dragon 9 clock, and analyze frequency resonance.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="plasma/index.html" class="btn btn-primary">⚡ Launch Plasma Globe</a>
+                    <a href="vision.html#plasma" class="btn btn-secondary">ℹ️ Share &amp; Info Page</a>
+                    <a href="plasma/index.html" download="sovereign_plasma_globe.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Section: Senses & Nature -->
+        <h2 class="suite-section-title">🌱 Senses & Nature</h2>
+        <main class="app-grid">
+
+            <!-- App 12: Lotus Permaculture Garden -->
+            <div class="app-card" id="app-garden">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🌱</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Lotus Permaculture Garden</h2>
+                            <span class="app-status">BOTANICAL MATH v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Permaculture simulation mapping plant growth along Fibonacci spirals. Tweak light levels, sound resonance factors, and soil variables to balance the ecosystem.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="garden/index.html" class="btn btn-primary">⚡ Launch Lotus Garden</a>
+                    <a href="nature.html#garden" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="garden/index.html" download="lotus_permaculture_garden.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 13: Sovereign Surf & Tide -->
+            <div class="app-card" id="app-surf">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🌊</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Sovereign Surf &amp; Tide</h2>
+                            <span class="app-status">MARINE TELEMETRY v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Marine conditions dashboard tracking tide curves, swell compass vectors, wind speeds, and sea temperatures offline or via public weather APIs.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="surf/index.html" class="btn btn-primary">⚡ Launch Surf App</a>
+                    <a href="nature.html#surf" class="btn btn-secondary">ℹ️ Share & Info Page</a>
+                    <a href="surf/index.html" download="sovereign_surf.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 14: Christine's Celestial Haven -->
+            <div class="app-card" id="app-stargaze">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🌌</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Christine's Haven</h2>
+                            <span class="app-status">3D CELESTIAL MAP v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Interactive 3D stargazing globe and cosmic resonance compass. Dedicated to Christine. Search constellations, scan stars, and sync 432Hz ambient frequencies.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="stargaze/index.html" class="btn btn-primary">⚡ Launch Stargaze Map</a>
+                    <a href="nature.html#stargaze" class="btn btn-secondary">ℹ️ Share &amp; Info Page</a>
+                    <a href="stargaze/index.html" download="christines_haven_stargaze.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 15: Sovereign Community Portal -->
+            <div class="app-card" id="app-portal">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🕸️</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Community Portal</h2>
+                            <span class="app-status">RESONANT GALLERY v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Distributed community content dashboard. Houses the 'Be Your Light' New Zealand project demo, manages Harmony Notes wallet transactions with a 90/10 split, and handles promoted flow rewards.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="portal/index.html" class="btn btn-primary">⚡ Launch Portal Hub</a>
+                    <a href="portal/index.html" download="sovereign_community_portal.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            <!-- App 17: Sovereign Surf Rider -->
+            <div class="app-card" id="app-wave-rider">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">🏄</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Sovereign Surf Rider</h2>
+                            <span class="app-status">3D INFINITY FLOW v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">Pilot a prone bodyboarder along the 3D Infinity Wave Tube. Harvest Solfeggio frequency particles, dodge wipeout entropy blockages, and sync with the Dragon 9 core clock.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="infinity-racer/index.html" class="btn btn-primary">⚡ Launch 3D Wave Rider</a>
+                    <a href="surf/game/index.html" class="btn btn-secondary">🌊 Launch 2D Swell Sandbox</a>
+                    <a href="infinity-racer/index.html" download="sovereign_surf_rider_3d.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+            <!-- App 18: Plasma XRacer -->
+            <div class="app-card" id="app-plasmaxracer">
+                <div>
+                    <div class="app-header">
+                        <span class="app-icon">⚡</span>
+                        <div class="app-meta">
+                            <h2 class="app-title">Plasma XRacer</h2>
+                            <span class="app-status">3D FILAMENT RACER v1.0</span>
+                        </div>
+                    </div>
+                    <p class="app-desc">High-voltage 3D plasma filament tunnel racer. Pilot an Energy Pod inside electromagnetic tubes, weave around laser barriers, and capture Solfeggio gold crystals.</p>
+                </div>
+                <div class="app-actions">
+                    <a href="plasmaxracer/index.html" class="btn btn-primary">⚡ Launch Plasma Racer</a>
+                    <a href="plasmaxracer/index.html" download="plasma_xracer.html" class="btn btn-secondary">📥 Standalone HTML</a>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Referral Link -->
+        <section class="invite-box">
+            <h2 class="invite-title">🤝 Dragon 9 Co-op App Referral</h2>
+            <p class="invite-desc">Generate a customized invitation code to invite a creative friend to download the off-grid creative toolkits.</p>
+            <div class="invite-form">
+                <input type="text" id="invite-friend-name" class="invite-input" placeholder="Enter friend's name (e.g. Conan)">
+                <button onclick="generateAppReferral()" class="btn btn-primary invite-btn">Generate Invitation</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const PAYPAL_USERNAME = "fluidmotion.tv@gmail.com"; 
+        
+        if (PAYPAL_USERNAME) {
+            const donateBtn = document.getElementById('paypal-donate-btn');
+            if (donateBtn) {
+                const hintEl = document.querySelector('.donation-setup-hint');
+                if (hintEl) {
+                    hintEl.textContent = `Koha/Donation linked to: ${PAYPAL_USERNAME}`;
+                }
+                donateBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const amountStr = prompt("Thank you for supporting Dragon 9!\n\nEnter Koha/donation amount (USD):", "10.00");
+                    if (amountStr === null) return;
+                    const amount = parseFloat(amountStr);
+                    if (isNaN(amount) || amount <= 0) {
+                        alert("Please enter a valid amount.");
+                        return;
+                    }
+                    const url = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_USERNAME)}&item_name=Koha%20for%20Dragon%209%20Development&currency_code=USD&amount=${amount.toFixed(2)}`;
+                    window.open(url, '_blank');
+                });
+            }
+        }
+
+        function generateAppReferral() {
+            const nameEl = document.getElementById('invite-friend-name');
+            const name = nameEl.value.trim();
+            if (!name) {
+                alert("Please enter your friend's name to generate an invitation link!");
+                return;
+            }
+
+            const refLink = `${window.location.origin}${window.location.pathname}?invite=${encodeURIComponent(name)}`;
+            navigator.clipboard.writeText(refLink).then(() => {
+                const sendEmail = confirm(`🤝 Invite link copied to clipboard for ${name}!\n\nWould you like to open your email client to send them the invite link?`);
+                if (sendEmail) {
+                    window.location.href = `mailto:?subject=${encodeURIComponent('Invitation to join Dragon 9 Co-op')}&body=${encodeURIComponent(`Hi ${name},\n\nI'd like to invite you to join the Dragon 9 Co-op and check out the off-grid sovereign developer tools:\n\n${refLink}\n\nCheers!`)}`;
+                }
+                nameEl.value = '';
+            }).catch(err => {
+                alert(`Referral link generated: ${refLink}`);
+            });
+        }
+    </script>
+    <script type="module" src="scripts/night_fish_assistant.js"></script>
+</body>
+</html>

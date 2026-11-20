@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonic Home Designer | Dragon 9</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Outfit:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f1310;
+            --card-bg: rgba(22, 28, 24, 0.65);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --accent-sage: #8da392;
+            --accent-clay: #c88a75;
+            --accent-sand: #dfd5c6;
+            --text-main: #f2ebe1;
+            --text-muted: #9fa8a0;
+            --glow: rgba(141, 163, 146, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Organic Background Blobs */
+        .ambient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.12;
+            animation: float-blob 30s infinite ease-in-out alternate;
+        }
+
+        .blob-1 {
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, var(--accent-sage) 0%, transparent 70%);
+            top: -15%;
+            left: -10%;
+        }
+
+        .blob-2 {
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, var(--accent-clay) 0%, transparent 70%);
+            bottom: -10%;
+            right: -5%;
+            animation-delay: -7s;
+        }
+
+        @keyframes float-blob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, -40px) scale(1.1); }
+        }
+
+        /* Earthy grid */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(141, 163, 146, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(141, 163, 146, 0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Top Header */
+        header {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 1.3rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--accent-sage);
+        }
+
+        .hub-link {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .hub-link:hover {
+            border-color: var(--accent-sage);
+            color: var(--accent-sand);
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        /* Hero Banner */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(141, 163, 146, 0.1);
+            border: 1px solid rgba(141, 163, 146, 0.2);
+            color: var(--accent-sage);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(141, 163, 146, 0.05);
+        }
+
+        h1 {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--accent-sand));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 680px;
+            margin: 0 auto 40px auto;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* Direct launch buttons */
+        .actions-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 80px;
+        }
+
+        .btn {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent-sage);
+            color: var(--bg-dark);
+            box-shadow: 0 4px 20px rgba(141, 163, 146, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(141, 163, 146, 0.5);
+            background: #a1b7a6;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-clay);
+            background: rgba(200, 138, 117, 0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(200, 138, 117, 0.15);
+        }
+
+        /* Pillars of Harmony Cards */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .pillars-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .pillar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 36px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(141, 163, 146, 0.25);
+            box-shadow: 0 15px 40px rgba(141, 163, 146, 0.08);
+        }
+
+        .pillar-icon {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        .pillar-title {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-sand);
+        }
+
+        .pillar-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* Section dividers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+            margin: 60px 0;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .footer-logo {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .footer-logo span {
+            color: var(--accent-sage);
+        }
+
+        .footer-note {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <a href="#" class="logo">🌿 <span>Harmonic Home</span></a>
+            <a href="../creative.html" class="hub-link">← Return to Hub</a>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <span class="badge">ECO-SYSTEM ARCHITECTURE // VIBRATIONAL WELLNESS</span>
+            <h1>Design Living Spaces that Breathe</h1>
+            <p class="hero-desc">
+                An interactive blueprint suite to align your home with ancient Feng Shui energy gates, optimal acoustic room resonances, and sustainable carbon-negative Hempcrete construction.
+            </p>
+
+            <div class="actions-wrap">
+                <a href="index.html" class="btn btn-primary">Launch Designer ⚡</a>
+                <a href="#" onclick="event.preventDefault(); const amt = prompt('Thank you for supporting Dragon 9!\\n\\nEnter Koha/donation amount (USD):', '15.00'); if (amt !== null) { const val = parseFloat(amt); if (!isNaN(val) && val > 0) { window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=fluidmotion.tv%40gmail.com&item_name=Koha%20for%20Harmonic%20Home%20Designer&currency_code=USD&amount=' + val.toFixed(2), '_blank'); } else { alert('Please enter a valid amount.'); } }" class="btn btn-secondary">Support Koha ☕</a>
+            </div>
+        </section>
+
+        <!-- Pillars -->
+        <section class="pillars-grid">
+            <!-- Feng Shui -->
+            <div class="pillar-card">
+                <div class="pillar-icon">☯️</div>
+                <h3 class="pillar-title">Feng Shui Bagua Map</h3>
+                <p class="pillar-desc">
+                    Map energy sectors (Chi gates) including Health, Wealth, Family, and Career. Evaluate room doors, windows, and bed positions (Command Coordinates) to keep life energy flowing without blocks.
+                </p>
+            </div>
+
+            <!-- Solfeggio Harmonics -->
+            <div class="pillar-card">
+                <div class="pillar-icon">🎼</div>
+                <h3 class="pillar-title">Acoustic Resonances</h3>
+                <p class="pillar-desc">
+                    Solve natural sound resonance modes based on room dimensions. Calibrate lengths, widths, and heights to target solfeggio healing frequencies (e.g. 528 Hz transformation, 432 Hz cosmic tuning).
+                </p>
+            </div>
+
+            <!-- Hempcrete & Sustainable materials -->
+            <div class="pillar-card">
+                <div class="pillar-icon">🧱</div>
+                <h3 class="pillar-title">Eco-Materials Ledger</h3>
+                <p class="pillar-desc">
+                    Compute carbon storage indices and thermal efficiency (R-values) for negative footprint materials: Hempcrete, Rammed Earth, Clay Plasters, Bamboo, and Wood.
+                </p>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-logo">🌿 <span>Dragon 9</span> Harmonic Design Suite</div>
+            <div class="footer-note">TIMOTHY DWEN CREATIVE CO-OP // 100% OFFLINE CAPABLE</div>
+        </footer>
+    </div>
+
+</body>
+</html>

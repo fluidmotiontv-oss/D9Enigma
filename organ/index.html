@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Cathedral Organ</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #030308;
+            --panel-bg: rgba(12, 10, 20, 0.7);
+            --border-color: rgba(212, 175, 55, 0.15);
+            --accent-cyan: #00e5ff;
+            --accent-gold: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.25);
+            --text-main: #f4e4bc;
+            --text-muted: #8c85a3;
+            --key-white: rgba(244, 228, 188, 0.9);
+            --key-black: #120e0a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient drifting space backgrounds */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: drift 30s infinite ease-in-out alternate;
+        }
+
+        .blob-cyan {
+            width: 50vw; height: 50vw;
+            background: linear-gradient(135deg, #002266, var(--accent-cyan));
+            top: -10%; left: -10%;
+        }
+
+        .blob-gold {
+            width: 45vw; height: 45vw;
+            background: linear-gradient(135deg, var(--accent-gold), #4a1d96);
+            bottom: -10%; right: -10%;
+            animation-delay: -7s;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(60px, -40px) scale(1.1) rotate(45deg); }
+        }
+
+        /* Scanline HUD overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Header Navigation */
+        header {
+            width: 100%;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(5, 4, 10, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-area h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .logo-area h1 span {
+            color: var(--accent-gold);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .logo-area span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Workspace Layout */
+        .workspace {
+            max-width: 1300px;
+            margin: 20px auto;
+            width: 100%;
+            flex: 1;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+            height: calc(100vh - 120px);
+        }
+
+        /* Left Control Panel */
+        .sidebar {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-group label span {
+            color: #fff;
+        }
+
+        /* Gothic Drawknob Stops */
+        .stops-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .drawknob {
+            background: rgba(18, 14, 10, 0.8);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .drawknob:hover {
+            border-color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .drawknob.active {
+            border-color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+        }
+
+        .drawknob-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #222;
+            transition: background 0.3s;
+        }
+
+        .drawknob.active .drawknob-indicator {
+            background: var(--accent-gold);
+            box-shadow: 0 0 8px var(--accent-gold);
+        }
+
+        .drawknob-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+
+        /* Sliders */
+        .slider-input {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            outline: none;
+            margin: 6px 0;
+            transition: background 0.3s;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            cursor: pointer;
+            box-shadow: 0 0 5px var(--accent-glow);
+            transition: transform 0.1s;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Metronome and Record Controls */
+        .record-panel {
+            background: rgba(255, 0, 85, 0.03);
+            border: 1px solid rgba(255, 0, 85, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .record-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .record-btn {
+            flex: 1;
+            background: rgba(255, 0, 85, 0.08);
+            border: 1px solid #ff0055;
+            color: #fff;
+            padding: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .record-btn:hover {
+            background: #ff0055;
+            box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
+        }
+
+        .record-btn.recording {
+            animation: pulse-record 1s infinite alternate;
+        }
+
+        @keyframes pulse-record {
+            0% { background: rgba(255, 0, 85, 0.2); box-shadow: 0 0 4px rgba(255, 0, 85, 0.2); }
+            100% { background: rgba(255, 0, 85, 0.5); box-shadow: 0 0 15px rgba(255, 0, 85, 0.6); }
+        }
+
+        .record-step-indicator {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 3px;
+            margin-top: 4px;
+        }
+
+        .step-dot {
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+        }
+
+        .step-dot.active {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 6px var(--accent-cyan);
+        }
+
+        .step-dot.recording-active {
+            background: #ff0055;
+            box-shadow: 0 0 6px #ff0055;
+        }
+
+        /* Organ Organ Pipes visualizer and Keyboard Area */
+        .organ-container {
+            display: grid;
+            grid-template-rows: 1fr 220px;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .pipes-canvas-wrapper {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .pipes-hud {
+            position: absolute;
+            top: 15px; left: 15px; right: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #pipesCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Keyboardbed */
+        .keybed-wrapper {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            user-select: none;
+        }
+
+        .key {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            transition: all 0.1s ease;
+        }
+
+        .key.white {
+            width: 6.66%;
+            height: 100%;
+            background: var(--key-white);
+            color: #5d4f3b;
+            border: 1.5px solid rgba(212, 175, 55, 0.25);
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            z-index: 1;
+            padding-bottom: 12px;
+            box-shadow: inset 0 -4px 10px rgba(18, 14, 10, 0.1);
+        }
+
+        .key.white.active {
+            background: linear-gradient(180deg, #fdf9ee, var(--accent-gold));
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-gold), inset 0 -6px 12px rgba(212, 175, 55, 0.6);
+            border-color: var(--accent-gold);
+            transform: translateY(2px);
+        }
+
+        .key.black {
+            width: 4.5%;
+            height: 60%;
+            background: var(--key-black);
+            color: #c4af87;
+            border: 1px solid rgba(212,175,55,0.1);
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            z-index: 3;
+            margin-left: -2.25%;
+            margin-right: -2.25%;
+            padding-bottom: 8px;
+        }
+
+        .key.black.active {
+            background: linear-gradient(180deg, #222, var(--accent-cyan));
+            color: #fff;
+            box-shadow: 0 0 20px var(--accent-cyan), inset 0 -5px 10px rgba(0, 229, 255, 0.5);
+            border-color: var(--accent-cyan);
+            transform: translateY(2px);
+        }
+
+        .key-label {
+            pointer-events: none;
+            opacity: 0.65;
+            font-weight: bold;
+        }
+        
+        .key-note {
+            position: absolute;
+            top: 8px;
+            font-size: 0.55rem;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .key.white .key-note {
+            top: auto;
+            bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                height: auto;
+                overflow-y: auto;
+            }
+            .sidebar {
+                height: auto;
+            }
+            .organ-container {
+                height: 500px;
+                grid-template-rows: 1fr 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient drifting space backgrounds -->
+    <div class="ambient-bg">
+        <div class="blob blob-cyan"></div>
+        <div class="blob blob-gold"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="logo-area">
+            <h1>⛪ CATHEDRAL <span>ORGAN</span></h1>
+            <span>Dragon 9 Organ Module // Resonance-Organ v1.0</span>
+        </div>
+        <div class="nav-links">
+            <a href="../sound.html" class="nav-btn">← Sounds Sweet</a>
+            <a href="../sequencer/" class="nav-btn">🎛️ Sequencer</a>
+        </div>
+    </header>
+
+    <!-- Workspace Layout -->
+    <main class="workspace">
+        
+        <!-- Left Control Panel -->
+        <section class="sidebar">
+            
+            <div class="control-group">
+                <h2 class="panel-title">⛪ Organ Pipes / Stops</h2>
+                <div class="stops-grid">
+                    <div class="drawknob active" data-stop="principal">
+                        <div class="drawknob-indicator"></div>
+                        <span class="drawknob-label">Principal 8'</span>
+                    </div>
+                    <div class="drawknob" data-stop="gedeckt">
+                        <div class="drawknob-indicator"></div>
+                        <span class="drawknob-label">Gedeckt 8'</span>
+                    </div>
+                    <div class="drawknob active" data-stop="octave">
+                        <div class="drawknob-indicator"></div>
+                        <span class="drawknob-label">Octave 4'</span>
+                    </div>
+                    <div class="drawknob" data-stop="flute">
+                        <div class="drawknob-indicator"></div>
+                        <span class="drawknob-label">Flute 4'</span>
+                    </div>
+                    <div class="drawknob" data-stop="mixture">
+                        <div class="drawknob-indicator"></div>
+                        <span class="drawknob-label">Mixture IV</span>
+                    </div>
+                    <div class="drawknob" data-stop="oboe">
+                        <div class="drawknob-indicator"></div>
+                        <span class="drawknob-label">Oboe 8'</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h2 class="panel-title">🏰 Stone Reverb</h2>
+                <label>Reverb Decay <span id="reverbDecayVal">3.5s</span></label>
+                <input type="range" id="organReverb" class="slider-input" min="0.1" max="8.0" step="0.1" value="3.5">
+                
+                <label>Wet Mix <span id="reverbMixVal">0.35</span></label>
+                <input type="range" id="organReverbMix" class="slider-input" min="0" max="1" step="0.05" value="0.35">
+            </div>
+
+            <!-- Loop Recorder -->
+            <div class="control-group">
+                <h2 class="panel-title">🔴 Metronome & Record</h2>
+                <div class="record-panel">
+                    <label>Metronome BPM <span id="tempoVal">120</span></label>
+                    <input type="range" id="recordTempo" class="slider-input" min="60" max="200" step="1" value="120">
+                    
+                    <div class="record-buttons">
+                        <button class="record-btn" id="btn-record-toggle">🔴 Record</button>
+                        <button class="record-btn" id="btn-play-toggle" style="border-color:var(--accent-cyan); background:rgba(0,229,255,0.08);">▶ Play</button>
+                    </div>
+                    
+                    <div class="record-step-indicator" id="step-indicator">
+                        <!-- 16 dots -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Visualizer & Keyboard Area -->
+        <section class="organ-container">
+            
+            <div class="pipes-canvas-wrapper">
+                <div class="pipes-hud">
+                    <div>STONE NAVE REVERB ACTIVE</div>
+                    <div id="activePipesLabel">ACTIVE PIPES: 0</div>
+                </div>
+                <canvas id="pipesCanvas"></canvas>
+            </div>
+
+            <div class="keybed-wrapper" id="keyboard">
+                <!-- Keys dynamically generated -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- App Script -->
+    <script src="script.js"></script>
+
+</body>
+</html>

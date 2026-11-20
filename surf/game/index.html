@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon 9 | Sovereign Surf Rider - 3D Water Tunnel</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #00050c;
+            --panel-bg: rgba(5, 12, 22, 0.85);
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.35);
+            --cyan: #00e5ff;
+            --cyan-glow: rgba(0, 229, 255, 0.35);
+            --magenta: #ff0055;
+            --text-main: #f4e4bc;
+            --text-muted: #4e6a8d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .header {
+            width: 100%;
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.18);
+            background: var(--panel-bg);
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            letter-spacing: 3px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        .logo span {
+            color: var(--cyan);
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--cyan);
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 8px 16px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        /* HUD Panels */
+        .hud-overlay {
+            position: absolute;
+            top: 80px; left: 0; width: 100%; height: calc(100% - 80px);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .hud-panel {
+            background: rgba(4, 12, 24, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--cyan);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px var(--cyan-glow);
+            border-radius: 10px;
+            padding: 12px 18px;
+            pointer-events: auto;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .hud-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 8px var(--cyan-glow);
+        }
+
+        /* Shield Container */
+        .shield-container {
+            width: 120px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .shield-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--magenta), var(--cyan));
+            transition: width 0.3s;
+        }
+
+        /* Active/Relax Clock indicator */
+        .clock-sync {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--gold);
+        }
+
+        .relax-indicator {
+            background: var(--magenta);
+            color: #fff;
+            font-size: 0.58rem;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            animation: pulse-relax 1s infinite alternate;
+            margin-top: 3px;
+            display: inline-block;
+        }
+
+        @keyframes pulse-relax {
+            0% { opacity: 0.5; box-shadow: 0 0 2px var(--magenta); }
+            100% { opacity: 1; box-shadow: 0 0 8px var(--magenta); }
+        }
+
+        /* Canvas game window */
+        .game-window {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #00050c;
+        }
+
+        /* Screens */
+        .screen-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 15, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .screen-modal.hidden {
+            display: none;
+        }
+
+        .screen-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--cyan);
+            text-shadow: 0 0 15px var(--cyan-glow);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .screen-desc {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            max-width: 440px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .key-layout {
+            display: flex;
+            gap: 15px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .key-badge {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            padding: 3px 6px;
+            color: #fff;
+        }
+
+        .action-btn {
+            background: rgba(0, 229, 255, 0.08);
+            border: 1.5px solid var(--cyan);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px var(--cyan-glow);
+        }
+
+        .action-btn:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--cyan);
+        }
+
+        /* Mobile buttons overlay */
+        .mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 1000;
+            pointer-events: none;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+
+        .mobile-btn-group {
+            display: flex;
+            gap: 20px;
+            pointer-events: auto;
+        }
+
+        .mobile-btn {
+            width: 65px;
+            height: 65px;
+            background: rgba(4, 10, 20, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 2.5px solid var(--cyan);
+            border-radius: 50%;
+            color: var(--cyan);
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6), inset 0 0 10px var(--cyan-glow);
+            transition: background 0.1s, transform 0.1s;
+            outline: none;
+        }
+
+        .mobile-btn:active {
+            background: var(--cyan);
+            color: #000;
+            transform: scale(0.9);
+            box-shadow: 0 0 18px var(--cyan);
+        }
+
+        @media (max-width: 900px), (pointer: coarse) {
+            .mobile-controls {
+                display: flex;
+            }
+            .instructions-hud {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">Sovereign <span>Surf Rider</span></div>
+        <div style="display: flex; gap: 10px;">
+            <a href="../index.html" class="nav-btn">← Surf Dashboard</a>
+            <a href="../../systems.html" class="nav-btn">Systems Hub</a>
+        </div>
+    </div>
+
+    <!-- Game Viewport -->
+    <div class="game-window">
+        
+        <!-- Welcome Screen -->
+        <div id="start-screen" class="screen-modal">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🌊</div>
+            <h1 class="screen-title">3D Wave Tunnel</h1>
+            <p class="screen-desc">
+                Ride inside a swirling 3D ocean-barrel pipeline styled after the Lemniscate of Bernoulli. Spiral around the water tunnel walls to collect Solfeggio frequency resonance orbs, dodging turbulent red foam whirlpools!
+            </p>
+            <div class="key-layout">
+                <div><span class="key-badge">◀ A</span> / <span class="key-badge">D ▶</span> Spiral Tube</div>
+                <div><span class="key-badge">▲ W</span> / <span class="key-badge">S ▼</span> Paddle Thrust</div>
+            </div>
+            <button id="btn-start" class="action-btn">Enter Barrel & Ride</button>
+        </div>
+
+        <!-- Wipeout Screen -->
+        <div id="game-over-screen" class="screen-modal hidden">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🌀</div>
+            <h1 class="screen-title" style="color:var(--magenta); text-shadow:0 0 15px rgba(255,0,85,0.4);">Wiped Out</h1>
+            <p class="screen-desc">
+                Your bodyboard collapsed in the swirling water vortex.
+            </p>
+            <div style="font-family: 'Share Tech Mono', monospace; font-size: 1.15rem; margin-bottom: 25px; line-height: 1.5;">
+                FINAL DRIFT SCORE: <span id="final-score" style="color:var(--cyan); font-weight:bold;">0000</span><br>
+                RESONANCE RANK: <span id="final-rank" style="color:var(--gold);">Swell Novice</span>
+            </div>
+            <button id="btn-retry" class="action-btn">Paddle Back Out</button>
+        </div>
+
+        <!-- Canvas -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- HUD Layer -->
+        <div class="hud-overlay">
+            <div class="hud-top">
+                <div class="hud-panel">
+                    <div class="hud-title">Drift Frequency</div>
+                    <div class="hud-value" id="score-display">0000</div>
+                    <div style="font-size: 0.6rem; color: var(--text-muted); display:flex; justify-content:space-between; margin-top:2px;">
+                        <span>Swell Stability</span>
+                        <span id="shield-txt">100%</span>
+                    </div>
+                    <div class="shield-container">
+                        <div class="shield-bar" id="shield-bar"></div>
+                    </div>
+                </div>
+
+                <div class="hud-panel" style="align-items: flex-end; text-align: right;">
+                    <div class="hud-title">Dragon 9 Sync</div>
+                    <div class="clock-sync" id="d9-clock-txt">26:00:00</div>
+                    <div id="relax-tag" class="relax-indicator hidden">RELAX SWELL ACTIVE</div>
+                </div>
+            </div>
+
+            <div class="hud-bottom" style="align-items:flex-end;">
+                <div class="hud-panel instructions-hud" style="max-width: 340px; font-size: 0.62rem; line-height: 1.3;">
+                    🏄 Spiral around the inside of the water tube using <strong>LEFT / RIGHT</strong> (or A/D). Keep W/S paddle thrust high to multiply score. Avoid red hazards!
+                </div>
+                
+                <div class="hud-panel" style="font-family:'Share Tech Mono'; font-size:0.75rem;">
+                    SPEED: <span id="speed-meter" style="color:var(--cyan); font-weight:bold;">0.15</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Controls Overlay -->
+        <div class="mobile-controls">
+            <div class="mobile-btn-group">
+                <button class="mobile-btn" id="ctrl-left" oncontextmenu="return false;">◀</button>
+                <button class="mobile-btn" id="ctrl-right" oncontextmenu="return false;">▶</button>
+            </div>
+            <div class="mobile-btn-group">
+                <button class="mobile-btn" id="ctrl-up" oncontextmenu="return false;">▲</button>
+                <button class="mobile-btn" id="ctrl-down" oncontextmenu="return false;">▼</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script imports -->
+    <script type="module">
+        import * as THREE from '../../three.module.min.js';
+
+        // --- GAME STATE ---
+        const state = {
+            isPlaying: false,
+            score: 0,
+            shield: 100,
+            speedMultiplier: 1.0,
+            baseSpeed: 0.15,
+            tPlayer: 0, // position along lemniscate (0 to 2*PI)
+            playerAngle: 0, // angle around inside wall (0 to 2*PI)
+            targetAngle: 0,
+            
+            // Three.js Core
+            scene: null,
+            camera: null,
+            renderer: null,
+            trackRadius: 3.2,
+            trackScale: 52,
+            
+            // Objects
+            ship: null,
+            waterTubeMesh: null,
+            waterTubeWire: null,
+            entities: [],
+            starfield: null,
+            ambientLight: null,
+            dirLight: null,
+            
+            colors: {
+                accent: 0xd4af37,
+                highlight: 0x00e5ff,
+                alert: 0xff0055,
+                primary: 0x040c18,
+                secondary: 0x00050c
+            },
+
+            keys: {
+                ArrowLeft: false,
+                ArrowRight: false,
+                KeyA: false,
+                KeyD: false,
+                ArrowUp: false,
+                ArrowDown: false,
+                KeyW: false,
+                KeyS: false
+            }
+        };
+
+        // Pre-allocated vectors for Frenet computation
+        const _pPrev = new THREE.Vector3();
+        const _pNext = new THREE.Vector3();
+        const _ref = new THREE.Vector3();
+        const _shipPos = new THREE.Vector3();
+
+        const _framePlayer = {
+            position: new THREE.Vector3(),
+            tangent: new THREE.Vector3(),
+            normal: new THREE.Vector3(),
+            binormal: new THREE.Vector3()
+        };
+
+        // Calculates 3D coordinates along the Lemniscate of Bernoulli
+        function getLemniscatePositionTo(t, target, scale = state.trackScale) {
+            const sinT = Math.sin(t);
+            const cosT = Math.cos(t);
+            const denominator = 1 + sinT * sinT;
+            target.x = (scale * cosT) / denominator;
+            target.y = (scale * sinT * cosT) / denominator;
+            target.z = Math.sin(t * 2) * (scale / 4);
+            return target;
+        }
+
+        // In-place calculation of Frenet-Serret frame
+        function updateFrameAt(t, frame) {
+            const eps = 0.001;
+            getLemniscatePositionTo(t - eps, _pPrev);
+            getLemniscatePositionTo(t + eps, _pNext);
+            getLemniscatePositionTo(t, frame.position);
+            
+            frame.tangent.subVectors(_pNext, _pPrev).normalize();
+            
+            _ref.set(0, 1, 0);
+            if (Math.abs(frame.tangent.dot(_ref)) > 0.9) {
+                _ref.set(0, 0, 1);
+            }
+            
+            frame.binormal.crossVectors(frame.tangent, _ref).normalize();
+            frame.normal.crossVectors(frame.binormal, frame.tangent).normalize();
+        }
+
+        // Initialize Three.js Scene
+        function initThree() {
+            const container = document.querySelector('.game-window');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            state.scene = new THREE.Scene();
+            state.scene.fog = new THREE.FogExp2(state.colors.secondary, 0.02);
+            
+            state.camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 100);
+            state.renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game-canvas'), antialias: true });
+            state.renderer.setSize(width, height);
+            state.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Add lighting
+            state.ambientLight = new THREE.AmbientLight(0x0a1e3f, 1.2);
+            state.scene.add(state.ambientLight);
+            
+            state.dirLight = new THREE.DirectionalLight(0x00e5ff, 1.0);
+            state.dirLight.position.set(0, 15, 15);
+            state.scene.add(state.dirLight);
+            
+            // Build Track, Starfield, and Board
+            buildWaterTunnel();
+            buildBioluminescence();
+            buildSurferBoard();
+        }
+
+        // Subclass THREE.Curve to define the Bernoulli Lemniscate path
+        class LemniscateCurve extends THREE.Curve {
+            constructor(scale = 52) {
+                super();
+                this.scale = scale;
+            }
+            getPoint(t, optionalTarget = new THREE.Vector3()) {
+                const angle = t * Math.PI * 2;
+                const sinT = Math.sin(angle);
+                const cosT = Math.cos(angle);
+                const denominator = 1 + sinT * sinT;
+                optionalTarget.x = (this.scale * cosT) / denominator;
+                optionalTarget.y = (this.scale * sinT * cosT) / denominator;
+                optionalTarget.z = Math.sin(angle * 2) * (this.scale * 0.45);
+                return optionalTarget;
+            }
+        }
+
+        // Build a volumetric liquid water tunnel mesh with flat-shaded crystal facets
+        function buildWaterTunnel() {
+            const curve = new LemniscateCurve(state.trackScale);
+            // Segments: 120, Radius: 3.2, Radial segments: 18, Closed: true
+            const geo = new THREE.TubeGeometry(curve, 120, state.trackRadius, 18, true);
+            
+            // Crystal/liquid translucent blue material
+            const mat = new THREE.MeshPhongMaterial({
+                color: 0x00a3ff,
+                emissive: 0x001633,
+                transparent: true,
+                opacity: 0.52,
+                shininess: 95,
+                side: THREE.DoubleSide,
+                flatShading: true
+            });
+            
+            const mesh = new THREE.Mesh(geo, mat);
+            state.scene.add(mesh);
+            state.waterTubeMesh = mesh;
+            
+            // Subtle glowing outer wireframe grid for ripple flow lines
+            const wireMat = new THREE.MeshBasicMaterial({
+                color: 0x00e5ff,
+                transparent: true,
+                opacity: 0.12,
+                wireframe: true
+            });
+            const wireMesh = new THREE.Mesh(geo, wireMat);
+            state.scene.add(wireMesh);
+            state.waterTubeWire = wireMesh;
+        }
+
+        // Build bubble points representing bioluminescence
+        function buildBioluminescence() {
+            const count = 300;
+            const geo = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            
+            for (let i = 0; i < count; i++) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const radius = 60 + (Math.random() * 50);
+                
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+            }
+            
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            // Create round bubble texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 16;
+            canvas.height = 16;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+            grad.addColorStop(0, 'rgba(0, 229, 255, 1)');
+            grad.addColorStop(0.5, 'rgba(0, 100, 255, 0.5)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 16, 16);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            
+            const mat = new THREE.PointsMaterial({
+                color: state.colors.highlight,
+                size: 0.9,
+                map: texture,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            
+            state.starfield = new THREE.Points(geo, mat);
+            state.scene.add(state.starfield);
+        }
+
+        // Construct 3D bodyboarder
+        function buildSurferBoard() {
+            const group = new THREE.Group();
+            
+            // Bodyboard deck
+            const boardGeo = new THREE.BoxGeometry(0.24, 0.02, 0.52);
+            const boardMat = new THREE.MeshPhongMaterial({ 
+                color: state.colors.highlight, 
+                flatShading: true,
+                shininess: 60
+            });
+            const board = new THREE.Mesh(boardGeo, boardMat);
+            group.add(board);
+            
+            // Prone surfer body
+            const bodyGeo = new THREE.BoxGeometry(0.14, 0.08, 0.35);
+            const bodyMat = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.set(0, 0.06, -0.05);
+            group.add(body);
+            
+            // Head looking forward
+            const headGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const headMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.set(0, 0.12, 0.12);
+            group.add(head);
+            
+            // Splashing tail
+            const sprayGeo = new THREE.ConeGeometry(0.06, 0.25, 4);
+            sprayGeo.rotateX(-Math.PI / 2);
+            sprayGeo.translate(0, 0, -0.38);
+            const sprayMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+            const spray = new THREE.Mesh(sprayGeo, sprayMat);
+            group.add(spray);
+            
+            state.scene.add(group);
+            state.ship = group;
+        }
+
+        // Spawns golden resonance orbs or whirlpool hazards
+        function spawnEntities() {
+            if (state.entities.length >= 6) return;
+            
+            const tOffset = 0.5 + Math.random() * 1.2;
+            const targetT = (state.tPlayer + tOffset) % (Math.PI * 2);
+            const angle = Math.random() * Math.PI * 2;
+            const isHazard = Math.random() < 0.25;
+            
+            let geo, mat;
+            if (isHazard) {
+                // Red hazard (eddy vortex)
+                geo = new THREE.OctahedronGeometry(0.18, 0);
+                mat = new THREE.MeshPhongMaterial({ color: state.colors.alert, flatShading: true, emissive: 0x440000 });
+            } else {
+                // Golden orb (Solfeggio resonant particle)
+                geo = new THREE.SphereGeometry(0.1, 8, 8);
+                mat = new THREE.MeshPhongMaterial({ color: state.colors.accent, flatShading: true, shininess: 80, emissive: 0x332200 });
+            }
+            
+            const mesh = new THREE.Mesh(geo, mat);
+            state.scene.add(mesh);
+            
+            state.entities.push({
+                mesh,
+                t: targetT,
+                angle,
+                isHazard
+            });
+        }
+
+        // Key handlers
+        const keys = state.keys;
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.ArrowLeft = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.ArrowRight = true;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.ArrowUp = true;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.ArrowDown = false;
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.ArrowLeft = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.ArrowRight = false;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.ArrowUp = false;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.ArrowDown = false;
+        });
+
+        // Mobile touch bindings
+        const bindMobileBtn = (id, keyCode) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const onPress = (e) => { e.preventDefault(); keys[keyCode] = true; };
+            const onRelease = (e) => { e.preventDefault(); keys[keyCode] = false; };
+            el.addEventListener('touchstart', onPress, { passive: false });
+            el.addEventListener('touchend', onRelease, { passive: false });
+            el.addEventListener('touchcancel', onRelease, { passive: false });
+            el.addEventListener('mousedown', onPress);
+            el.addEventListener('mouseup', onRelease);
+            el.addEventListener('mouseleave', onRelease);
+        };
+        bindMobileBtn('ctrl-left', 'ArrowLeft');
+        bindMobileBtn('ctrl-right', 'ArrowRight');
+        bindMobileBtn('ctrl-up', 'ArrowUp');
+        bindMobileBtn('ctrl-down', 'ArrowDown');
+
+        // Check D9 Time
+        function getDragonNineTime() {
+            const date = new Date();
+            let drift = 0;
+            try {
+                if (window.parent && window.parent.timeDriftOffset) {
+                    drift = window.parent.timeDriftOffset;
+                }
+            } catch (e) {}
+
+            const utc = date.getTime() + drift + (date.getTimezoneOffset() * 60000);
+            const nzTime = new Date(utc + (3600000 * 12));
+            const totalSeconds = (nzTime.getHours() * 3600) + (nzTime.getMinutes() * 60) + nzTime.getSeconds();
+            const isRelax = (totalSeconds < 540) || (totalSeconds >= 42660 && totalSeconds < 43740) || (totalSeconds >= 85860);
+            
+            const d9Hour = Math.floor(totalSeconds / 3240) % 27;
+            const d9Minute = Math.floor((totalSeconds % 3240) / 60);
+            const d9Second = totalSeconds % 60;
+            
+            return {
+                h: String(d9Hour).padStart(2, '0'),
+                m: String(d9Minute).padStart(2, '0'),
+                s: String(d9Second).padStart(2, '0'),
+                isRelax
+            };
+        }
+
+        // Web Audio Synthesizer
+        let audioCtx = null;
+        function playChime(success) {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (success) {
+                osc.frequency.setValueAtTime(528, audioCtx.currentTime); // Solfeggio 528Hz
+                osc.frequency.exponentialRampToValueAtTime(784, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            }
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        // Reset
+        function resetGame() {
+            state.score = 0;
+            state.shield = 100;
+            state.tPlayer = 0;
+            state.playerAngle = 0;
+            state.targetAngle = 0;
+            state.speedMultiplier = 1.0;
+            
+            // Clean active entities
+            state.entities.forEach(ent => state.scene.remove(ent.mesh));
+            state.entities = [];
+        }
+
+        // Start
+        document.getElementById('btn-start').addEventListener('click', () => {
+            document.getElementById('start-screen').classList.add('hidden');
+            resetGame();
+            state.isPlaying = true;
+        });
+
+        document.getElementById('btn-retry').addEventListener('click', () => {
+            document.getElementById('game-over-screen').classList.add('hidden');
+            resetGame();
+            state.isPlaying = true;
+        });
+
+        // Animation Frame Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // D9 Time Pacing
+            const d9Time = getDragonNineTime();
+            document.getElementById('d9-clock-txt').innerText = `${d9Time.h}:${d9Time.m}:${d9Time.s}`;
+            
+            const relaxTag = document.getElementById('relax-tag');
+            if (d9Time.isRelax) {
+                relaxTag.classList.remove('hidden');
+                state.baseSpeed = 0.08;
+            } else {
+                relaxTag.classList.add('hidden');
+                state.baseSpeed = 0.16;
+            }
+            
+            if (state.isPlaying && state.renderer) {
+                // Update player angle around tube based on inputs
+                if (keys.ArrowLeft) state.targetAngle += 0.07;
+                if (keys.ArrowRight) state.targetAngle -= 0.07;
+                
+                state.playerAngle += (state.targetAngle - state.playerAngle) * 0.18;
+                
+                // Adjust speed based on inputs
+                if (keys.ArrowUp) {
+                    state.speedMultiplier = Math.min(2.5, state.speedMultiplier + 0.02);
+                } else if (keys.ArrowDown) {
+                    state.speedMultiplier = Math.max(0.4, state.speedMultiplier - 0.02);
+                }
+                
+                const currentSpeed = state.baseSpeed * state.speedMultiplier;
+                document.getElementById('speed-meter').innerText = currentSpeed.toFixed(2);
+                
+                // Move player t along track
+                state.tPlayer = (state.tPlayer + (currentSpeed * 0.06)) % (Math.PI * 2);
+                
+                // Compute player position along Frenet-Serret frame
+                updateFrameAt(state.tPlayer, _framePlayer);
+                
+                // Calculate board position offset inside tube wall
+                _shipPos.copy(_framePlayer.position)
+                    .addScaledVector(_framePlayer.normal, Math.cos(state.playerAngle) * state.trackRadius * 0.9)
+                    .addScaledVector(_framePlayer.binormal, Math.sin(state.playerAngle) * state.trackRadius * 0.9);
+                
+                if (state.ship) {
+                    state.ship.position.copy(_shipPos);
+                    
+                    // Direct board orientation
+                    const lookTarget = new THREE.Vector3().copy(_framePlayer.position)
+                        .addScaledVector(_framePlayer.normal, Math.cos(state.playerAngle) * state.trackRadius * 0.9)
+                        .addScaledVector(_framePlayer.binormal, Math.sin(state.playerAngle) * state.trackRadius * 0.9);
+                    
+                    // Look slightly ahead on track
+                    const tLook = (state.tPlayer + 0.1) % (Math.PI * 2);
+                    const frameLook = { position: new THREE.Vector3() };
+                    getLemniscatePositionTo(tLook, frameLook.position);
+                    state.ship.lookAt(frameLook.position);
+                }
+                
+                // Direct camera behind player
+                const tCam = (state.tPlayer - 0.2 + Math.PI * 2) % (Math.PI * 2);
+                const frameCam = {
+                    position: new THREE.Vector3(),
+                    tangent: new THREE.Vector3(),
+                    normal: new THREE.Vector3(),
+                    binormal: new THREE.Vector3()
+                };
+                updateFrameAt(tCam, frameCam);
+                
+                const camPos = new THREE.Vector3().copy(frameCam.position)
+                    .addScaledVector(frameCam.normal, Math.cos(state.playerAngle) * state.trackRadius * 0.7)
+                    .addScaledVector(frameCam.binormal, Math.sin(state.playerAngle) * state.trackRadius * 0.7)
+                    .addScaledVector(frameCam.tangent, -0.6);
+                
+                state.camera.position.lerp(camPos, 0.15);
+                state.camera.lookAt(_shipPos);
+                
+                // Rotate water tunnel mesh and wireframe to simulate swirling currents
+                if (state.waterTubeMesh) {
+                    state.waterTubeMesh.rotation.z += 0.003;
+                }
+                if (state.waterTubeWire) {
+                    state.waterTubeWire.rotation.z -= 0.001;
+                }
+                
+                // Spawn new entities (reduced frequency for smoother, less clustered gameplay)
+                if (Math.random() < 0.015) spawnEntities();
+                
+                // Process Entities
+                for (let i = state.entities.length - 1; i >= 0; i--) {
+                    const ent = state.entities[i];
+                    
+                    // Position entity ahead on track
+                    const frameEnt = {
+                        position: new THREE.Vector3(),
+                        tangent: new THREE.Vector3(),
+                        normal: new THREE.Vector3(),
+                        binormal: new THREE.Vector3()
+                    };
+                    updateFrameAt(ent.t, frameEnt);
+                    
+                    const entPos = new THREE.Vector3().copy(frameEnt.position)
+                        .addScaledVector(frameEnt.normal, Math.cos(ent.angle) * state.trackRadius * 0.9)
+                        .addScaledVector(frameEnt.binormal, Math.sin(ent.angle) * state.trackRadius * 0.9);
+                    
+                    ent.mesh.position.copy(entPos);
+                    ent.mesh.rotation.y += 0.02;
+                    
+                    // Check distance for collision
+                    const dist = _shipPos.distanceTo(entPos);
+                    
+                    // Calculate if player has passed this entity (cleanup)
+                    let tDiff = ent.t - state.tPlayer;
+                    if (tDiff < -Math.PI) tDiff += Math.PI * 2;
+                    if (tDiff > Math.PI) tDiff -= Math.PI * 2;
+                    
+                    if (dist < 0.35) {
+                        state.scene.remove(ent.mesh);
+                        state.entities.splice(i, 1);
+                        
+                        if (ent.isHazard) {
+                            state.shield -= 25;
+                            playChime(false);
+                            if (state.shield <= 0) {
+                                state.isPlaying = false;
+                                document.getElementById('final-score').innerText = state.score;
+                                document.getElementById('final-rank').innerText = state.score >= 500 ? "Wave Master 💎" : "Swell Novice";
+                                document.getElementById('game-over-screen').classList.remove('hidden');
+                            }
+                        } else {
+                            state.score += 100;
+                            state.shield = Math.min(100, state.shield + 5);
+                            playChime(true);
+                        }
+                    } else if (tDiff < -0.3) {
+                        // Clean up passed entities
+                        state.scene.remove(ent.mesh);
+                        state.entities.splice(i, 1);
+                    }
+                }
+                
+                // Tick score
+                state.score += 1;
+                
+                // Update HUD
+                document.getElementById('score-display').innerText = String(state.score).padStart(4, '0');
+                document.getElementById('shield-bar').style.width = `${state.shield}%`;
+                document.getElementById('shield-txt').innerText = `${state.shield}%`;
+            }
+            
+            // Rotate background bubbles
+            if (state.starfield) {
+                state.starfield.rotation.y += 0.0006;
+                state.starfield.rotation.z += 0.0003;
+            }
+            
+            if (state.renderer && state.scene && state.camera) {
+                state.renderer.render(state.scene, state.camera);
+            }
+        }
+
+        // Initialize and Start
+        window.addEventListener('DOMContentLoaded', () => {
+            initThree();
+            animate();
+        });
+        
+        // Window Resize
+        window.addEventListener('resize', () => {
+            const container = document.querySelector('.game-window');
+            if (!container || !state.renderer) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            state.camera.aspect = w / h;
+            state.camera.updateProjectionMatrix();
+            state.renderer.setSize(w, h);
+        });
+    </script>
+</body>
+</html>

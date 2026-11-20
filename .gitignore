@@ -1,0 +1,34 @@
+# Ignore huge media directories and files to keep Git repo lightweight and prevent GitHub push failures
+assets/fish cartoon pngs/
+assets/fish cartoon pngs2/
+assets/FORSITE BKS/
+assets/psds pmg etc/
+assets/crew/
+
+# Ignore design raw source files & video/audio files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.ogg
+*.psd
+*.ai
+*.tif
+*.tiff
+*.bmp
+*.zip
+*.tar.gz
+*.mov
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
+# Local node/python artifacts
+node_modules/
+__pycache__/
+*.pyc
