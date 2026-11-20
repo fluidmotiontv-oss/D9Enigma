@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid Motion TV - WebGL Hub & Spatial Portals</title>
+    <style>
+        body { background: #0b0f19; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.subtitle { color: #94a3b8; margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; width: 100%; max-width: 900px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; }
+        .card:hover { transform: translateY(-3px); border-color: #38bdf8; }
+        .card h3 { margin: 0 0 0.5rem 0; color: #38bdf8; font-size: 1.25rem; }
+        .card p { margin: 0; color: #94a3b8; font-size: 0.95rem; }
+        .back-link { margin-top: 3rem; color: #94a3b8; text-decoration: none; }
+        .back-link:hover { color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <h1>WebGL Hub & Spatial Portals</h1>
+    <p class="subtitle">Direct access to your spatial apps, 3D engines, and PWAs.</p>
+
+    <div class="grid">
+        <a href="./flowtouch/" class="card">
+            <h3>Infinity Flow 3D / FlowTouch</h3>
+            <p>Spatial WebGL product viewer and walkthrough foyer.</p>
+        </a>
+        <a href="./clock/" class="card">
+            <h3>54-Minute Clock</h3>
+            <p>Time framework running on the 54-minute hour cycle.</p>
+        </a>
+        <a href="./pwas/" class="card">
+            <h3>Factory PWAs</h3>
+            <p>Collection of standalone offline module applications.</p>
+        </a>
+    </div>
+
+    <a href="./index.html" class="back-link">← Back to Main Index</a>
+</body>
+</html>
